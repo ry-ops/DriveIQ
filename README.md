@@ -241,7 +241,7 @@ This is a personal vehicle management project. Feel free to fork and adapt for y
 
 ## License
 
-Private project - All rights reserved
+MIT License - see [LICENSE](LICENSE) for details
 
 ---
 
