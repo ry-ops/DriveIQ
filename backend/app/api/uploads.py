@@ -1,9 +1,12 @@
 import os
 import shutil
+import re
 from pathlib import Path
-from fastapi import APIRouter, UploadFile, File, HTTPException, BackgroundTasks
+from fastapi import APIRouter, UploadFile, File, HTTPException, BackgroundTasks, Depends
 from typing import List
 from pydantic import BaseModel
+
+from app.core.security import get_current_user
 
 router = APIRouter()
 
@@ -48,12 +51,29 @@ def get_document_type(filename: str) -> str:
         return "other"
 
 
+def sanitize_filename(filename: str) -> str:
+    """Sanitize filename to prevent path traversal attacks."""
+    # Remove any directory components
+    filename = os.path.basename(filename)
+    # Remove potentially dangerous characters
+    filename = re.sub(r'[^\w\s\-\.]', '', filename)
+    # Ensure it doesn't start with a dot
+    filename = filename.lstrip('.')
+    return filename
+
+
+def validate_pdf_content(content: bytes) -> bool:
+    """Validate that content is actually a PDF file."""
+    return content[:4] == b'%PDF'
+
+
 @router.post("/", response_model=UploadResponse)
 async def upload_document(
     file: UploadFile = File(...),
-    background_tasks: BackgroundTasks = None
+    background_tasks: BackgroundTasks = None,
+    current_user: dict = Depends(get_current_user)
 ):
-    """Upload a vehicle document (PDF)."""
+    """Upload a vehicle document (PDF). Requires authentication."""
 
     # Validate file extension
     ext = Path(file.filename).suffix.lower()
@@ -73,14 +93,26 @@ async def upload_document(
             detail=f"File too large. Maximum size: {MAX_FILE_SIZE // (1024*1024)}MB"
         )
 
+    # Validate PDF content
+    if not validate_pdf_content(content):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid PDF file. File content does not match PDF format."
+        )
+
+    # Sanitize filename to prevent path traversal
+    safe_filename = sanitize_filename(file.filename)
+    if not safe_filename:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+
     # Save to docs directory (where ingestion script looks)
-    file_path = DOCS_DIR / file.filename
+    file_path = DOCS_DIR / safe_filename
 
     with open(file_path, "wb") as f:
         f.write(content)
 
     return UploadResponse(
-        filename=file.filename,
+        filename=safe_filename,
         size=len(content),
         message=f"File uploaded successfully. Run document ingestion to enable AI search."
     )
@@ -104,9 +136,17 @@ async def list_documents():
 
 
 @router.delete("/{filename}")
-async def delete_document(filename: str):
-    """Delete an uploaded document."""
-    file_path = DOCS_DIR / filename
+async def delete_document(
+    filename: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Delete an uploaded document. Requires authentication."""
+    # Sanitize filename
+    safe_filename = sanitize_filename(filename)
+    if not safe_filename:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+
+    file_path = DOCS_DIR / safe_filename
 
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Document not found")
@@ -117,7 +157,7 @@ async def delete_document(filename: str):
 
     file_path.unlink()
 
-    return {"message": f"Document '{filename}' deleted successfully"}
+    return {"message": f"Document '{safe_filename}' deleted successfully"}
 
 
 @router.get("/types")

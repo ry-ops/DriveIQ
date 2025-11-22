@@ -76,6 +76,20 @@ CREATE TABLE IF NOT EXISTS document_chunks (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Maintenance logs table for CARFAX and manual service records
+CREATE TABLE IF NOT EXISTS maintenance_logs (
+    id SERIAL PRIMARY KEY,
+    date DATE NOT NULL,
+    mileage INTEGER,
+    service_type VARCHAR(200) NOT NULL,
+    description TEXT,
+    category VARCHAR(50) DEFAULT 'maintenance',
+    source VARCHAR(50) DEFAULT 'manual',
+    location VARCHAR(300),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE(date, mileage, service_type)
+);
+
 -- Create indexes
 CREATE INDEX IF NOT EXISTS idx_vehicles_vin ON vehicles(vin);
 CREATE INDEX IF NOT EXISTS idx_maintenance_vehicle ON maintenance_records(vehicle_id);
@@ -84,6 +98,8 @@ CREATE INDEX IF NOT EXISTS idx_maintenance_date ON maintenance_records(date_perf
 CREATE INDEX IF NOT EXISTS idx_reminders_vehicle ON reminders(vehicle_id);
 CREATE INDEX IF NOT EXISTS idx_reminders_active ON reminders(is_active, is_completed);
 CREATE INDEX IF NOT EXISTS idx_document_chunks_embedding ON document_chunks USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+CREATE INDEX IF NOT EXISTS idx_maintenance_logs_date ON maintenance_logs(date);
+CREATE INDEX IF NOT EXISTS idx_maintenance_logs_category ON maintenance_logs(category);
 
 -- Insert initial vehicle data (2018 Toyota 4Runner SR5 Premium)
 INSERT INTO vehicles (
