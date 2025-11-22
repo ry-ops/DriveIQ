@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
     # AI APIs
     ANTHROPIC_API_KEY: str = ""  # Claude AI for reasoning
-    OPENAI_API_KEY: str = ""  # OpenAI for embeddings only
+    # Local embeddings - no API key needed (using sentence-transformers)
 
     # CORS
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:5173"]

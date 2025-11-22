@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Script to ingest PDF documents and create vector embeddings.
+Uses local sentence-transformers for embeddings (no API key needed).
 """
 
 import os
@@ -11,43 +12,52 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "backend"))
 
 from pypdf import PdfReader
-import openai
-from sqlalchemy import create_engine
+from sentence_transformers import SentenceTransformer
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-import tiktoken
 
 # Configuration
 DOCS_DIR = Path(__file__).parent.parent / "docs"
-CHUNK_SIZE = 500  # tokens
-CHUNK_OVERLAP = 50  # tokens
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://fourrunner:fourrunner@localhost:5432/fourrunner")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+CHUNK_SIZE = 500  # characters (approximate)
+CHUNK_OVERLAP = 50  # characters
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://localhost/driveiq")
 
-
-def get_token_count(text: str) -> int:
-    """Count tokens in text using tiktoken."""
-    encoding = tiktoken.encoding_for_model("text-embedding-ada-002")
-    return len(encoding.encode(text))
+# Initialize embedding model
+print("Loading embedding model...")
+embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+print("Model loaded!")
 
 
 def chunk_text(text: str, chunk_size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) -> list[str]:
-    """Split text into overlapping chunks by token count."""
-    encoding = tiktoken.encoding_for_model("text-embedding-ada-002")
-    tokens = encoding.encode(text)
-
+    """Split text into overlapping chunks by character count."""
+    words = text.split()
     chunks = []
-    start = 0
+    current_chunk = []
+    current_length = 0
 
-    while start < len(tokens):
-        end = start + chunk_size
-        chunk_tokens = tokens[start:end]
-        chunk_text = encoding.decode(chunk_tokens)
-        chunks.append(chunk_text)
+    for word in words:
+        word_length = len(word) + 1  # +1 for space
+        if current_length + word_length > chunk_size and current_chunk:
+            chunk_text = " ".join(current_chunk)
+            chunks.append(chunk_text)
 
-        if end >= len(tokens):
-            break
+            # Keep overlap
+            overlap_words = []
+            overlap_length = 0
+            for w in reversed(current_chunk):
+                if overlap_length + len(w) + 1 > overlap:
+                    break
+                overlap_words.insert(0, w)
+                overlap_length += len(w) + 1
 
-        start = end - overlap
+            current_chunk = overlap_words
+            current_length = overlap_length
+
+        current_chunk.append(word)
+        current_length += word_length
+
+    if current_chunk:
+        chunks.append(" ".join(current_chunk))
 
     return chunks
 
@@ -65,20 +75,16 @@ def extract_pdf_text(pdf_path: Path) -> list[tuple[int, str]]:
     return pages
 
 
-def get_embedding(text: str, client: openai.OpenAI) -> list[float]:
-    """Get embedding for text using OpenAI API."""
-    response = client.embeddings.create(
-        model="text-embedding-ada-002",
-        input=text
-    )
-    return response.data[0].embedding
+def get_embedding(text: str) -> list[float]:
+    """Get embedding for text using local model."""
+    embedding = embedding_model.encode(text, convert_to_numpy=True)
+    return embedding.tolist()
 
 
 def ingest_document(
     pdf_path: Path,
     document_type: str,
-    db_session,
-    openai_client: openai.OpenAI
+    db_session
 ):
     """Ingest a single PDF document."""
     print(f"Processing: {pdf_path.name}")
@@ -95,23 +101,23 @@ def ingest_document(
 
         for chunk in chunks:
             # Get embedding
-            embedding = get_embedding(chunk, openai_client)
-            tokens = get_token_count(chunk)
+            embedding = get_embedding(chunk)
+            tokens = len(chunk.split())  # Approximate token count
 
             # Insert into database
             db_session.execute(
-                """
+                text("""
                 INSERT INTO document_chunks
                 (document_name, document_type, chunk_index, content, page_number, embedding, tokens)
-                VALUES (:name, :type, :index, :content, :page, :embedding, :tokens)
-                """,
+                VALUES (:name, :type, :index, :content, :page, :embedding::vector, :tokens)
+                """),
                 {
                     "name": pdf_path.name,
                     "type": document_type,
                     "index": chunk_index,
                     "content": chunk,
                     "page": page_num,
-                    "embedding": str(embedding),
+                    "embedding": "[" + ",".join(str(x) for x in embedding) + "]",
                     "tokens": tokens
                 }
             )
@@ -124,36 +130,45 @@ def ingest_document(
 
 def main():
     """Main ingestion function."""
-    if not OPENAI_API_KEY:
-        print("Error: OPENAI_API_KEY environment variable not set")
-        sys.exit(1)
-
-    # Initialize clients
-    openai_client = openai.OpenAI(api_key=OPENAI_API_KEY)
+    # Initialize database connection
     engine = create_engine(DATABASE_URL)
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    # Define documents to ingest
-    documents = [
-        ("4Runner Manual.pdf", "manual"),
-        ("4Runner QRG.pdf", "qrg"),
-        ("2018_Toyota_4Runner_Maintenance_Report.pdf", "maintenance_report"),
-        ("CARFAX Vehicle History Report for this 2018 TOYOTA 4RUNNER SR5 PREMIUM_ JTEBU5JR2J5517128.pdf", "carfax"),
-    ]
+    # Check for documents directory
+    if not DOCS_DIR.exists():
+        print(f"Creating docs directory: {DOCS_DIR}")
+        DOCS_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Find all PDF files in docs directory
+    pdf_files = list(DOCS_DIR.glob("*.pdf"))
+
+    if not pdf_files:
+        print(f"No PDF files found in {DOCS_DIR}")
+        print("Upload documents using the API or place them in the docs directory.")
+        sys.exit(1)
 
     # Clear existing chunks
-    session.execute("DELETE FROM document_chunks")
+    session.execute(text("DELETE FROM document_chunks"))
     session.commit()
     print("Cleared existing document chunks")
 
     # Ingest each document
-    for filename, doc_type in documents:
-        pdf_path = DOCS_DIR / filename
-        if pdf_path.exists():
-            ingest_document(pdf_path, doc_type, session, openai_client)
+    for pdf_path in pdf_files:
+        # Determine document type from filename
+        lower_name = pdf_path.name.lower()
+        if "carfax" in lower_name:
+            doc_type = "carfax"
+        elif "manual" in lower_name:
+            doc_type = "manual"
+        elif "qrg" in lower_name or "quick reference" in lower_name:
+            doc_type = "qrg"
+        elif "maintenance" in lower_name:
+            doc_type = "maintenance_report"
         else:
-            print(f"Warning: {filename} not found")
+            doc_type = "other"
+
+        ingest_document(pdf_path, doc_type, session)
 
     session.close()
     print("\nDocument ingestion complete!")

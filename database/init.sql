@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS document_chunks (
     chunk_index INTEGER NOT NULL,
     content TEXT NOT NULL,
     page_number INTEGER,
-    embedding vector(1536),
+    embedding vector(384),
     tokens INTEGER,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

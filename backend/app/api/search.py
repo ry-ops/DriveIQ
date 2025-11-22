@@ -1,14 +1,14 @@
-"""Search API with Claude AI for reasoning and OpenAI for embeddings."""
+"""Search API with Claude AI for reasoning and local embeddings."""
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from typing import List
 from pydantic import BaseModel
 import anthropic
-import openai
 
 from app.core.database import get_db
 from app.core.config import settings
+from app.services.embeddings import generate_embedding
 
 router = APIRouter()
 
@@ -25,18 +25,13 @@ class SearchResult(BaseModel):
 @router.post("/", response_model=List[SearchResult])
 async def search_documents(search: SearchQuery, db: Session = Depends(get_db)):
     """Search vehicle documentation using semantic search."""
-    if not settings.OPENAI_API_KEY:
-        raise HTTPException(status_code=500, detail="OpenAI API key not configured for embeddings")
-
     # Check for documents
     doc_count = db.execute(text("SELECT COUNT(*) FROM document_chunks")).scalar()
     if doc_count == 0:
         raise HTTPException(status_code=404, detail="No documents ingested yet")
 
-    # Generate embedding with OpenAI
-    client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
-    response = client.embeddings.create(model="text-embedding-ada-002", input=search.query)
-    query_embedding = response.data[0].embedding
+    # Generate embedding locally
+    query_embedding = generate_embedding(search.query)
     embedding_str = "[" + ",".join(str(x) for x in query_embedding) + "]"
 
     # Vector similarity search
@@ -58,18 +53,14 @@ async def ask_question(search: SearchQuery, db: Session = Depends(get_db)):
     """Ask a question using Claude AI with RAG from vehicle documentation."""
     if not settings.ANTHROPIC_API_KEY:
         raise HTTPException(status_code=500, detail="Anthropic API key not configured")
-    if not settings.OPENAI_API_KEY:
-        raise HTTPException(status_code=500, detail="OpenAI API key not configured for embeddings")
 
     # Check for documents
     doc_count = db.execute(text("SELECT COUNT(*) FROM document_chunks")).scalar()
     if doc_count == 0:
         raise HTTPException(status_code=404, detail="No documents ingested. Upload documents and run ingestion first.")
 
-    # Generate embedding with OpenAI
-    openai_client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
-    embedding_response = openai_client.embeddings.create(model="text-embedding-ada-002", input=search.query)
-    query_embedding = embedding_response.data[0].embedding
+    # Generate embedding locally
+    query_embedding = generate_embedding(search.query)
     embedding_str = "[" + ",".join(str(x) for x in query_embedding) + "]"
 
     # Retrieve relevant documents

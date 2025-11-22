@@ -4,12 +4,12 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from pydantic import BaseModel
 from typing import Optional
-import openai
 
 from app.core.database import get_db
 from app.core.config import settings
 from app.core.security import get_current_user
 from app.services.moe_system import moe_system
+from app.services.embeddings import generate_embedding
 
 router = APIRouter()
 
@@ -33,8 +33,6 @@ async def moe_ask(
     """Ask a question using the MoE system with automatic expert routing."""
     if not settings.ANTHROPIC_API_KEY:
         raise HTTPException(status_code=500, detail="Anthropic API key not configured")
-    if not settings.OPENAI_API_KEY:
-        raise HTTPException(status_code=500, detail="OpenAI API key not configured for embeddings")
 
     # Check for documents
     doc_count = db.execute(text("SELECT COUNT(*) FROM document_chunks")).scalar()
@@ -44,13 +42,8 @@ async def moe_ask(
             detail="No documents ingested. Upload documents and run ingestion first."
         )
 
-    # Generate embedding with OpenAI
-    openai_client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
-    embedding_response = openai_client.embeddings.create(
-        model="text-embedding-ada-002",
-        input=request.query
-    )
-    query_embedding = embedding_response.data[0].embedding
+    # Generate embedding locally
+    query_embedding = generate_embedding(request.query)
     embedding_str = "[" + ",".join(str(x) for x in query_embedding) + "]"
 
     # Retrieve relevant documents
