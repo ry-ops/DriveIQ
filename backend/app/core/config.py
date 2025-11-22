@@ -4,7 +4,7 @@ from typing import List
 
 class Settings(BaseSettings):
     # Database
-    DATABASE_URL: str = "postgresql://fourrunner:fourrunner@localhost:5432/fourrunner"
+    DATABASE_URL: str = "postgresql://localhost/fourrunner"
 
     # Security
     SECRET_KEY: str = "your-secret-key-change-in-production"

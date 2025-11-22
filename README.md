@@ -69,14 +69,27 @@ npm install
 npm run dev
 ```
 
-### Database Setup
+### Database Setup (Local PostgreSQL)
 
 ```bash
-# Using Docker
-docker-compose up -d postgres
+# Install PostgreSQL and pgvector via Homebrew
+brew install postgresql@16
+brew install pgvector
 
-# Or install pgvector manually
-# https://github.com/pgvector/pgvector
+# Start PostgreSQL service
+brew services start postgresql@16
+
+# Create the database
+createdb fourrunner
+
+# Enable pgvector extension and initialize schema
+psql fourrunner -c "CREATE EXTENSION vector;"
+psql fourrunner -f database/init.sql
+```
+
+Or use the setup script:
+```bash
+./scripts/setup-db.sh
 ```
 
 ## Environment Variables
@@ -84,7 +97,7 @@ docker-compose up -d postgres
 Create a `.env` file in the project root:
 
 ```env
-DATABASE_URL=postgresql://user:password@localhost:5432/fourrunner
+DATABASE_URL=postgresql://localhost/fourrunner
 OPENAI_API_KEY=your-openai-key
 SECRET_KEY=your-secret-key
 ```
