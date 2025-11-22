@@ -154,7 +154,7 @@ This processes the PDFs in `/docs` and creates vector embeddings for AI search.
 
 | Field | Value |
 |-------|-------|
-| VIN | JTEBU5JR2J5517128 |
+| VIN | XXXXXXXXXXXXXXXXX |
 | Year | 2018 |
 | Make | Toyota |
 | Model | 4Runner |
