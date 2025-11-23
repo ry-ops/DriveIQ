@@ -279,4 +279,4 @@ MIT License - see [LICENSE](LICENSE) for details
 
 ---
 
-Built with Claude Code and commit-relay
+Built with Claude Code and Commit-Relay by Ry-Ops
