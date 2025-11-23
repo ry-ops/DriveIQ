@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import vehicle, maintenance, reminders, search, uploads, auth, import_data, moe
+from app.api import vehicle, maintenance, reminders, search, uploads, auth, import_data, moe, pages
 from app.core.config import settings
 from app.core.rate_limit import RateLimitMiddleware
 
@@ -32,6 +32,7 @@ app.include_router(search.router, prefix="/api/search", tags=["Search"])
 app.include_router(uploads.router, prefix="/api/uploads", tags=["Uploads"])
 app.include_router(import_data.router, prefix="/api/import", tags=["Import"])
 app.include_router(moe.router, prefix="/api/moe", tags=["MoE"])
+app.include_router(pages.router, prefix="/api/pages", tags=["Pages"])
 
 
 @app.get("/")

@@ -246,8 +246,7 @@ async def update_service_record(
 @router.delete("/service-records/{record_id}")
 async def delete_service_record(
     record_id: int,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    db: Session = Depends(get_db)
 ):
     """Delete a service record."""
     try:

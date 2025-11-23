@@ -403,21 +403,38 @@ export default function Maintenance() {
                 />
               </div>
 
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="submit"
-                  disabled={updateServiceRecord.isPending}
-                  className="px-4 py-2 bg-toyota-red text-white rounded-md hover:bg-red-700 disabled:opacity-50"
-                >
-                  Save Changes
-                </button>
+              <div className="flex justify-between pt-2">
                 <button
                   type="button"
-                  onClick={() => setEditServiceRecord(null)}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                  onClick={() => {
+                    if (confirm('Are you sure you want to delete this record?')) {
+                      deleteServiceRecord.mutate(editServiceRecord.id, {
+                        onSuccess: () => setEditServiceRecord(null)
+                      })
+                    }
+                  }}
+                  disabled={deleteServiceRecord.isPending}
+                  className="px-4 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200 disabled:opacity-50 flex items-center gap-2"
                 >
-                  Cancel
+                  <Trash2 className="h-4 w-4" />
+                  Delete
                 </button>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setEditServiceRecord(null)}
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={updateServiceRecord.isPending}
+                    className="px-4 py-2 bg-toyota-red text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                  >
+                    Save Changes
+                  </button>
+                </div>
               </div>
             </form>
           </div>
@@ -485,7 +502,7 @@ export default function Maintenance() {
                       </button>
                     ) : 'originalRecord' in record && (
                       <button
-                        onClick={() => deleteServiceRecord.mutate(record.id)}
+                        onClick={() => deleteServiceRecord.mutate((record.originalRecord as ServiceRecord).id)}
                         className="text-gray-400 hover:text-red-500 p-1"
                         title="Delete"
                       >

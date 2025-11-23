@@ -1,16 +1,32 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { Search as SearchIcon, Send, BookOpen } from 'lucide-react'
+import { Search as SearchIcon, Send, BookOpen, FileImage } from 'lucide-react'
 import { searchApi } from '../services/api'
+import PageViewer from '../components/PageViewer'
+
+interface Source {
+  document: string
+  page: number
+  chapter?: string
+  section?: string
+  topics?: string[]
+  thumbnail_url: string
+  fullsize_url: string
+  highlighted_url?: string | null
+}
 
 export default function Search() {
   const [query, setQuery] = useState('')
-  const [answer, setAnswer] = useState<{ text: string; sources: Array<{ document: string; page: number }> } | null>(null)
+  const [answer, setAnswer] = useState<{ text: string; sources: Source[]; keyTerms: string[] } | null>(null)
 
   const askQuestion = useMutation({
     mutationFn: (q: string) => searchApi.ask(q),
     onSuccess: (data) => {
-      setAnswer({ text: data.answer, sources: data.sources })
+      setAnswer({
+        text: data.answer,
+        sources: data.sources,
+        keyTerms: data.key_terms || []
+      })
     },
   })
 
@@ -69,20 +85,11 @@ export default function Search() {
 
           {answer.sources.length > 0 && (
             <div className="pt-4 border-t">
-              <h3 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
-                Sources
+              <h3 className="text-sm font-medium text-gray-500 mb-3 flex items-center gap-2">
+                <FileImage className="h-4 w-4" />
+                Source Pages
               </h3>
-              <div className="flex flex-wrap gap-2">
-                {answer.sources.map((source, i) => (
-                  <span
-                    key={i}
-                    className="px-2 py-1 bg-gray-100 text-gray-600 text-sm rounded"
-                  >
-                    {source.document}{source.page && `, p.${source.page}`}
-                  </span>
-                ))}
-              </div>
+              <PageViewer sources={answer.sources} keyTerms={answer.keyTerms} />
             </div>
           )}
         </div>
@@ -102,8 +109,12 @@ export default function Search() {
           ].map((example) => (
             <button
               key={example}
-              onClick={() => setQuery(example)}
-              className="text-left px-4 py-2 bg-white border border-gray-200 rounded-md hover:border-toyota-red text-sm"
+              onClick={() => {
+                setQuery(example)
+                askQuestion.mutate(example)
+              }}
+              disabled={askQuestion.isPending}
+              className="text-left px-4 py-2 bg-white border border-gray-200 rounded-md hover:border-toyota-red text-sm disabled:opacity-50"
             >
               {example}
             </button>

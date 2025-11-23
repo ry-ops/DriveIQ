@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 
 from app.services.embeddings import generate_embedding
+from app.services.page_images import extract_page_images
 
 # Topic keywords mapping - used to auto-tag content
 TOPIC_KEYWORDS = {
@@ -244,6 +245,11 @@ def ingest_all_documents(db: Session, upload_dir: str) -> Dict[str, int]:
                 doc_type = "manual"
 
             try:
+                # Extract page images first
+                print(f"Extracting page images for {filename}...")
+                page_results = extract_page_images(file_path, filename)
+                print(f"  Extracted {len(page_results)} page images")
+
                 count = ingest_document(db, file_path, filename, doc_type)
                 results[filename] = count
                 print(f"Ingested {filename}: {count} chunks")

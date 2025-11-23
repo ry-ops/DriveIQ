@@ -9,6 +9,7 @@ import anthropic
 from app.core.database import get_db
 from app.core.config import settings
 from app.services.embeddings import generate_embedding
+from app.services.page_images import extract_key_terms, sanitize_filename
 
 router = APIRouter()
 
@@ -130,17 +131,29 @@ Question: {search.query}"""
         ]
     )
 
+    # Extract key terms from the answer for highlighting
+    answer_text = message.content[0].text
+    key_terms = extract_key_terms(answer_text)
+
+    # Build sources with page image URLs
+    sources = []
+    for r in results:
+        terms_param = '&terms='.join(key_terms[:5]) if key_terms else ''
+        source = {
+            "document": r.document_name,
+            "page": r.page_number,
+            "chapter": r.chapter,
+            "section": r.section,
+            "topics": r.topics if r.topics else [],
+            "thumbnail_url": f"/api/pages/{r.document_name}/{r.page_number}/thumbnail",
+            "fullsize_url": f"/api/pages/{r.document_name}/{r.page_number}/full",
+            "highlighted_url": f"/api/pages/{r.document_name}/{r.page_number}/highlighted?terms={terms_param}" if key_terms else None
+        }
+        sources.append(source)
+
     return {
-        "answer": message.content[0].text,
-        "sources": [
-            {
-                "document": r.document_name,
-                "page": r.page_number,
-                "chapter": r.chapter,
-                "section": r.section,
-                "topics": r.topics if r.topics else []
-            }
-            for r in results
-        ],
+        "answer": answer_text,
+        "sources": sources,
+        "key_terms": key_terms,
         "model": "claude-sonnet-4-20250514"
     }

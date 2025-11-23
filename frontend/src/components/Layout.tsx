@@ -21,10 +21,10 @@ export default function Layout({ children }: LayoutProps) {
       <nav className="bg-toyota-black text-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <Car className="h-8 w-8 text-toyota-red" />
               <span className="text-xl font-bold">DriveIQ</span>
-            </div>
+            </Link>
             <div className="flex gap-1">
               {navItems.map(({ path, label, icon: Icon }) => (
                 <Link
