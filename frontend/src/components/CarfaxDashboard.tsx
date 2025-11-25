@@ -127,16 +127,7 @@ export default function CarfaxDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-center gap-2 text-gray-500 mb-1">
-            <Car className="h-4 w-4" />
-            <span className="text-xs font-medium">Odometer</span>
-          </div>
-          <p className="text-xl font-bold text-gray-900">{formatNumber(report.last_odometer)}</p>
-          <p className="text-xs text-gray-500">miles</p>
-        </div>
-
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center gap-2 text-gray-500 mb-1">
             <Car className="h-4 w-4" />

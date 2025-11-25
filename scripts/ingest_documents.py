@@ -75,6 +75,36 @@ def extract_pdf_text(pdf_path: Path) -> list[tuple[int, str]]:
     return pages
 
 
+def extract_markdown_text(md_path: Path) -> list[tuple[int, str]]:
+    """Extract text from markdown file, returning list of (section_number, text) tuples."""
+    with open(md_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    # Split by headers to create logical sections
+    sections = []
+    current_section = []
+    section_num = 1
+
+    for line in content.split('\n'):
+        if line.startswith('#') and current_section:
+            # Save current section
+            section_text = '\n'.join(current_section).strip()
+            if section_text:
+                sections.append((section_num, section_text))
+                section_num += 1
+            current_section = [line]
+        else:
+            current_section.append(line)
+
+    # Don't forget the last section
+    if current_section:
+        section_text = '\n'.join(current_section).strip()
+        if section_text:
+            sections.append((section_num, section_text))
+
+    return sections
+
+
 def get_embedding(text: str) -> list[float]:
     """Get embedding for text using local model."""
     embedding = embedding_model.encode(text, convert_to_numpy=True)
@@ -82,16 +112,23 @@ def get_embedding(text: str) -> list[float]:
 
 
 def ingest_document(
-    pdf_path: Path,
+    file_path: Path,
     document_type: str,
     db_session
 ):
-    """Ingest a single PDF document."""
-    print(f"Processing: {pdf_path.name}")
+    """Ingest a single document (PDF or Markdown)."""
+    print(f"Processing: {file_path.name}")
 
-    # Extract text from PDF
-    pages = extract_pdf_text(pdf_path)
-    print(f"  Extracted {len(pages)} pages")
+    # Extract text based on file type
+    if file_path.suffix.lower() == '.pdf':
+        pages = extract_pdf_text(file_path)
+        print(f"  Extracted {len(pages)} pages")
+    elif file_path.suffix.lower() in ['.md', '.markdown']:
+        pages = extract_markdown_text(file_path)
+        print(f"  Extracted {len(pages)} sections")
+    else:
+        print(f"  Unsupported file type: {file_path.suffix}")
+        return
 
     # Process each page
     chunk_index = 0
@@ -113,7 +150,7 @@ def ingest_document(
                 VALUES (:name, :type, :idx, :content, :page, CAST(:embedding AS vector), :tokens)
                 """),
                 {
-                    "name": pdf_path.name,
+                    "name": file_path.name,
                     "type": document_type,
                     "idx": chunk_index,
                     "content": chunk,
@@ -141,11 +178,11 @@ def main():
         print(f"Creating docs directory: {DOCS_DIR}")
         DOCS_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Find all PDF files in docs directory
-    pdf_files = list(DOCS_DIR.glob("*.pdf"))
+    # Find all PDF and markdown files in docs directory
+    doc_files = list(DOCS_DIR.glob("*.pdf")) + list(DOCS_DIR.glob("*.md")) + list(DOCS_DIR.glob("*.markdown"))
 
-    if not pdf_files:
-        print(f"No PDF files found in {DOCS_DIR}")
+    if not doc_files:
+        print(f"No document files found in {DOCS_DIR}")
         print("Upload documents using the API or place them in the docs directory.")
         sys.exit(1)
 
@@ -155,21 +192,21 @@ def main():
     print("Cleared existing document chunks")
 
     # Ingest each document
-    for pdf_path in pdf_files:
+    for file_path in doc_files:
         # Determine document type from filename
-        lower_name = pdf_path.name.lower()
+        lower_name = file_path.name.lower()
         if "carfax" in lower_name:
             doc_type = "carfax"
         elif "manual" in lower_name:
             doc_type = "manual"
         elif "qrg" in lower_name or "quick reference" in lower_name:
             doc_type = "qrg"
-        elif "maintenance" in lower_name:
+        elif "maintenance" in lower_name or "audit" in lower_name:
             doc_type = "maintenance_report"
         else:
             doc_type = "other"
 
-        ingest_document(pdf_path, doc_type, session)
+        ingest_document(file_path, doc_type, session)
 
     session.close()
     print("\nDocument ingestion complete!")

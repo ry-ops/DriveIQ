@@ -125,9 +125,12 @@ export default function Maintenance() {
     const tagsInput = formData.get('tags') as string
     const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(Boolean) : []
 
+    const mileageStr = formData.get('mileage') as string
+    const mileage = mileageStr ? parseInt(mileageStr) : undefined
+
     const data: ServiceRecordUpdate = {
       date: formData.get('date') as string,
-      mileage: parseInt(formData.get('mileage') as string),
+      mileage: !isNaN(mileage as number) ? mileage : undefined,
       service_type: formData.get('service_type') as string,
       description: formData.get('description') as string || undefined,
       location: formData.get('location') as string || undefined,
@@ -215,17 +218,55 @@ export default function Maintenance() {
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
-                  <option value="oil_change">Oil Change</option>
-                  <option value="tire_rotation">Tire Rotation</option>
-                  <option value="brake_service">Brake Service</option>
-                  <option value="air_filter">Air Filter</option>
-                  <option value="cabin_filter">Cabin Filter</option>
-                  <option value="transmission_service">Transmission Service</option>
-                  <option value="coolant_flush">Coolant Flush</option>
-                  <option value="spark_plugs">Spark Plugs</option>
-                  <option value="battery">Battery</option>
-                  <option value="inspection">Inspection</option>
-                  <option value="other">Other</option>
+                  <optgroup label="Routine Maintenance">
+                    <option value="oil_change">Oil Change</option>
+                    <option value="tire_rotation">Tire Rotation</option>
+                    <option value="air_filter">Air Filter</option>
+                    <option value="cabin_filter">Cabin Air Filter</option>
+                    <option value="wiper_blades">Wiper Blades</option>
+                    <option value="inspection">Inspection</option>
+                  </optgroup>
+                  <optgroup label="Tires & Alignment">
+                    <option value="tire_replacement">Tire Replacement</option>
+                    <option value="wheel_alignment">Wheel Alignment</option>
+                    <option value="tire_balance">Tire Balance</option>
+                  </optgroup>
+                  <optgroup label="Brakes">
+                    <option value="brakes_checked">Brakes Checked</option>
+                    <option value="brake_pads">Brake Pads</option>
+                    <option value="brake_rotors">Brake Rotors</option>
+                    <option value="brake_fluid_flush">Brake Fluid Flush</option>
+                  </optgroup>
+                  <optgroup label="Fluids & Filters">
+                    <option value="transmission_service">Transmission Service</option>
+                    <option value="coolant_flush">Coolant Flush</option>
+                    <option value="power_steering_flush">Power Steering Flush</option>
+                    <option value="differential_service">Differential Service</option>
+                    <option value="fuel_filter">Fuel Filter</option>
+                  </optgroup>
+                  <optgroup label="Engine & Drivetrain">
+                    <option value="spark_plugs">Spark Plugs</option>
+                    <option value="timing_belt">Timing Belt/Chain</option>
+                    <option value="serpentine_belt">Serpentine Belt</option>
+                    <option value="fuel_system_service">Fuel System Service</option>
+                  </optgroup>
+                  <optgroup label="Electrical & Climate">
+                    <option value="battery">Battery</option>
+                    <option value="alternator">Alternator</option>
+                    <option value="starter">Starter</option>
+                    <option value="ac_service">A/C Service</option>
+                  </optgroup>
+                  <optgroup label="Suspension & Steering">
+                    <option value="shocks_struts">Shocks/Struts</option>
+                    <option value="ball_joints">Ball Joints</option>
+                    <option value="tie_rods">Tie Rods</option>
+                  </optgroup>
+                  <optgroup label="Other">
+                    <option value="airbag_system_checked">Airbag System Checked</option>
+                    <option value="recall">Recall Service</option>
+                    <option value="diagnostic">Diagnostic</option>
+                    <option value="other">Other</option>
+                  </optgroup>
                 </select>
               </div>
               <div>

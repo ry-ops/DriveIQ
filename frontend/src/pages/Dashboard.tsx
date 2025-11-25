@@ -1,13 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { Gauge, Calendar, DollarSign, AlertCircle } from 'lucide-react'
+import { Gauge, Calendar, DollarSign, AlertCircle, Check, Plus, X, TrendingUp } from 'lucide-react'
 import { vehicleApi, maintenanceApi, remindersApi } from '../services/api'
-import CarfaxDashboard from '../components/CarfaxDashboard'
+import type { Reminder } from '../types'
+
+interface CarfaxReport {
+  retail_value: number
+  last_odometer: number
+  owner_count: number
+}
 
 export default function Dashboard() {
   const queryClient = useQueryClient()
   const [mileageInput, setMileageInput] = useState('')
+  const [logReminder, setLogReminder] = useState<Reminder | null>(null)
+  const [logCost, setLogCost] = useState('')
 
   const { data: vehicle, isLoading: vehicleLoading } = useQuery({
     queryKey: ['vehicle'],
@@ -25,12 +33,57 @@ export default function Dashboard() {
     enabled: !!vehicle,
   })
 
+  const { data: carfaxReport } = useQuery<CarfaxReport>({
+    queryKey: ['carfax-report'],
+    queryFn: async () => {
+      const res = await fetch('/api/import/carfax-report')
+      if (!res.ok) {
+        if (res.status === 404) return null
+        throw new Error('Failed to fetch CARFAX report')
+      }
+      return res.json()
+    },
+    retry: false
+  })
+
   const updateMileage = useMutation({
     mutationFn: (mileage: number) => vehicleApi.updateMileage(mileage),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicle'] })
       queryClient.invalidateQueries({ queryKey: ['upcoming-reminders'] })
       setMileageInput('')
+    },
+  })
+
+  const completeReminder = useMutation({
+    mutationFn: (id: number) => remindersApi.complete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['upcoming-reminders'] })
+      queryClient.invalidateQueries({ queryKey: ['reminders'] })
+    },
+  })
+
+  const createMaintenanceFromReminder = useMutation({
+    mutationFn: async ({ reminder, cost }: { reminder: Reminder; cost?: number }) => {
+      // Convert reminder title to a maintenance type (snake_case)
+      const maintenanceType = reminder.title.toLowerCase().replace(/\s+/g, '_')
+
+      return maintenanceApi.create({
+        vehicle_id: vehicle!.id,
+        maintenance_type: maintenanceType,
+        date_performed: format(new Date(), 'yyyy-MM-dd'),
+        mileage: vehicle?.current_mileage || reminder.due_mileage || 0,
+        cost: cost,
+        description: `Completed from reminder: ${reminder.title}`,
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['maintenance'] })
+      queryClient.invalidateQueries({ queryKey: ['maintenance-summary'] })
+      queryClient.invalidateQueries({ queryKey: ['upcoming-reminders'] })
+      queryClient.invalidateQueries({ queryKey: ['reminders'] })
+      setLogReminder(null)
+      setLogCost('')
     },
   })
 
@@ -80,11 +133,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* CARFAX Value Dashboard */}
-      <CarfaxDashboard />
-
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center gap-3">
             <Gauge className="h-8 w-8 text-toyota-red" />
@@ -97,37 +147,33 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center gap-3">
-            <Calendar className="h-8 w-8 text-blue-500" />
-            <div>
-              <p className="text-sm text-gray-500">Service Records</p>
-              <p className="text-2xl font-bold">
-                {summary?.reduce((acc, s) => acc + s.count, 0) || 0}
-              </p>
+        {carfaxReport && (
+          <>
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center gap-3">
+                <Calendar className="h-8 w-8 text-purple-500" />
+                <div>
+                  <p className="text-sm text-gray-500">Ownership</p>
+                  <p className="text-2xl font-bold">
+                    {carfaxReport.owner_count}-Owner
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center gap-3">
-            <DollarSign className="h-8 w-8 text-green-500" />
-            <div>
-              <p className="text-sm text-gray-500">Total Spent</p>
-              <p className="text-2xl font-bold">${totalSpent.toFixed(0)}</p>
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center gap-3">
+                <TrendingUp className="h-8 w-8 text-green-500" />
+                <div>
+                  <p className="text-sm text-gray-500">CARFAX Retail Value</p>
+                  <p className="text-2xl font-bold">
+                    ${carfaxReport.retail_value?.toLocaleString() || '—'}
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center gap-3">
-            <AlertCircle className="h-8 w-8 text-yellow-500" />
-            <div>
-              <p className="text-sm text-gray-500">Due Soon</p>
-              <p className="text-2xl font-bold">{upcomingReminders?.length || 0}</p>
-            </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
 
       {/* Upcoming Reminders */}
@@ -145,8 +191,92 @@ export default function Dashboard() {
                     {reminder.due_mileage && `${reminder.due_mileage.toLocaleString()} miles`}
                   </p>
                 </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setLogReminder(reminder)}
+                    className="flex items-center gap-1 px-3 py-1.5 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
+                    title="Log Service"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Log
+                  </button>
+                  <button
+                    onClick={() => completeReminder.mutate(reminder.id)}
+                    disabled={completeReminder.isPending}
+                    className="flex items-center gap-1 px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50"
+                    title="Dismiss"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Log Service Modal */}
+      {logReminder && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Log Service</h2>
+              <button
+                onClick={() => {
+                  setLogReminder(null)
+                  setLogCost('')
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-500">Service Type</p>
+                <p className="font-medium">{logReminder.title}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Date</p>
+                <p className="font-medium">{format(new Date(), 'MMM d, yyyy')}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Mileage</p>
+                <p className="font-medium">{(vehicle?.current_mileage || logReminder.due_mileage || 0).toLocaleString()} miles</p>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-500 mb-1">Cost (optional)</label>
+                <input
+                  type="number"
+                  value={logCost}
+                  onChange={(e) => setLogCost(e.target.value)}
+                  placeholder="0.00"
+                  step="0.01"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    setLogReminder(null)
+                    setLogCost('')
+                  }}
+                  className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => createMaintenanceFromReminder.mutate({
+                    reminder: logReminder,
+                    cost: logCost ? parseFloat(logCost) : undefined
+                  })}
+                  disabled={createMaintenanceFromReminder.isPending}
+                  className="flex-1 px-4 py-2 bg-toyota-red text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                >
+                  {createMaintenanceFromReminder.isPending ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

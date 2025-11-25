@@ -1,5 +1,5 @@
 """Import data API for CARFAX and service records."""
-from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
+from fastapi import APIRouter, HTTPException, UploadFile, File, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from typing import List
@@ -182,13 +182,6 @@ async def import_carfax(
                     INSERT INTO maintenance_logs
                     (date, mileage, service_type, description, category, source, location, dealer_name, dealer_rating, dealer_phone)
                     VALUES (:date, :mileage_val, :service_type, :description, :category, :source, :location, :dealer_name, :dealer_rating, :dealer_phone)
-                    ON CONFLICT (date, mileage, service_type) DO UPDATE SET
-                        description = EXCLUDED.description,
-                        category = EXCLUDED.category,
-                        location = EXCLUDED.location,
-                        dealer_name = EXCLUDED.dealer_name,
-                        dealer_rating = EXCLUDED.dealer_rating,
-                        dealer_phone = EXCLUDED.dealer_phone
                     """),
                     record
                 )
@@ -384,9 +377,8 @@ async def update_service_record(
     category: str = None,
     source: str = None,
     location: str = None,
-    tags: List[str] = None,
-    db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    tags: List[str] = Query(None),
+    db: Session = Depends(get_db)
 ):
     """Update a service record."""
     # Build update query dynamically
