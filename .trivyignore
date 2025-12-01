@@ -1,0 +1,7 @@
+# Trivy ignore file
+# Format: CVE-ID or GHSA-ID
+
+# ecdsa Minerva timing attack - no fix available
+# python-ecdsa project considers side channel attacks out of scope
+# Reference: https://github.com/advisories/GHSA-wj6h-64fc-37mp
+GHSA-wj6h-64fc-37mp

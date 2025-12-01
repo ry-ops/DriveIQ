@@ -71,7 +71,8 @@ jobs:
         id: pip-audit
         run: |
           pip-audit --requirement requirements.txt --format json > pip-audit-results.json || true
-          pip-audit --requirement requirements.txt --vulnerability-service osv
+          # Ignore GHSA-wj6h-64fc-37mp (ecdsa timing attack - no fix available, out of scope for project)
+          pip-audit --requirement requirements.txt --vulnerability-service osv --ignore-vuln GHSA-wj6h-64fc-37mp
         continue-on-error: false
 
       - name: Upload pip audit results
