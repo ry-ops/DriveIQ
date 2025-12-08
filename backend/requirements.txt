@@ -16,8 +16,10 @@ pydantic-settings==2.12.0
 email-validator==2.1.0
 
 # Authentication
-python-jose[cryptography]==3.4.0
-ecdsa==0.19.1  # Note: GHSA-wj6h-64fc-37mp has no fix - timing attack considered out of scope
+# Replaced python-jose with PyJWT (FastAPI official recommendation as of 2025)
+# python-jose is abandoned (last release 3+ years ago) and pulls in vulnerable ecdsa==0.19.1
+# PyJWT is actively maintained and does not have the ecdsa dependency issue
+PyJWT==2.10.1
 passlib[bcrypt]==1.7.4
 bcrypt==4.2.1
 
