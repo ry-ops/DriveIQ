@@ -8,7 +8,7 @@ starlette==0.50.0
 sqlalchemy==2.0.23
 psycopg2-binary==2.9.9
 pgvector==0.2.4
-alembic==1.12.1
+alembic==1.17.2
 
 # Validation
 pydantic==2.5.2
