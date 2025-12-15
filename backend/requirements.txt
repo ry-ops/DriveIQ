@@ -27,7 +27,7 @@ bcrypt==4.2.1
 anthropic==0.75.0
 sentence-transformers>=2.2.2
 torch>=2.2.0
-pypdf==6.4.0
+pypdf==6.4.2
 
 # Utilities
 python-dotenv==1.0.0
