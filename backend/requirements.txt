@@ -13,7 +13,7 @@ alembic==1.17.2
 # Validation
 pydantic==2.12.5
 pydantic-settings==2.12.0
-email-validator==2.1.0
+email-validator==2.3.0
 
 # Authentication
 # Replaced python-jose with PyJWT (FastAPI official recommendation as of 2025)
