@@ -3,14 +3,12 @@ import { useState } from 'react'
 import { format } from 'date-fns'
 import { Plus, Trash2, FileText, Car, Edit2, X, Tag, List, Clock, Upload, Paperclip } from 'lucide-react'
 import { maintenanceApi, vehicleApi, serviceRecordsApi } from '../services/api'
-import type { MaintenanceRecord } from '../types'
 import type { ServiceRecord, ServiceRecordUpdate } from '../services/api'
 import ServiceHistoryTimeline from '../components/ServiceHistoryTimeline'
 
 export default function Maintenance() {
   const queryClient = useQueryClient()
   const [showForm, setShowForm] = useState(false)
-  const [editRecord, setEditRecord] = useState<MaintenanceRecord | null>(null)
   const [editServiceRecord, setEditServiceRecord] = useState<ServiceRecord | null>(null)
   const [newTag, setNewTag] = useState('')
   const [viewMode, setViewMode] = useState<'list' | 'timeline'>('list')

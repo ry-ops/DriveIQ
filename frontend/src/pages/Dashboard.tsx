@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { Gauge, Calendar, DollarSign, AlertCircle, Check, Plus, X, TrendingUp } from 'lucide-react'
+import { Gauge, Calendar, Plus, X, TrendingUp } from 'lucide-react'
 import { vehicleApi, maintenanceApi, remindersApi } from '../services/api'
 import type { Reminder } from '../types'
 
@@ -94,8 +94,6 @@ export default function Dashboard() {
   if (!vehicle) {
     return <div className="text-center py-12 text-red-500">Vehicle not found</div>
   }
-
-  const totalSpent = summary?.reduce((acc, s) => acc + s.total_cost, 0) || 0
 
   return (
     <div className="space-y-8">

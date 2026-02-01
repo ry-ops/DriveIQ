@@ -71,7 +71,7 @@ def validate_pdf_content(content: bytes) -> bool:
     return content[:4] == b'%PDF'
 
 
-@router.post("/", response_model=UploadResponse)
+@router.post("", response_model=UploadResponse)
 async def upload_document(
     file: UploadFile = File(...),
     background_tasks: BackgroundTasks = None,
@@ -122,7 +122,7 @@ async def upload_document(
     )
 
 
-@router.get("/", response_model=List[DocumentInfo])
+@router.get("", response_model=List[DocumentInfo])
 async def list_documents():
     """List all uploaded documents."""
     documents = []

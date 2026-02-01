@@ -85,8 +85,15 @@ class MoESystem:
 
     def get_expert_response(self, query: str, context: str) -> dict:
         """Get response from the appropriate expert."""
-        if not settings.ANTHROPIC_API_KEY:
-            raise ValueError("Anthropic API key not configured")
+        # Check API configuration and determine model
+        if settings.USE_LOCAL_LLM:
+            if not settings.ANTHROPIC_BASE_URL:
+                raise ValueError("Local LLM enabled but ANTHROPIC_BASE_URL not configured")
+            model_name = settings.LOCAL_LLM_MODEL
+        else:
+            if not settings.ANTHROPIC_API_KEY:
+                raise ValueError("Anthropic API key not configured")
+            model_name = "claude-sonnet-4-20250514"
 
         expert_type = self.route_query(query)
         system_prompt = get_expert_prompt(expert_type)
@@ -94,10 +101,20 @@ class MoESystem:
         # Track query
         self.experts[expert_type].total_queries += 1
 
-        client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+        # Build client kwargs for cloud or local
+        client_kwargs = {}
+        if settings.USE_LOCAL_LLM:
+            client_kwargs["base_url"] = settings.ANTHROPIC_BASE_URL
+            client_kwargs["api_key"] = "local"
+        else:
+            client_kwargs["api_key"] = settings.ANTHROPIC_API_KEY
+            if settings.ANTHROPIC_BASE_URL:
+                client_kwargs["base_url"] = settings.ANTHROPIC_BASE_URL
+
+        client = anthropic.Anthropic(**client_kwargs)
 
         message = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model=model_name,
             max_tokens=600,
             system=system_prompt,
             messages=[
@@ -117,7 +134,7 @@ Question: {query}"""
             "response_id": response_id,
             "answer": message.content[0].text,
             "expert_type": expert_type.value,
-            "model": "claude-sonnet-4-20250514",
+            "model": model_name,
             "confidence": self.experts[expert_type].satisfaction_rate
         }
 

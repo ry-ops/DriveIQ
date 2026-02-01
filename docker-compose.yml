@@ -1,23 +1,132 @@
-version: '3.8'
-
 services:
+  # PostgreSQL with pgvector for document storage and vector embeddings
   postgres:
     image: pgvector/pgvector:pg16
-    container_name: fourrunner-db
+    container_name: driveiq-db
     environment:
-      POSTGRES_USER: fourrunner
-      POSTGRES_PASSWORD: fourrunner
-      POSTGRES_DB: fourrunner
+      POSTGRES_USER: ${POSTGRES_USER:-driveiq}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-driveiq}
+      POSTGRES_DB: ${POSTGRES_DB:-driveiq}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U fourrunner"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-driveiq}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - driveiq-network
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: driveiq-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - driveiq-network
+
+  # Qdrant for vector similarity search
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: driveiq-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    networks:
+      - driveiq-network
+
+  # Backend API (FastAPI)
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    container_name: driveiq-backend
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-driveiq}:${POSTGRES_PASSWORD:-driveiq}@postgres:5432/${POSTGRES_DB:-driveiq}
+      REDIS_URL: redis://redis:6379/0
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: 6333
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      ANTHROPIC_BASE_URL: ${ANTHROPIC_BASE_URL:-}
+      USE_LOCAL_LLM: ${USE_LOCAL_LLM:-false}
+      LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-ai/qwen3-coder}
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./backend:/app
+      - ./docs:/app/docs
+      - ./uploads:/app/uploads
+      - ./page_images:/app/page_images
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    networks:
+      - driveiq-network
+
+  # Frontend (React/Vite)
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    container_name: driveiq-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - driveiq-network
+
+  # Docker Model Runner for local LLM inference (optional)
+  # Start with: docker-compose --profile local-llm up -d
+  model-runner:
+    image: docker/model-runner:latest
+    container_name: driveiq-model-runner
+    profiles:
+      - local-llm
+    ports:
+      - "12434:12434"
+    volumes:
+      - model_data:/root/.cache/docker-model-runner
+    environment:
+      # Default model to load (can be changed)
+      DEFAULT_MODEL: ai/qwen3-coder
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - driveiq-network
 
 volumes:
   postgres_data:
+  redis_data:
+  qdrant_data:
+  model_data:
+
+networks:
+  driveiq-network:
+    driver: bridge
