@@ -87,7 +87,7 @@ def sync_reminders_with_maintenance(db: Session, vehicle_id: int, maintenance_ty
     return updated_count
 
 
-@router.get("/", response_model=List[MaintenanceResponse])
+@router.get("", response_model=List[MaintenanceResponse])
 def get_maintenance_records(
     skip: int = 0,
     limit: int = 100,
@@ -110,7 +110,7 @@ def get_maintenance_record(record_id: int, db: Session = Depends(get_db)):
     return record
 
 
-@router.post("/", response_model=MaintenanceResponse)
+@router.post("", response_model=MaintenanceResponse)
 def create_maintenance_record(record: MaintenanceCreate, db: Session = Depends(get_db)):
     """Create a new maintenance record and sync with reminders."""
     db_record = MaintenanceRecord(**record.model_dump())

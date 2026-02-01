@@ -96,7 +96,7 @@ export default function ServiceHistoryTimeline() {
               {/* Timeline line */}
               <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-200"></div>
 
-              {recordsByYear[year].map((record, index) => {
+              {recordsByYear[year].map((record) => {
                 const category = categoryColors[record.category] || categoryColors.maintenance
                 const CategoryIcon = category.icon
 

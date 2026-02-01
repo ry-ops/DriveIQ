@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState, useRef } from 'react'
 import { Upload, FileText, Trash2, AlertCircle, CheckCircle } from 'lucide-react'
-import { uploadsApi, DocumentInfo } from '../services/api'
+import { uploadsApi } from '../services/api'
 import CarfaxImport from '../components/CarfaxImport'
 
 export default function Documents() {

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { Search as SearchIcon, Send, BookOpen, FileImage } from 'lucide-react'
+import { Search as SearchIcon, Send, FileImage } from 'lucide-react'
 import { searchApi } from '../services/api'
 import PageViewer from '../components/PageViewer'
 

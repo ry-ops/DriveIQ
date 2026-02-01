@@ -26,7 +26,7 @@ class SearchResult(BaseModel):
     topics: list | None = None
     score: float
 
-@router.post("/", response_model=List[SearchResult])
+@router.post("", response_model=List[SearchResult])
 async def search_documents(search: SearchQuery, db: Session = Depends(get_db)):
     """Search vehicle documentation using semantic search."""
     # Check for documents

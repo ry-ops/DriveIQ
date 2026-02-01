@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS maintenance_records (
     location VARCHAR(200),
     parts_used TEXT,
     notes TEXT,
+    documents TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE
 );
@@ -71,6 +72,9 @@ CREATE TABLE IF NOT EXISTS document_chunks (
     chunk_index INTEGER NOT NULL,
     content TEXT NOT NULL,
     page_number INTEGER,
+    chapter VARCHAR(255),
+    section VARCHAR(255),
+    topics TEXT[],
     embedding vector(384),
     tokens INTEGER,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -86,6 +90,7 @@ CREATE TABLE IF NOT EXISTS maintenance_logs (
     category VARCHAR(50) DEFAULT 'maintenance',
     source VARCHAR(50) DEFAULT 'manual',
     location VARCHAR(300),
+    tags TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     UNIQUE(date, mileage, service_type)
 );
@@ -114,7 +119,7 @@ INSERT INTO vehicles (
     '4.0L V6 DOHC 24V',
     '5-Speed Automatic',
     '4WD',
-    'Super White',
+    'Black',
     NULL,
     NULL
 ) ON CONFLICT (vin) DO NOTHING;
