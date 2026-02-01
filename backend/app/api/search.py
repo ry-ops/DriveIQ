@@ -62,9 +62,16 @@ async def search_documents(search: SearchQuery, db: Session = Depends(get_db)):
 
 @router.post("/ask")
 async def ask_question(search: SearchQuery, db: Session = Depends(get_db)):
-    """Ask a question using Claude AI with RAG from vehicle documentation."""
-    if not settings.ANTHROPIC_API_KEY:
-        raise HTTPException(status_code=500, detail="Anthropic API key not configured")
+    """Ask a question using Claude AI (cloud or local) with RAG from vehicle documentation."""
+    # Check API configuration and determine model
+    if settings.USE_LOCAL_LLM:
+        if not settings.ANTHROPIC_BASE_URL:
+            raise HTTPException(status_code=500, detail="Local LLM enabled but ANTHROPIC_BASE_URL not configured")
+        model_name = settings.LOCAL_LLM_MODEL
+    else:
+        if not settings.ANTHROPIC_API_KEY:
+            raise HTTPException(status_code=500, detail="Anthropic API key not configured")
+        model_name = "claude-sonnet-4-20250514"
 
     # Check for documents
     doc_count = db.execute(text("SELECT COUNT(*) FROM document_chunks")).scalar()
@@ -103,13 +110,22 @@ async def ask_question(search: SearchQuery, db: Session = Depends(get_db)):
         return {
             "answer": "No relevant documentation found. Please upload and ingest your vehicle documents.",
             "sources": [],
-            "model": "claude-sonnet-4-20250514"
+            "model": model_name
         }
 
-    # Generate answer with Claude
-    claude_client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+    # Generate answer with Claude (cloud or local)
+    client_kwargs = {}
+    if settings.USE_LOCAL_LLM:
+        client_kwargs["base_url"] = settings.ANTHROPIC_BASE_URL
+        client_kwargs["api_key"] = "local"  # Dummy key for local LLM
+    else:
+        client_kwargs["api_key"] = settings.ANTHROPIC_API_KEY
+        if settings.ANTHROPIC_BASE_URL:
+            client_kwargs["base_url"] = settings.ANTHROPIC_BASE_URL
 
-    system_prompt = f"""You are DriveIQ, an intelligent assistant for vehicle owners powered by Claude AI.
+    claude_client = anthropic.Anthropic(**client_kwargs)
+
+    system_prompt = f"""You are DriveIQ, an intelligent assistant for vehicle owners powered by AI.
 You help answer questions about a {settings.VEHICLE_YEAR} {settings.VEHICLE_MAKE} {settings.VEHICLE_MODEL} {settings.VEHICLE_TRIM}.
 VIN: {settings.VEHICLE_VIN}
 
@@ -117,7 +133,7 @@ Answer based on the provided documentation. Be concise, practical, and safety-fo
 If information isn't in the documentation, say so clearly."""
 
     message = claude_client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model=model_name,
         max_tokens=600,
         system=system_prompt,
         messages=[
@@ -155,5 +171,5 @@ Question: {search.query}"""
         "answer": answer_text,
         "sources": sources,
         "key_terms": key_terms,
-        "model": "claude-sonnet-4-20250514"
+        "model": model_name
     }

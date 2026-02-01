@@ -26,7 +26,10 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     # AI APIs
-    ANTHROPIC_API_KEY: str = ""  # Claude AI for reasoning
+    ANTHROPIC_API_KEY: str = ""  # Claude AI for reasoning (required for cloud, optional for local)
+    ANTHROPIC_BASE_URL: str = ""  # Custom API endpoint (e.g., Docker Model Runner)
+    USE_LOCAL_LLM: bool = False  # Use local LLM via Docker Model Runner
+    LOCAL_LLM_MODEL: str = "ai/qwen3-coder"  # Default local model
     # Local embeddings - no API key needed (using sentence-transformers)
 
     # CORS

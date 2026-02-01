@@ -11,7 +11,8 @@ An intelligent web application for vehicle management. Features include maintena
 - **Database**: PostgreSQL with pgvector extension
 - **Cache**: Redis (sessions, rate limiting, embedding cache)
 - **Vector DB**: Qdrant (semantic search)
-- **AI**: Anthropic Claude for RAG, sentence-transformers for local embeddings
+- **AI**: Anthropic Claude or local LLM (Docker Model Runner) for RAG
+- **Embeddings**: sentence-transformers (local, no API needed)
 - **Container**: Docker Compose
 
 ## Project Structure
@@ -57,6 +58,7 @@ DriveIQ/
 | postgres | 5432 | PostgreSQL + pgvector |
 | redis | 6379 | Caching, sessions |
 | qdrant | 6333 | Vector similarity search |
+| model-runner | 12434 | Local LLM (optional, `--profile local-llm`) |
 
 ## Key APIs
 
@@ -90,8 +92,11 @@ The MCP server (`mcp/server.py`) exposes 10 tools for Claude Desktop:
 ## Development Commands
 
 ```bash
-# Start all services
+# Start all services (cloud AI)
 docker-compose up -d
+
+# Start with local LLM (Docker Model Runner)
+docker-compose --profile local-llm up -d
 
 # Rebuild after changes
 docker-compose up -d --build
@@ -106,14 +111,45 @@ docker-compose down
 docker-compose exec backend python scripts/ingest_documents.py
 ```
 
+## Local LLM Mode (Docker Model Runner)
+
+Run AI queries locally without cloud API costs:
+
+```bash
+# 1. Start with local LLM profile
+docker-compose --profile local-llm up -d
+
+# 2. Set environment variables
+USE_LOCAL_LLM=true
+ANTHROPIC_BASE_URL=http://model-runner:12434
+LOCAL_LLM_MODEL=ai/qwen3-coder
+
+# 3. First query will download model (~5-10 min)
+```
+
+**Available local models:**
+- `ai/qwen3-coder` (128K context) - Recommended for code/technical
+- `ai/glm-4.7-flash` (128K context) - Fast inference
+- `ai/devstral-small-2` (128K context) - Balanced performance
+
+**Benefits:**
+- Privacy: All data stays local
+- Cost: $0 API billing
+- Offline: Works without internet after model download
+
 ## Environment Variables
 
 Required in `.env`:
-- `ANTHROPIC_API_KEY` - For Claude AI (RAG)
+- `ANTHROPIC_API_KEY` - For Claude AI (cloud mode)
 - `DATABASE_URL` - PostgreSQL connection
 - `REDIS_URL` - Redis connection
 - `QDRANT_HOST` / `QDRANT_PORT` - Qdrant connection
 - `SECRET_KEY` - JWT signing key
+
+Optional (Local LLM mode):
+- `USE_LOCAL_LLM` - Set to `true` for local inference
+- `ANTHROPIC_BASE_URL` - Docker Model Runner endpoint
+- `LOCAL_LLM_MODEL` - Model to use (default: `ai/qwen3-coder`)
 
 ## Vehicle Data
 

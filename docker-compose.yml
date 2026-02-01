@@ -63,6 +63,9 @@ services:
       QDRANT_HOST: qdrant
       QDRANT_PORT: 6333
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      ANTHROPIC_BASE_URL: ${ANTHROPIC_BASE_URL:-}
+      USE_LOCAL_LLM: ${USE_LOCAL_LLM:-false}
+      LOCAL_LLM_MODEL: ${LOCAL_LLM_MODEL:-ai/qwen3-coder}
       SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
     ports:
       - "8001:8000"
@@ -94,10 +97,35 @@ services:
     networks:
       - driveiq-network
 
+  # Docker Model Runner for local LLM inference (optional)
+  # Start with: docker-compose --profile local-llm up -d
+  model-runner:
+    image: docker/model-runner:latest
+    container_name: driveiq-model-runner
+    profiles:
+      - local-llm
+    ports:
+      - "12434:12434"
+    volumes:
+      - model_data:/root/.cache/docker-model-runner
+    environment:
+      # Default model to load (can be changed)
+      DEFAULT_MODEL: ai/qwen3-coder
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - driveiq-network
+
 volumes:
   postgres_data:
   redis_data:
   qdrant_data:
+  model_data:
 
 networks:
   driveiq-network:

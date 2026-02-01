@@ -75,19 +75,29 @@ async def health_check():
     else:
         overall_status = "healthy"
 
-    # Check API key configuration
-    api_keys_configured = bool(settings.ANTHROPIC_API_KEY)
+    # Check LLM configuration
+    if settings.USE_LOCAL_LLM:
+        llm_mode = "local"
+        llm_model = settings.LOCAL_LLM_MODEL
+        llm_configured = bool(settings.ANTHROPIC_BASE_URL)
+    else:
+        llm_mode = "cloud"
+        llm_model = "claude-sonnet-4-20250514"
+        llm_configured = bool(settings.ANTHROPIC_API_KEY)
 
     return {
         "status": overall_status,
-        "version": "2.0.0",
+        "version": "2.1.0",
         "services": {
             "database": db_health,
             "redis": redis_health,
             "qdrant": qdrant_health,
         },
         "config": {
-            "anthropic_api_key": "configured" if api_keys_configured else "missing",
+            "llm_mode": llm_mode,
+            "llm_model": llm_model,
+            "llm_configured": llm_configured,
+            "anthropic_base_url": settings.ANTHROPIC_BASE_URL if settings.ANTHROPIC_BASE_URL else None,
         },
     }
 
