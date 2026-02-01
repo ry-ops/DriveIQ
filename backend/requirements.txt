@@ -31,7 +31,7 @@ bcrypt==4.2.1
 
 # AI/ML
 anthropic==0.75.0
-sentence-transformers>=2.2.2
+sentence-transformers>=3.1.0
 torch>=2.2.0
 pypdf>=6.6.0
 pymupdf>=1.23.0
@@ -49,3 +49,16 @@ pytest-asyncio>=0.23.0
 black==24.10.0
 isort==5.12.0
 mypy==1.19.0
+pillow>=10.0.0 # not directly required, pinned by Snyk to avoid a vulnerability
+transformers>=4.36.0 # not directly required, pinned by Snyk to avoid a vulnerability
+urllib3>=1.26.19 # not directly required, pinned by Snyk to avoid a vulnerability
+sentencepiece>=0.2.1 # not directly required, pinned by Snyk to avoid a vulnerability
+nltk>=3.9 # not directly required, pinned by Snyk to avoid a vulnerability
+wheel>=0.38.0 # not directly required, pinned by Snyk to avoid a vulnerability
+setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
+zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
+dnspython>=2.6.1 # not directly required, pinned by Snyk to avoid a vulnerability
+filelock>=3.20.1 # not directly required, pinned by Snyk to avoid a vulnerability
+requests>=2.32.2 # not directly required, pinned by Snyk to avoid a vulnerability
+scikit-learn>=1.5.0 # not directly required, pinned by Snyk to avoid a vulnerability
+numpy>=1.22.0 # not directly required, pinned by Snyk to avoid a vulnerability
