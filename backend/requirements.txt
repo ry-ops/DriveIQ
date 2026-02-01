@@ -1,7 +1,7 @@
 # FastAPI
 fastapi==0.123.0
 uvicorn[standard]==0.38.0
-python-multipart==0.0.20
+python-multipart>=0.0.22  # Updated to fix CVE-2024-47874 arbitrary file write
 starlette==0.50.0
 
 # Database
@@ -9,6 +9,12 @@ sqlalchemy==2.0.23
 psycopg2-binary==2.9.9
 pgvector==0.2.4
 alembic==1.17.2
+
+# Redis
+redis==5.0.1
+
+# Vector Database
+qdrant-client==1.9.0
 
 # Validation
 pydantic==2.12.5
@@ -25,9 +31,10 @@ bcrypt==4.2.1
 
 # AI/ML
 anthropic==0.75.0
-sentence-transformers>=2.2.2
+sentence-transformers>=3.1.0
 torch>=2.2.0
-pypdf==6.4.0
+pypdf>=6.6.0
+pymupdf>=1.23.0
 
 # Utilities
 python-dotenv==1.0.0
@@ -35,11 +42,23 @@ httpx==0.28.1
 tenacity==8.2.3
 
 # Testing
-pytest==7.4.3
-pytest-asyncio==1.3.0
-httpx==0.28.1
+pytest>=8.2.0
+pytest-asyncio>=0.23.0
 
 # Development
 black==24.10.0
 isort==5.12.0
 mypy==1.19.0
+pillow>=10.0.0 # not directly required, pinned by Snyk to avoid a vulnerability
+transformers>=4.36.0 # not directly required, pinned by Snyk to avoid a vulnerability
+urllib3>=1.26.19 # not directly required, pinned by Snyk to avoid a vulnerability
+sentencepiece>=0.2.1 # not directly required, pinned by Snyk to avoid a vulnerability
+nltk>=3.9 # not directly required, pinned by Snyk to avoid a vulnerability
+wheel>=0.38.0 # not directly required, pinned by Snyk to avoid a vulnerability
+setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
+zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
+dnspython>=2.6.1 # not directly required, pinned by Snyk to avoid a vulnerability
+filelock>=3.20.1 # not directly required, pinned by Snyk to avoid a vulnerability
+requests>=2.32.2 # not directly required, pinned by Snyk to avoid a vulnerability
+scikit-learn>=1.5.0 # not directly required, pinned by Snyk to avoid a vulnerability
+numpy>=1.22.0 # not directly required, pinned by Snyk to avoid a vulnerability

@@ -8,7 +8,12 @@ import fitz  # PyMuPDF
 
 
 # Directory for storing page images
-PAGE_IMAGES_DIR = Path(__file__).parent.parent.parent.parent / "page_images"
+# Use /app/page_images in Docker, or project root locally
+_app_dir = Path("/app")
+if _app_dir.exists() and (_app_dir / "app").exists():
+    PAGE_IMAGES_DIR = _app_dir / "page_images"
+else:
+    PAGE_IMAGES_DIR = Path(__file__).parent.parent.parent.parent / "page_images"
 THUMBNAILS_DIR = PAGE_IMAGES_DIR / "thumbnails"
 FULLSIZE_DIR = PAGE_IMAGES_DIR / "fullsize"
 HIGHLIGHTED_DIR = PAGE_IMAGES_DIR / "highlighted"
@@ -156,23 +161,29 @@ def extract_key_terms(text: str) -> List[str]:
 
 def get_pdf_path_for_document(document_name: str) -> Optional[str]:
     """Find the PDF path for a given document name."""
-    uploads_dir = Path(__file__).parent.parent.parent.parent / "uploads"
+    # Check both docs and uploads directories
+    base_dir = Path(__file__).parent.parent.parent.parent
+    search_dirs = [base_dir / "docs", base_dir / "uploads"]
 
-    # Try exact match first
-    pdf_path = uploads_dir / document_name
-    if pdf_path.exists():
-        return str(pdf_path)
+    for search_dir in search_dirs:
+        if not search_dir.exists():
+            continue
 
-    # Try with .pdf extension
-    if not document_name.endswith('.pdf'):
-        pdf_path = uploads_dir / f"{document_name}.pdf"
+        # Try exact match first
+        pdf_path = search_dir / document_name
         if pdf_path.exists():
             return str(pdf_path)
 
-    # Search for partial match
-    for file in uploads_dir.glob("*.pdf"):
-        if sanitize_filename(document_name) in sanitize_filename(file.name):
-            return str(file)
+        # Try with .pdf extension
+        if not document_name.endswith('.pdf'):
+            pdf_path = search_dir / f"{document_name}.pdf"
+            if pdf_path.exists():
+                return str(pdf_path)
+
+        # Search for partial match
+        for file in search_dir.glob("*.pdf"):
+            if sanitize_filename(document_name) in sanitize_filename(file.name):
+                return str(file)
 
     return None
 

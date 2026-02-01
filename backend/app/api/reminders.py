@@ -70,7 +70,7 @@ def create_reminder_from_maintenance_schedule(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/", response_model=List[ReminderResponse])
+@router.get("", response_model=List[ReminderResponse])
 def get_reminders(
     active_only: bool = True,
     db: Session = Depends(get_db)
@@ -129,7 +129,7 @@ def get_reminder(reminder_id: int, db: Session = Depends(get_db)):
     return reminder
 
 
-@router.post("/", response_model=ReminderResponse)
+@router.post("", response_model=ReminderResponse)
 def create_reminder(reminder: ReminderCreate, db: Session = Depends(get_db)):
     """Create a new reminder."""
     db_reminder = Reminder(**reminder.model_dump())
