@@ -50,9 +50,27 @@ export const remindersApi = {
 }
 
 // Search API
+export interface AskSource {
+  document: string
+  page: number
+  chapter?: string
+  section?: string
+  topics?: string[]
+  thumbnail_url: string
+  fullsize_url: string
+  highlighted_url?: string | null
+}
+
+export interface AskResponse {
+  answer: string
+  sources: AskSource[]
+  key_terms?: string[]
+  model: string
+}
+
 export const searchApi = {
   search: (query: string, limit = 5) => api.post<SearchResult[]>('/search', { query, limit }).then(r => r.data),
-  ask: (query: string) => api.post<{ answer: string; sources: Array<{ document: string; page: number }> }>('/search/ask', { query }).then(r => r.data),
+  ask: (query: string) => api.post<AskResponse>('/search/ask', { query }).then(r => r.data),
 }
 
 // Service Records API (CARFAX imports)
