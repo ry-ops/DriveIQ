@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 
-from app.api import vehicle, maintenance, reminders, search, uploads, auth, import_data, moe, pages
+from app.api import vehicle, maintenance, reminders, search, uploads, auth, import_data, moe, pages, chat
 from app.core.config import settings
 from app.core.rate_limit import RateLimitMiddleware
 from app.core.database import check_database_health
@@ -49,6 +49,7 @@ app.include_router(uploads.router, prefix="/api/uploads", tags=["Uploads"])
 app.include_router(import_data.router, prefix="/api/import", tags=["Import"])
 app.include_router(moe.router, prefix="/api/moe", tags=["MoE"])
 app.include_router(pages.router, prefix="/api/pages", tags=["Pages"])
+app.include_router(chat.router, prefix="/api/chat", tags=["Chat"])
 
 
 @app.get("/")

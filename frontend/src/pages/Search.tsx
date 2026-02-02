@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { Search as SearchIcon, Send, FileImage } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 import { searchApi } from '../services/api'
 import PageViewer from '../components/PageViewer'
 
@@ -79,8 +80,8 @@ export default function Search() {
 
       {answer && (
         <div className="bg-white rounded-lg shadow p-6 space-y-4">
-          <div className="prose max-w-none">
-            <p className="text-gray-800 whitespace-pre-wrap">{answer.text}</p>
+          <div className="prose prose-gray max-w-none prose-headings:text-gray-900 prose-h2:text-xl prose-h2:mt-4 prose-h2:mb-2 prose-h3:text-lg prose-h3:mt-3 prose-h3:mb-1 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-strong:font-semibold">
+            <ReactMarkdown>{answer.text}</ReactMarkdown>
           </div>
 
           {answer.sources.length > 0 && (

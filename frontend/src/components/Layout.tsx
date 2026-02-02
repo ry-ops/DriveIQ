@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Car, Wrench, Bell, Search, FileText } from 'lucide-react'
+import ChatWidget from './ChatWidget'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -47,6 +48,7 @@ export default function Layout({ children }: LayoutProps) {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {children}
       </main>
+      <ChatWidget />
     </div>
   )
 }

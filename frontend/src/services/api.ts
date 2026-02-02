@@ -73,6 +73,37 @@ export const searchApi = {
   ask: (query: string) => api.post<AskResponse>('/search/ask', { query }).then(r => r.data),
 }
 
+// Chat API
+export interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+export interface ChatSource {
+  document: string
+  page: number
+  chapter?: string
+  section?: string
+  relevance?: number
+  thumbnail_url: string
+  fullsize_url: string
+  highlighted_url?: string | null
+}
+
+export interface ChatResponse {
+  message: string
+  sources: ChatSource[]
+  session_id: string
+  model: string
+  query_intent: string
+}
+
+export const chatApi = {
+  send: (messages: ChatMessage[], sessionId?: string | null) =>
+    api.post<ChatResponse>('/chat', { messages, session_id: sessionId }).then(r => r.data),
+  clearSession: (sessionId: string) => api.delete(`/chat/${sessionId}`),
+}
+
 // Service Records API (CARFAX imports)
 export interface ServiceRecord {
   id: number

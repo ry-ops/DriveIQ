@@ -199,6 +199,38 @@ class TokenBlacklist(RedisCache):
         return self.exists(token_hash)
 
 
+class ChatSessionStore(RedisCache):
+    """Redis-backed chat session storage for conversational AI."""
+
+    def __init__(self):
+        super().__init__(prefix="driveiq:chat")
+        self.max_history = 20  # Limit messages to control context size
+
+    def create_session(self) -> str:
+        """Create a new chat session and return session ID."""
+        import uuid
+
+        session_id = str(uuid.uuid4())
+        self.set(session_id, [], ttl=3600)  # 1 hour TTL
+        return session_id
+
+    def get_history(self, session_id: str) -> list:
+        """Get conversation history for session."""
+        return self.get(session_id) or []
+
+    def append_message(self, session_id: str, role: str, content: str) -> bool:
+        """Append message to session history."""
+        history = self.get_history(session_id)
+        history.append({"role": role, "content": content})
+        # Limit history to prevent context overflow
+        history = history[-self.max_history:]
+        return self.set(session_id, history, ttl=3600)
+
+    def clear_session(self, session_id: str) -> bool:
+        """Clear conversation history for session."""
+        return self.delete(session_id)
+
+
 class DistributedRateLimiter:
     """Redis-based distributed rate limiter."""
 
@@ -246,3 +278,4 @@ search_cache = SearchCache()
 session_store = SessionStore()
 token_blacklist = TokenBlacklist()
 rate_limiter = DistributedRateLimiter()
+chat_session_store = ChatSessionStore()

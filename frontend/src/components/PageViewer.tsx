@@ -21,11 +21,10 @@ export default function PageViewer({ sources, keyTerms = [] }: PageViewerProps) 
   const [selectedPage, setSelectedPage] = useState<Source | null>(null)
   const [showHighlighted, setShowHighlighted] = useState(true)
 
-  const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
-
+  // Use relative URLs - the frontend proxy handles routing to backend
   const getImageUrl = (url: string) => {
     if (url.startsWith('http')) return url
-    return `${apiBaseUrl}${url}`
+    return url  // Keep as relative URL (e.g., /api/pages/...)
   }
 
   const getDisplayUrl = (source: Source) => {

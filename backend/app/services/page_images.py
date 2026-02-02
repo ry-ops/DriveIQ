@@ -162,7 +162,12 @@ def extract_key_terms(text: str) -> List[str]:
 def get_pdf_path_for_document(document_name: str) -> Optional[str]:
     """Find the PDF path for a given document name."""
     # Check both docs and uploads directories
-    base_dir = Path(__file__).parent.parent.parent.parent
+    # In Docker, these are at /app/docs and /app/uploads
+    _app_dir = Path("/app")
+    if _app_dir.exists() and (_app_dir / "app").exists():
+        base_dir = _app_dir
+    else:
+        base_dir = Path(__file__).parent.parent.parent.parent
     search_dirs = [base_dir / "docs", base_dir / "uploads"]
 
     for search_dir in search_dirs:
