@@ -161,6 +161,19 @@ export default function Dashboard() {
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set())
   const [logReminder, setLogReminder] = useState<Reminder | null>(null)
   const [logCost, setLogCost] = useState('')
+  const [blurredCards, setBlurredCards] = useState<Set<string>>(new Set())
+
+  const toggleBlur = (cardId: string) => {
+    setBlurredCards(prev => {
+      const next = new Set(prev)
+      if (next.has(cardId)) {
+        next.delete(cardId)
+      } else {
+        next.add(cardId)
+      }
+      return next
+    })
+  }
 
   const { data: vehicle, isLoading: vehicleLoading } = useQuery({
     queryKey: ['vehicle'],
@@ -399,24 +412,32 @@ export default function Dashboard() {
           {/* Stats Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Odometer */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+            <div
+              onClick={() => toggleBlur('odometer')}
+              className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+              title="Click to blur/unblur"
+            >
               <div className="flex items-center gap-2 mb-2">
                 <Gauge className="h-5 w-5 text-blue-400" />
                 <span className="text-xs font-medium uppercase tracking-wider text-gray-400">Odometer</span>
               </div>
-              <p className="text-2xl lg:text-3xl font-bold text-white">
+              <p className={`text-2xl lg:text-3xl font-bold text-white transition-all ${blurredCards.has('odometer') ? 'blur-md select-none' : ''}`}>
                 {vehicle.current_mileage?.toLocaleString() || '—'}
               </p>
               <p className="text-sm text-gray-500">miles</p>
             </div>
 
             {/* Estimated Value */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+            <div
+              onClick={() => toggleBlur('value')}
+              className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+              title="Click to blur/unblur"
+            >
               <div className="flex items-center gap-2 mb-2">
                 <TrendingUp className="h-5 w-5 text-green-400" />
                 <span className="text-xs font-medium uppercase tracking-wider text-gray-400">Est. Value</span>
               </div>
-              <p className="text-2xl lg:text-3xl font-bold text-white">
+              <p className={`text-2xl lg:text-3xl font-bold text-white transition-all ${blurredCards.has('value') ? 'blur-md select-none' : ''}`}>
                 ${carfaxReport?.retail_value?.toLocaleString() || '—'}
               </p>
               <p className="text-sm text-gray-500">CARFAX estimate</p>
@@ -435,12 +456,16 @@ export default function Dashboard() {
             </div>
 
             {/* VIN */}
-            <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+            <div
+              onClick={() => toggleBlur('vin')}
+              className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+              title="Click to blur/unblur"
+            >
               <div className="flex items-center gap-2 mb-2">
                 <FileText className="h-5 w-5 text-purple-400" />
                 <span className="text-xs font-medium uppercase tracking-wider text-gray-400">VIN</span>
               </div>
-              <p className="text-sm lg:text-base font-mono font-bold text-white truncate" title={vehicle.vin}>
+              <p className={`text-sm lg:text-base font-mono font-bold text-white truncate transition-all ${blurredCards.has('vin') ? 'blur-md select-none' : ''}`} title={vehicle.vin}>
                 {vehicle.vin}
               </p>
               <p className="text-sm text-gray-500">Vehicle ID</p>
