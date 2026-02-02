@@ -4,6 +4,15 @@ DriveIQ MCP Server
 
 Model Context Protocol server for interacting with DriveIQ vehicle management system.
 Provides tools for document search, vehicle management, maintenance tracking, and reminders.
+
+Transport Protocol:
+    This server uses stdio with newline-delimited JSON (NDJSON) format.
+    - Input: One JSON-RPC message per line from stdin
+    - Output: One JSON-RPC response per line to stdout
+    - Logs: Written to stderr (captured by Claude Desktop)
+
+    Note: Claude Desktop does NOT use Content-Length framing. Each message is a
+    complete JSON object terminated by a newline character.
 """
 
 import asyncio
@@ -407,51 +416,47 @@ async def handle_message(server: DriveIQMCPServer, message: dict) -> Optional[di
         }
 
 
+def write_response(response: dict):
+    """Write a response to stdout as newline-delimited JSON."""
+    response_json = json.dumps(response)
+    sys.stdout.write(response_json + "\n")
+    sys.stdout.flush()
+
+
 async def main():
     """Main entry point for MCP server."""
     server = DriveIQMCPServer()
     logger.info("DriveIQ MCP Server started")
 
     try:
-        # Read from stdin, write to stdout (stdio transport)
+        # Set up async reader for stdin
+        loop = asyncio.get_event_loop()
         reader = asyncio.StreamReader()
         protocol = asyncio.StreamReaderProtocol(reader)
-        await asyncio.get_event_loop().connect_read_pipe(lambda: protocol, sys.stdin)
-
-        writer_transport, writer_protocol = await asyncio.get_event_loop().connect_write_pipe(
-            asyncio.streams.FlowControlMixin, sys.stdout
-        )
-        writer = asyncio.StreamWriter(writer_transport, writer_protocol, reader, asyncio.get_event_loop())
+        await loop.connect_read_pipe(lambda: protocol, sys.stdin)
 
         while True:
-            # Read content-length header
-            header_line = await reader.readline()
-            if not header_line:
+            # Read one line of JSON
+            line = await reader.readline()
+            if not line:
                 break
 
-            header = header_line.decode().strip()
-            if not header.startswith("Content-Length:"):
+            line = line.decode().strip()
+            if not line:
                 continue
 
-            content_length = int(header.split(":")[1].strip())
+            try:
+                message = json.loads(line)
+            except json.JSONDecodeError:
+                logger.error(f"Invalid JSON: {line}")
+                continue
 
-            # Read empty line
-            await reader.readline()
-
-            # Read content
-            content = await reader.read(content_length)
-            message = json.loads(content.decode())
-
-            logger.debug(f"Received: {message}")
+            logger.info(f"Received: {message.get('method')}")
 
             response = await handle_message(server, message)
             if response:
-                response_json = json.dumps(response)
-                response_bytes = response_json.encode()
-                output = f"Content-Length: {len(response_bytes)}\r\n\r\n".encode() + response_bytes
-                writer.write(output)
-                await writer.drain()
-                logger.debug(f"Sent: {response}")
+                write_response(response)
+                logger.info(f"Sent response for: {message.get('method')}")
 
     except Exception as e:
         logger.error(f"Server error: {e}")
