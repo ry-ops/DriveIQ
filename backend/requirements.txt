@@ -27,7 +27,7 @@ email-validator==2.3.0
 # PyJWT is actively maintained and does not have the ecdsa dependency issue
 PyJWT==2.10.1
 passlib[bcrypt]==1.7.4
-bcrypt==4.2.1
+bcrypt==5.0.0
 
 # AI/ML
 anthropic==0.75.0
