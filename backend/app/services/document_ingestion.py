@@ -1,6 +1,8 @@
 """Enhanced document ingestion with topic tagging for filtered retrieval."""
 import os
 import re
+import uuid
+import logging
 from typing import List, Dict, Optional, Tuple
 from pypdf import PdfReader
 from sqlalchemy.orm import Session
@@ -8,6 +10,9 @@ from sqlalchemy import text
 
 from app.services.embeddings import generate_embedding
 from app.services.page_images import extract_page_images
+from app.core.qdrant_client import upsert_vectors, delete_by_filter, ensure_collection
+
+logger = logging.getLogger(__name__)
 
 # Topic keywords mapping - used to auto-tag content
 TOPIC_KEYWORDS = {
@@ -175,11 +180,22 @@ def process_pdf_document(
 
 
 def ingest_document(db: Session, file_path: str, document_name: str, document_type: str = "manual") -> int:
-    """Ingest a single document into the database."""
+    """Ingest a single document into PostgreSQL and Qdrant."""
+    logger.info(f"Processing document: {document_name}")
+
     # Process document
     chunks = process_pdf_document(file_path, document_name, document_type)
+    logger.info(f"Extracted {len(chunks)} chunks from {document_name}")
 
-    # Insert chunks
+    # Ensure Qdrant collection exists
+    ensure_collection()
+
+    # Prepare Qdrant batch
+    qdrant_ids = []
+    qdrant_vectors = []
+    qdrant_payloads = []
+
+    # Insert chunks to PostgreSQL
     inserted = 0
     for chunk in chunks:
         try:
@@ -210,53 +226,108 @@ def ingest_document(db: Session, file_path: str, document_name: str, document_ty
                 }
             )
             inserted += 1
+
+            # Prepare Qdrant data
+            qdrant_ids.append(str(uuid.uuid4()))
+            qdrant_vectors.append(chunk["embedding"])
+            qdrant_payloads.append({
+                "document_name": chunk["document_name"],
+                "document_type": chunk["document_type"],
+                "content": chunk["content"],
+                "page_number": chunk["page_number"],
+                "chunk_index": chunk["chunk_index"],
+                "topics": chunk["topics"],
+                "chapter": chunk["chapter"],
+                "section": chunk["section"],
+                "word_count": chunk["tokens"]
+            })
+
         except Exception as e:
-            print(f"Error inserting chunk {chunk['chunk_index']}: {e}")
+            logger.error(f"Error inserting chunk {chunk['chunk_index']}: {e}")
             db.rollback()
             continue
 
     db.commit()
+    logger.info(f"Inserted {inserted} chunks to PostgreSQL for {document_name}")
+
+    # Batch upsert to Qdrant (100 at a time)
+    batch_size = 100
+    qdrant_success = 0
+    for i in range(0, len(qdrant_ids), batch_size):
+        batch_ids = qdrant_ids[i:i + batch_size]
+        batch_vectors = qdrant_vectors[i:i + batch_size]
+        batch_payloads = qdrant_payloads[i:i + batch_size]
+        if upsert_vectors(batch_ids, batch_vectors, batch_payloads):
+            qdrant_success += len(batch_ids)
+
+    logger.info(f"Upserted {qdrant_success} vectors to Qdrant for {document_name}")
+
     return inserted
 
 
 def ingest_all_documents(db: Session, upload_dir: str) -> Dict[str, int]:
-    """Ingest all documents from the upload directory."""
+    """Ingest all documents from the upload directory into PostgreSQL and Qdrant."""
     results = {}
 
     if not os.path.exists(upload_dir):
+        logger.error(f"Upload directory not found: {upload_dir}")
         return {"error": f"Upload directory not found: {upload_dir}"}
 
-    # Clear existing chunks
+    # Clear existing PostgreSQL chunks
+    logger.info("Clearing existing PostgreSQL chunks...")
     db.execute(text("TRUNCATE document_chunks"))
     db.commit()
 
+    # Clear existing Qdrant collection by recreating it
+    logger.info("Recreating Qdrant collection...")
+    from app.core.qdrant_client import get_qdrant
+    from qdrant_client.http import models
+    from app.core.config import settings
+
+    try:
+        client = get_qdrant()
+        collections = [c.name for c in client.get_collections().collections]
+        if settings.QDRANT_COLLECTION in collections:
+            client.delete_collection(settings.QDRANT_COLLECTION)
+            logger.info(f"Deleted existing Qdrant collection: {settings.QDRANT_COLLECTION}")
+    except Exception as e:
+        logger.warning(f"Could not clear Qdrant collection: {e}")
+
     # Find all PDFs
-    for filename in os.listdir(upload_dir):
-        if filename.lower().endswith('.pdf'):
-            file_path = os.path.join(upload_dir, filename)
+    pdf_files = [f for f in os.listdir(upload_dir) if f.lower().endswith('.pdf')]
+    logger.info(f"Found {len(pdf_files)} PDF files in {upload_dir}")
 
-            # Determine document type from filename
-            filename_lower = filename.lower()
-            if 'qrg' in filename_lower or 'quick' in filename_lower:
-                doc_type = "qrg"
-            elif 'maintenance' in filename_lower:
-                doc_type = "maintenance_report"
-            else:
-                doc_type = "manual"
+    for filename in pdf_files:
+        file_path = os.path.join(upload_dir, filename)
+        logger.info(f"Processing: {filename}")
 
-            try:
-                # Extract page images first
-                print(f"Extracting page images for {filename}...")
-                page_results = extract_page_images(file_path, filename)
-                print(f"  Extracted {len(page_results)} page images")
+        # Determine document type from filename
+        filename_lower = filename.lower()
+        if 'qrg' in filename_lower or 'quick' in filename_lower:
+            doc_type = "qrg"
+        elif 'maintenance' in filename_lower:
+            doc_type = "maintenance_report"
+        elif 'carfax' in filename_lower:
+            doc_type = "vehicle_history"
+        elif 'certified' in filename_lower or 'dealer' in filename_lower:
+            doc_type = "dealer_listing"
+        else:
+            doc_type = "manual"
 
-                count = ingest_document(db, file_path, filename, doc_type)
-                results[filename] = count
-                print(f"Ingested {filename}: {count} chunks")
-            except Exception as e:
-                results[filename] = f"Error: {str(e)}"
-                print(f"Error ingesting {filename}: {e}")
+        try:
+            # Extract page images first
+            logger.info(f"Extracting page images for {filename}...")
+            page_results = extract_page_images(file_path, filename)
+            logger.info(f"Extracted {len(page_results)} page images for {filename}")
 
+            count = ingest_document(db, file_path, filename, doc_type)
+            results[filename] = count
+            logger.info(f"Completed {filename}: {count} chunks")
+        except Exception as e:
+            results[filename] = f"Error: {str(e)}"
+            logger.error(f"Error ingesting {filename}: {e}", exc_info=True)
+
+    logger.info(f"Ingestion complete: {len(results)} documents processed")
     return results
 
 

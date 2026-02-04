@@ -8,15 +8,46 @@ from sqlalchemy import text
 from typing import List
 from pydantic import BaseModel
 
-from app.core.security import get_current_user
-from app.core.database import get_db
+from app.core.database import get_db, SessionLocal
 from app.services.document_ingestion import ingest_all_documents, ingest_document
+from app.services.page_images import extract_page_images
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# Upload directories
-UPLOAD_DIR = Path(__file__).parent.parent.parent.parent / "uploads"
-DOCS_DIR = Path(__file__).parent.parent.parent.parent / "docs"
+
+def background_ingest_document(file_path: str, filename: str, document_type: str):
+    """Background task to ingest a single document."""
+    try:
+        logger.info(f"Starting background ingestion for {filename}")
+
+        # Extract page images first
+        logger.info(f"Extracting page images for {filename}...")
+        page_results = extract_page_images(file_path, filename)
+        logger.info(f"Extracted {len(page_results)} page images for {filename}")
+
+        # Create a new database session for background task
+        db = SessionLocal()
+        try:
+            count = ingest_document(db, file_path, filename, document_type)
+            logger.info(f"Ingested {filename}: {count} chunks")
+        finally:
+            db.close()
+
+    except Exception as e:
+        logger.error(f"Background ingestion failed for {filename}: {e}")
+
+# Upload directories - use /app paths in container, relative paths locally
+if Path("/app/docs").exists():
+    # Running in Docker container
+    UPLOAD_DIR = Path("/app/uploads")
+    DOCS_DIR = Path("/app/docs")
+else:
+    # Running locally
+    UPLOAD_DIR = Path(__file__).parent.parent.parent.parent / "uploads"
+    DOCS_DIR = Path(__file__).parent.parent.parent.parent / "docs"
 
 # Ensure directories exist
 UPLOAD_DIR.mkdir(exist_ok=True)
@@ -75,9 +106,8 @@ def validate_pdf_content(content: bytes) -> bool:
 async def upload_document(
     file: UploadFile = File(...),
     background_tasks: BackgroundTasks = None,
-    current_user: dict = Depends(get_current_user)
 ):
-    """Upload a vehicle document (PDF). Requires authentication."""
+    """Upload a vehicle document (PDF). Automatically ingests for AI search."""
 
     # Validate file extension
     ext = Path(file.filename).suffix.lower()
@@ -115,10 +145,25 @@ async def upload_document(
     with open(file_path, "wb") as f:
         f.write(content)
 
+    # Determine document type from filename
+    doc_type = get_document_type(safe_filename)
+
+    # Queue background ingestion task
+    if background_tasks:
+        background_tasks.add_task(
+            background_ingest_document,
+            str(file_path),
+            safe_filename,
+            doc_type
+        )
+        message = f"File uploaded successfully. AI search ingestion started in background."
+    else:
+        message = f"File uploaded successfully. Run document ingestion to enable AI search."
+
     return UploadResponse(
         filename=safe_filename,
         size=len(content),
-        message=f"File uploaded successfully. Run document ingestion to enable AI search."
+        message=message
     )
 
 
@@ -180,7 +225,6 @@ async def get_document_types():
 @router.post("/ingest")
 async def ingest_documents(
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
 ):
     """Ingest all uploaded documents into the vector database with topic tagging."""
     results = ingest_all_documents(db, str(DOCS_DIR))

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { chatApi, ChatSource } from '../services/api'
+import { useChat } from '../context/ChatContext'
 
 interface Message {
   id: string
@@ -11,7 +12,7 @@ interface Message {
 }
 
 export default function ChatWidget() {
-  const [isOpen, setIsOpen] = useState(false)
+  const { isOpen, pendingMessage, openChat, closeChat, clearPendingMessage } = useChat()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -38,13 +39,21 @@ export default function ChatWidget() {
     }
   }, [isOpen])
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return
+  // Handle pending message (auto-send when opened with a message)
+  useEffect(() => {
+    if (isOpen && pendingMessage && !isLoading) {
+      sendMessage(pendingMessage)
+      clearPendingMessage()
+    }
+  }, [isOpen, pendingMessage])
+
+  const sendMessage = async (content: string) => {
+    if (!content.trim() || isLoading) return
 
     const userMessage: Message = {
       id: crypto.randomUUID(),
       role: 'user',
-      content: input.trim(),
+      content: content.trim(),
     }
 
     setMessages((prev) => [...prev, userMessage])
@@ -84,6 +93,10 @@ export default function ChatWidget() {
     }
   }
 
+  const handleSend = async () => {
+    await sendMessage(input)
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -96,7 +109,7 @@ export default function ChatWidget() {
       {/* Floating Button */}
       {!isOpen && (
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={openChat}
           className="fixed bottom-6 right-6 w-14 h-14 bg-toyota-red text-white rounded-full shadow-lg hover:bg-red-700 transition-colors flex items-center justify-center z-50"
           aria-label="Open chat"
         >
@@ -111,7 +124,7 @@ export default function ChatWidget() {
           <div className="flex items-center justify-between px-4 py-3 bg-toyota-red text-white rounded-t-lg">
             <span className="font-semibold">DriveIQ Assistant</span>
             <button
-              onClick={() => setIsOpen(false)}
+              onClick={closeChat}
               className="hover:bg-red-700 p-1 rounded transition-colors"
               aria-label="Close chat"
             >

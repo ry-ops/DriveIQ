@@ -1,13 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { Plus, Trash2, FileText, Car, Edit2, X, Tag, List, Clock, Upload, Paperclip } from 'lucide-react'
+import { Plus, X, Tag, List, Clock, Upload, Paperclip, Trash2 } from 'lucide-react'
 import { maintenanceApi, vehicleApi, serviceRecordsApi } from '../services/api'
 import type { ServiceRecord, ServiceRecordUpdate } from '../services/api'
 import ServiceHistoryTimeline from '../components/ServiceHistoryTimeline'
+import MaintenanceCard from '../components/MaintenanceCard'
+import { useChat } from '../context/ChatContext'
 
 export default function Maintenance() {
   const queryClient = useQueryClient()
+  const { openWithMessage } = useChat()
   const [showForm, setShowForm] = useState(false)
   const [editServiceRecord, setEditServiceRecord] = useState<ServiceRecord | null>(null)
   const [newTag, setNewTag] = useState('')
@@ -156,6 +159,14 @@ export default function Maintenance() {
       ...editServiceRecord,
       tags: editServiceRecord.tags.filter(t => t !== tagToRemove),
     })
+  }
+
+  // Handle "Ask about this" from MaintenanceCard
+  const handleAskAbout = (maintenanceType: string) => {
+    const friendlyType = maintenanceType.replace(/_/g, ' ')
+    const vehicleInfo = vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : 'my vehicle'
+    const question = `Tell me about the ${friendlyType} procedure for ${vehicleInfo}. What are the steps, specifications, and any important tips?`
+    openWithMessage(question)
   }
 
   if (isLoading || serviceLoading) {
@@ -569,81 +580,28 @@ export default function Maintenance() {
       {viewMode === 'timeline' ? (
         <ServiceHistoryTimeline />
       ) : (
-        /* Records List */
-        <div className="bg-white rounded-lg shadow">
+        /* Records List - Using MaintenanceCard */
+        <div className="space-y-3">
           {allRecords.length > 0 ? (
-            <div className="divide-y">
-              {allRecords.map((record, index) => (
-                <div key={`${record.source}-${record.id}-${index}`} className="p-4 hover:bg-gray-50">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3">
-                      {record.source.toLowerCase() === 'carfax' ? (
-                        <FileText className="h-5 w-5 text-blue-500 mt-0.5" />
-                      ) : (
-                        <Car className="h-5 w-5 text-gray-400 mt-0.5" />
-                      )}
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-medium capitalize">
-                            {record.maintenance_type.replace(/_/g, ' ')}
-                          </h3>
-                          {record.source.toLowerCase() === 'carfax' && (
-                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">CARFAX</span>
-                          )}
-                          {record.tags?.map(tag => (
-                            <span key={tag} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                        <p className="text-sm text-gray-600">
-                          {format(new Date(record.date_performed), 'MMM d, yyyy')} • {record.mileage?.toLocaleString() || '—'} miles
-                        </p>
-                        {record.service_provider && (
-                          <p className="text-sm text-gray-500">{record.service_provider}</p>
-                        )}
-                        {record.notes && record.source === 'manual' && (
-                          <p className="text-sm text-gray-500 mt-1">{record.notes}</p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {record.cost && (
-                        <span className="font-medium mr-2">${record.cost.toFixed(2)}</span>
-                      )}
-                      {record.source !== 'manual' && 'originalRecord' in record && (
-                        <button
-                          onClick={() => setEditServiceRecord(record.originalRecord as ServiceRecord)}
-                          className="text-gray-400 hover:text-blue-500 p-1"
-                          title="Edit"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </button>
-                      )}
-                      {record.source === 'manual' ? (
-                        <button
-                          onClick={() => deleteRecord.mutate(record.id)}
-                          className="text-gray-400 hover:text-red-500 p-1"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      ) : 'originalRecord' in record && (
-                        <button
-                          onClick={() => deleteServiceRecord.mutate((record.originalRecord as ServiceRecord).id)}
-                          className="text-gray-400 hover:text-red-500 p-1"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            allRecords.map((record, index) => (
+              <MaintenanceCard
+                key={`${record.source}-${record.id}-${index}`}
+                record={record}
+                onEdit={record.source !== 'manual' && 'originalRecord' in record
+                  ? () => setEditServiceRecord(record.originalRecord as ServiceRecord)
+                  : undefined
+                }
+                onDelete={record.source === 'manual'
+                  ? () => deleteRecord.mutate(record.id)
+                  : 'originalRecord' in record
+                    ? () => deleteServiceRecord.mutate((record.originalRecord as ServiceRecord).id)
+                    : undefined
+                }
+                onAskAbout={handleAskAbout}
+              />
+            ))
           ) : (
-            <div className="p-8 text-center text-gray-500">
+            <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
               No maintenance records yet. Add your first record above or import a CARFAX report.
             </div>
           )}

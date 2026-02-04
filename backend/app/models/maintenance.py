@@ -31,6 +31,10 @@ class MaintenanceRecord(Base):
     # Documents/receipts (JSON array of file paths)
     documents = Column(Text)  # JSON string for document paths
 
+    # Photos (JSON array of photo objects with metadata)
+    # Format: [{"filename": "...", "type": "before"|"after"|"general", "timestamp": "...", "caption": "..."}]
+    photos = Column(Text)  # JSON string for photos
+
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

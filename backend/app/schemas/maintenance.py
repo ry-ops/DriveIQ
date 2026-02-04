@@ -20,6 +20,7 @@ class MaintenanceCreate(MaintenanceBase):
     parts_used: Optional[str] = None
     notes: Optional[str] = None
     documents: Optional[str] = None  # JSON array of file paths
+    photos: Optional[str] = None  # JSON array of photo objects
 
 
 class MaintenanceUpdate(BaseModel):
@@ -35,6 +36,7 @@ class MaintenanceUpdate(BaseModel):
     parts_used: Optional[str] = None
     notes: Optional[str] = None
     documents: Optional[str] = None  # JSON array of file paths
+    photos: Optional[str] = None  # JSON array of photo objects
 
 
 class MaintenanceResponse(MaintenanceBase):
@@ -48,6 +50,7 @@ class MaintenanceResponse(MaintenanceBase):
     parts_used: Optional[str] = None
     notes: Optional[str] = None
     documents: Optional[str] = None  # JSON array of file paths
+    photos: Optional[str] = None  # JSON array of photo objects
     created_at: datetime
     updated_at: Optional[datetime] = None
 

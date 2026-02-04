@@ -10,25 +10,46 @@
 
 [![Security Scan](https://github.com/ry-ops/DriveIQ/actions/workflows/security-scan.yml/badge.svg)](https://github.com/ry-ops/DriveIQ/actions/workflows/security-scan.yml)
 
-**Intelligent Vehicle Management Application**
+**Intelligent Vehicle Management Application** | v1.1.0
 
-A full-stack application for tracking maintenance, managing service reminders, and consulting your vehicle's documentation using AI-powered search.
+A full-stack application for tracking maintenance, managing service reminders, and consulting your vehicle's documentation using AI-powered search with RAG (Retrieval-Augmented Generation).
+
+---
+
+## Architecture
+
+<p align="center">
+  <img src="https://github.com/ry-ops/DriveIQ/blob/main/architecture.svg" width="100%">
+</p>
 
 ---
 
 ## Features
 
+### Core Features
 - **Dashboard** - Vehicle overview with mileage tracking, maintenance stats, and total spent KPI
 - **Maintenance Log** - Record oil changes, tire rotations, brake service, and more with cost tracking
 - **Receipt/Document Uploads** - Attach PDFs, images, and receipts to maintenance records
 - **Service Records** - Import CARFAX reports and track complete service history
 - **Smart Reminders** - Date and mileage-based alerts with recurring support
-  - Auto-generate reminders from maintenance schedule
-  - Auto-create maintenance log when reminders are completed
-  - Auto-sync reminders when maintenance records are created
-- **AI Consultation** - Ask questions about your vehicle using natural language
+
+### AI-Powered Features
+- **Floating Chat Widget** - Ask questions about your vehicle from any page
+- **Context-Aware Chat** - "Ask about this" button on maintenance records pre-fills contextual questions
 - **Document Search** - Semantic search across owner's manual, QRG, and service records
+- **RAG Integration** - Retrieval-Augmented Generation with source thumbnails
 - **MoE System** - Mixture of Experts routing to specialized vehicle knowledge domains
+
+### Visual Features
+- **Rich Maintenance Cards** - Expandable cards with related manual page thumbnails
+- **Photo Management** - Upload before/after/general photos for maintenance records
+- **Document Carousel** - Browse related manual pages in timeline view
+- **Full-Size Image Modal** - Click any thumbnail to view full-size document pages
+
+### Auto-Ingestion
+- **Automatic Document Processing** - Upload PDFs and they're automatically ingested into both PostgreSQL and Qdrant
+- **Dual Vector Storage** - pgvector for PostgreSQL + Qdrant for high-performance similarity search
+- **Background Processing** - Non-blocking document ingestion
 
 ## Tech Stack
 
@@ -36,7 +57,9 @@ A full-stack application for tracking maintenance, managing service reminders, a
 |-------|------------|
 | Frontend | React 18, TypeScript, Vite, Tailwind CSS, TanStack Query |
 | Backend | FastAPI, Python 3.11+, SQLAlchemy, Pydantic |
-| Database | PostgreSQL 15+, pgvector |
+| Database | PostgreSQL 15+ with pgvector |
+| Vector DB | Qdrant (optional, for high-performance search) |
+| Cache | Redis (session management, chat history) |
 | AI | Claude AI (Anthropic), Local Embeddings (sentence-transformers) |
 
 ---
@@ -73,6 +96,14 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 
 # AI APIs
 ANTHROPIC_API_KEY=your-anthropic-api-key
+
+# Vector Database (optional)
+QDRANT_HOST=localhost
+QDRANT_PORT=6333
+QDRANT_COLLECTION=driveiq_docs
+
+# Redis (optional, for chat sessions)
+REDIS_URL=redis://localhost:6379
 
 # Vehicle Info
 VEHICLE_VIN=YOUR_VIN_HERE
@@ -126,19 +157,29 @@ DriveIQ/
 │   │   ├── api/            # Route handlers
 │   │   │   ├── auth.py
 │   │   │   ├── vehicle.py
-│   │   │   ├── maintenance.py
+│   │   │   ├── maintenance.py  # + photo upload, related docs
 │   │   │   ├── reminders.py
 │   │   │   ├── search.py
+│   │   │   ├── chat.py         # Chat widget endpoint
+│   │   │   ├── uploads.py      # Auto-ingestion
 │   │   │   ├── moe.py
 │   │   │   └── import_data.py
 │   │   ├── core/           # Config, database, security
+│   │   │   ├── qdrant_client.py  # Qdrant integration
+│   │   │   └── redis_client.py   # Chat session store
 │   │   ├── models/         # SQLAlchemy models
 │   │   ├── schemas/        # Pydantic schemas
 │   │   └── services/       # Business logic
+│   │       └── document_ingestion.py  # Dual vector ingestion
 │   └── requirements.txt
 ├── frontend/               # React application
 │   ├── src/
 │   │   ├── components/     # Reusable components
+│   │   │   ├── ChatWidget.tsx       # Floating chat
+│   │   │   ├── MaintenanceCard.tsx  # Rich cards
+│   │   │   └── ServiceHistoryTimeline.tsx
+│   │   ├── context/
+│   │   │   └── ChatContext.tsx      # Global chat state
 │   │   ├── pages/          # Page components
 │   │   ├── services/       # API client
 │   │   └── types/          # TypeScript types
@@ -173,10 +214,16 @@ DriveIQ/
 - `PATCH /api/maintenance/{id}` - Update record
 - `DELETE /api/maintenance/{id}` - Delete record
 - `GET /api/maintenance/types/summary` - Get summary by type
+- `GET /api/maintenance/related-docs/{type}` - Get related manual pages (RAG)
 - `POST /api/maintenance/{id}/documents` - Upload receipt/document
 - `GET /api/maintenance/{id}/documents` - List documents for record
-- `GET /api/maintenance/{id}/documents/{filename}/download` - Download document
-- `DELETE /api/maintenance/{id}/documents/{filename}` - Delete document
+- `POST /api/maintenance/{id}/photos` - Upload photo (before/after/general)
+- `GET /api/maintenance/{id}/photos` - List photos for record
+- `DELETE /api/maintenance/{id}/photos/{filename}` - Delete photo
+
+### Chat
+- `POST /api/chat` - Send message to AI assistant (with session support)
+- `DELETE /api/chat/{session_id}` - Clear chat session
 
 ### Service Records (CARFAX)
 - `POST /api/import/carfax` - Import CARFAX PDF
@@ -195,6 +242,11 @@ DriveIQ/
 - `POST /api/search` - Semantic search in documents
 - `POST /api/search/ask` - AI-powered Q&A with Claude
 
+### Uploads
+- `GET /api/uploads` - List uploaded documents
+- `POST /api/uploads` - Upload document (auto-ingests)
+- `DELETE /api/uploads/{filename}` - Delete document
+
 ### MoE (Mixture of Experts)
 - `POST /api/moe/ask` - Ask with automatic expert routing
 - `POST /api/moe/feedback` - Submit response feedback
@@ -210,7 +262,7 @@ DriveIQ/
 ### Tables
 
 - **vehicles** - Vehicle info, VIN, mileage tracking
-- **maintenance_records** - Service history with costs and notes
+- **maintenance_records** - Service history with costs, notes, and photos
 - **maintenance_logs** - CARFAX imports and manual service records
 - **reminders** - Date/mileage-based alerts with recurrence
 - **document_chunks** - Vectorized PDF content (384-dim embeddings)
@@ -238,6 +290,13 @@ LIMIT 5;
 - Model: `claude-sonnet-4-20250514`
 - Used for: Q&A reasoning, expert responses
 - Requires: Anthropic API key
+
+### RAG Pipeline
+1. User asks question or clicks "Ask about this"
+2. Query embedded using sentence-transformers
+3. Similar chunks retrieved from pgvector/Qdrant
+4. Context + question sent to Claude
+5. Response returned with source thumbnails
 
 ### MoE Experts
 - **Maintenance Expert** - Service intervals, fluid specs, routine maintenance
@@ -270,16 +329,35 @@ npm test
 
 ---
 
-## Deployment
+## Docker Deployment
 
-### Environment Variables (Production)
-
-```env
-DATABASE_URL=postgresql://user:pass@host:5432/driveiq
-ANTHROPIC_API_KEY=sk-ant-...
-SECRET_KEY=<generate-secure-key>
-CORS_ORIGINS=["https://yourdomain.com"]
+```bash
+docker-compose up -d
 ```
+
+Services:
+- **frontend**: http://localhost:3000
+- **backend**: http://localhost:8001
+- **postgres**: localhost:5432
+- **qdrant**: localhost:6333
+- **redis**: localhost:6379
+
+---
+
+## Changelog
+
+### v1.1.0 (2026-02-03)
+- Added floating chat widget with context-aware "Ask about this" integration
+- Added rich MaintenanceCard component with related manual page thumbnails
+- Added photo upload (before/after/general) for maintenance records
+- Added document carousel to timeline view
+- Added automatic document ingestion on upload
+- Added dual vector storage (PostgreSQL + Qdrant)
+- Added Redis session management for chat history
+- Updated architecture diagram
+
+### v1.0.0
+- Initial release with maintenance tracking, reminders, and AI search
 
 ---
 

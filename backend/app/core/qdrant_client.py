@@ -159,9 +159,10 @@ def search_vectors(
             if must_conditions:
                 query_filter = models.Filter(must=must_conditions)
 
-        results = client.search(
+        # Use query_points for newer qdrant-client versions
+        results = client.query_points(
             collection_name=settings.QDRANT_COLLECTION,
-            query_vector=query_vector,
+            query=query_vector,
             limit=limit,
             score_threshold=score_threshold,
             query_filter=query_filter,
@@ -174,7 +175,7 @@ def search_vectors(
                 "score": r.score,
                 "payload": r.payload,
             }
-            for r in results
+            for r in results.points
         ]
     except Exception as e:
         logger.error(f"Qdrant search failed: {e}")

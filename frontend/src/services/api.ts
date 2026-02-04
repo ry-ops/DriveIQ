@@ -19,6 +19,33 @@ export interface MaintenanceDocument {
   path: string
 }
 
+export interface MaintenancePhoto {
+  filename: string
+  type: 'before' | 'after' | 'general'
+  timestamp: string
+  caption?: string
+  url: string
+  thumbnail_url: string
+  size?: number
+}
+
+export interface RelatedDocument {
+  document_name: string
+  page_number: number
+  chapter?: string
+  section?: string
+  relevance: number
+  thumbnail_url: string
+  fullsize_url: string
+  content_preview: string
+}
+
+export interface RelatedDocsResponse {
+  maintenance_type: string
+  search_query: string
+  documents: RelatedDocument[]
+}
+
 export const maintenanceApi = {
   getAll: (type?: string) => api.get<MaintenanceRecord[]>('/maintenance', { params: { maintenance_type: type } }).then(r => r.data),
   get: (id: number) => api.get<MaintenanceRecord>(`/maintenance/${id}`).then(r => r.data),
@@ -36,6 +63,21 @@ export const maintenanceApi = {
   },
   getDocuments: (recordId: number) => api.get<MaintenanceDocument[]>(`/maintenance/${recordId}/documents`).then(r => r.data),
   deleteDocument: (recordId: number, filename: string) => api.delete(`/maintenance/${recordId}/documents/${encodeURIComponent(filename)}`),
+  // Photo management
+  uploadPhoto: (recordId: number, file: File, photoType: 'before' | 'after' | 'general' = 'general', caption?: string) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const params = new URLSearchParams({ photo_type: photoType })
+    if (caption) params.append('caption', caption)
+    return api.post<MaintenancePhoto>(`/maintenance/${recordId}/photos?${params}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }).then(r => r.data)
+  },
+  getPhotos: (recordId: number) => api.get<MaintenancePhoto[]>(`/maintenance/${recordId}/photos`).then(r => r.data),
+  deletePhoto: (recordId: number, filename: string) => api.delete(`/maintenance/${recordId}/photos/${encodeURIComponent(filename)}`),
+  // Related documents (RAG search for maintenance procedures)
+  getRelatedDocs: (maintenanceType: string, limit = 5) =>
+    api.get<RelatedDocsResponse>(`/maintenance/related-docs/${maintenanceType}`, { params: { limit } }).then(r => r.data),
 }
 
 // Reminders API
