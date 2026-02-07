@@ -9,8 +9,9 @@ from typing import List
 from pydantic import BaseModel
 
 from app.core.database import get_db, SessionLocal
+from app.core.qdrant_client import delete_by_filter
 from app.services.document_ingestion import ingest_all_documents, ingest_document
-from app.services.page_images import extract_page_images
+from app.services.page_images import extract_page_images, delete_page_images
 import logging
 
 logger = logging.getLogger(__name__)
@@ -18,8 +19,16 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+# Document types to keep on disk after ingestion (reference material)
+KEEP_ON_DISK_TYPES = {"manual", "qrg"}
+
+
 def background_ingest_document(file_path: str, filename: str, document_type: str):
-    """Background task to ingest a single document."""
+    """Background task to ingest a single document.
+
+    After successful ingestion, non-manual PDFs are deleted from disk.
+    The data lives on in pgvector, Qdrant, and page images.
+    """
     try:
         logger.info(f"Starting background ingestion for {filename}")
 
@@ -35,6 +44,13 @@ def background_ingest_document(file_path: str, filename: str, document_type: str
             logger.info(f"Ingested {filename}: {count} chunks")
         finally:
             db.close()
+
+        # Delete source PDF if it's not a manual/qrg (data is in vectors + page images)
+        if document_type not in KEEP_ON_DISK_TYPES:
+            file = Path(file_path)
+            if file.exists():
+                file.unlink()
+                logger.info(f"Deleted source PDF after ingestion: {filename}")
 
     except Exception as e:
         logger.error(f"Background ingestion failed for {filename}: {e}")
@@ -186,26 +202,48 @@ async def list_documents():
 
 @router.delete("/{filename}")
 async def delete_document(
-    filename: str
+    filename: str,
+    db: Session = Depends(get_db),
 ):
-    """Delete an uploaded document."""
-    # Sanitize filename
+    """Delete an uploaded document and all associated data (chunks, vectors, page images)."""
     safe_filename = sanitize_filename(filename)
     if not safe_filename:
         raise HTTPException(status_code=400, detail="Invalid filename")
 
     file_path = DOCS_DIR / safe_filename
 
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="Document not found")
+    # Delete chunks from PostgreSQL
+    deleted_chunks = db.execute(
+        text("SELECT COUNT(*) FROM document_chunks WHERE document_name = :name"),
+        {"name": safe_filename}
+    ).scalar() or 0
+    if deleted_chunks:
+        db.execute(
+            text("DELETE FROM document_chunks WHERE document_name = :name"),
+            {"name": safe_filename}
+        )
+        db.commit()
 
-    # Security: ensure file is within docs directory
-    if not file_path.resolve().parent == DOCS_DIR.resolve():
-        raise HTTPException(status_code=400, detail="Invalid file path")
+    # Delete vectors from Qdrant
+    delete_by_filter("document_name", safe_filename)
 
-    file_path.unlink()
+    # Delete page images
+    deleted_images = delete_page_images(safe_filename)
 
-    return {"message": f"Document '{safe_filename}' deleted successfully"}
+    # Delete PDF file (may not exist if auto-deleted after ingestion)
+    pdf_deleted = False
+    if file_path.exists():
+        if file_path.resolve().parent != DOCS_DIR.resolve():
+            raise HTTPException(status_code=400, detail="Invalid file path")
+        file_path.unlink()
+        pdf_deleted = True
+
+    return {
+        "message": f"Document '{safe_filename}' and all associated data deleted",
+        "chunks_deleted": deleted_chunks,
+        "images_deleted": deleted_images,
+        "pdf_deleted": pdf_deleted,
+    }
 
 
 @router.get("/types")

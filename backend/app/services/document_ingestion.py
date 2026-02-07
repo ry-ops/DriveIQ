@@ -183,6 +183,21 @@ def ingest_document(db: Session, file_path: str, document_name: str, document_ty
     """Ingest a single document into PostgreSQL and Qdrant."""
     logger.info(f"Processing document: {document_name}")
 
+    # Remove existing chunks for this document (prevents duplicates on re-upload)
+    existing = db.execute(
+        text("SELECT COUNT(*) FROM document_chunks WHERE document_name = :name"),
+        {"name": document_name}
+    ).scalar()
+    if existing:
+        db.execute(
+            text("DELETE FROM document_chunks WHERE document_name = :name"),
+            {"name": document_name}
+        )
+        db.commit()
+        logger.info(f"Deleted {existing} existing pgvector chunks for {document_name}")
+
+    delete_by_filter("document_name", document_name)
+
     # Process document
     chunks = process_pdf_document(file_path, document_name, document_type)
     logger.info(f"Extracted {len(chunks)} chunks from {document_name}")

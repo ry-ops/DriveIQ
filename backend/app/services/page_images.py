@@ -193,6 +193,19 @@ def get_pdf_path_for_document(document_name: str) -> Optional[str]:
     return None
 
 
+def delete_page_images(document_name: str) -> int:
+    """Delete all page images (thumbnails, fullsize, highlighted) for a document."""
+    safe_name = sanitize_filename(document_name)
+    deleted = 0
+
+    for directory in [THUMBNAILS_DIR, FULLSIZE_DIR, HIGHLIGHTED_DIR]:
+        for image_path in directory.glob(f"{safe_name}_page_*.png"):
+            image_path.unlink()
+            deleted += 1
+
+    return deleted
+
+
 def cleanup_highlighted_cache(max_age_hours: int = 24):
     """Remove old highlighted images from cache."""
     import time
