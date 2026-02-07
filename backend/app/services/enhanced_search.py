@@ -1,4 +1,5 @@
 """Enhanced search with relevance filtering, query classification, and hybrid search."""
+import logging
 import re
 from enum import Enum
 from typing import List, Optional, Tuple
@@ -8,6 +9,9 @@ from sqlalchemy import text
 
 from app.services.embeddings import generate_embedding
 from app.core.config import settings
+from app.core.qdrant_client import search_vectors
+
+logger = logging.getLogger(__name__)
 
 
 class QueryIntent(str, Enum):
@@ -142,16 +146,20 @@ def hybrid_search(
     """
     Perform hybrid search combining semantic and keyword matching.
 
+    Queries pgvector (PostgreSQL) and optionally Qdrant, merging results
+    from both backends. Deduplicates by (document_name, page_number),
+    keeping the higher combined score.
+
     Returns results sorted by combined score, filtered by minimum threshold.
     """
-    # Generate semantic embedding
+    # Generate semantic embedding once (reused for both backends)
     query_embedding = generate_embedding(query)
     embedding_str = "[" + ",".join(str(x) for x in query_embedding) + "]"
 
     # Retrieve more candidates than needed for filtering
     candidate_limit = limit * 3
 
-    # Vector similarity search with scores
+    # --- pgvector search ---
     results = db.execute(
         text("""
         SELECT content, document_name, page_number, chapter, section, topics,
@@ -168,11 +176,8 @@ def hybrid_search(
     for r in results:
         semantic_score = float(r.semantic_score)
         keyword_score = calculate_keyword_score(query, r.content)
-
-        # Combined score: weighted average (semantic is usually more reliable)
         combined_score = (semantic_score * 0.7) + (keyword_score * 0.3)
 
-        # Only include if above threshold
         if combined_score >= min_score:
             scored_results.append(SearchResult(
                 content=r.content,
@@ -186,9 +191,46 @@ def hybrid_search(
                 combined_score=combined_score
             ))
 
-    # Sort by combined score and return top results
-    scored_results.sort(key=lambda x: x.combined_score, reverse=True)
-    return scored_results[:limit]
+    # --- Qdrant search (if enabled) ---
+    if settings.USE_QDRANT:
+        try:
+            qdrant_results = search_vectors(
+                query_vector=query_embedding,
+                limit=candidate_limit,
+                score_threshold=min_score,
+            )
+            for r in qdrant_results:
+                payload = r["payload"]
+                content = payload.get("content", "")
+                semantic_score = float(r["score"])
+                keyword_score = calculate_keyword_score(query, content)
+                combined_score = (semantic_score * 0.7) + (keyword_score * 0.3)
+
+                if combined_score >= min_score:
+                    scored_results.append(SearchResult(
+                        content=content,
+                        document_name=payload.get("document_name", ""),
+                        page_number=payload.get("page_number", 0),
+                        chapter=payload.get("chapter"),
+                        section=payload.get("section"),
+                        topics=payload.get("topics", []),
+                        semantic_score=semantic_score,
+                        keyword_score=keyword_score,
+                        combined_score=combined_score
+                    ))
+        except Exception as e:
+            logger.warning(f"Qdrant search failed, using pgvector only: {e}")
+
+    # Deduplicate by (document_name, page_number), keeping highest score
+    seen = {}
+    for r in scored_results:
+        key = (r.document_name, r.page_number)
+        if key not in seen or r.combined_score > seen[key].combined_score:
+            seen[key] = r
+
+    deduped = list(seen.values())
+    deduped.sort(key=lambda x: x.combined_score, reverse=True)
+    return deduped[:limit]
 
 
 def smart_search(

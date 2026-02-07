@@ -38,7 +38,6 @@ def check_qdrant_health() -> dict:
             info = client.get_collection(settings.QDRANT_COLLECTION)
             collection_info = {
                 "name": settings.QDRANT_COLLECTION,
-                "vectors_count": info.vectors_count,
                 "points_count": info.points_count,
                 "status": info.status.value,
             }

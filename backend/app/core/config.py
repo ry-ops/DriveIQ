@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     QDRANT_HOST: str = "localhost"
     QDRANT_PORT: int = 6333
     QDRANT_COLLECTION: str = "driveiq_documents"
+    USE_QDRANT: bool = True  # Query Qdrant in addition to pgvector for RAG search
 
     # Security
     SECRET_KEY: str = "your-secret-key-change-in-production"
