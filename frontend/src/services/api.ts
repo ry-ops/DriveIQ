@@ -199,8 +199,18 @@ export interface DocumentInfo {
   document_type: string
 }
 
+export interface IngestedDocumentInfo {
+  document_name: string
+  document_type: string | null
+  chunk_count: number
+  page_count: number
+  topics: string[]
+  on_disk: boolean
+}
+
 export const uploadsApi = {
   list: () => api.get<DocumentInfo[]>('/uploads').then(r => r.data),
+  listIngested: () => api.get<IngestedDocumentInfo[]>('/uploads/ingested').then(r => r.data),
   upload: (file: File) => {
     const formData = new FormData()
     formData.append('file', file)

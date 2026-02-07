@@ -5,7 +5,7 @@ from pathlib import Path
 from fastapi import APIRouter, UploadFile, File, HTTPException, BackgroundTasks, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import text
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 
 from app.core.database import get_db, SessionLocal
@@ -87,17 +87,29 @@ class DocumentInfo(BaseModel):
     document_type: str
 
 
+class IngestedDocumentInfo(BaseModel):
+    document_name: str
+    document_type: Optional[str] = None
+    chunk_count: int
+    page_count: int
+    topics: List[str]
+    on_disk: bool
+
+
 def get_document_type(filename: str) -> str:
     """Determine document type from filename."""
     lower = filename.lower()
+    stem = Path(filename).stem.lower()
     if "carfax" in lower:
         return "carfax"
-    elif "manual" in lower:
+    elif "manual" in lower or stem.startswith("om"):
         return "manual"
     elif "qrg" in lower or "quick reference" in lower:
         return "qrg"
     elif "maintenance" in lower:
         return "maintenance_report"
+    elif "receipt" in lower:
+        return "receipt"
     else:
         return "other"
 
@@ -258,6 +270,43 @@ async def get_document_types():
             {"id": "other", "name": "Other", "description": "Other vehicle documents"},
         ]
     }
+
+
+@router.get("/ingested", response_model=List[IngestedDocumentInfo])
+async def list_ingested_documents(db: Session = Depends(get_db)):
+    """List all documents ingested into the vector database with metadata."""
+    results = db.execute(
+        text("""
+        SELECT
+            dc.document_name,
+            dc.document_type,
+            COUNT(*) as chunk_count,
+            COUNT(DISTINCT dc.page_number) as page_count,
+            COALESCE(
+                (SELECT array_agg(DISTINCT t)
+                 FROM document_chunks dc2,
+                      LATERAL unnest(dc2.topics) as t
+                 WHERE dc2.document_name = dc.document_name),
+                ARRAY[]::text[]
+            ) as topics
+        FROM document_chunks dc
+        GROUP BY dc.document_name, dc.document_type
+        ORDER BY dc.document_name
+        """)
+    ).fetchall()
+
+    ingested = []
+    for r in results:
+        file_path = DOCS_DIR / r.document_name
+        ingested.append(IngestedDocumentInfo(
+            document_name=r.document_name,
+            document_type=r.document_type or get_document_type(r.document_name),
+            chunk_count=r.chunk_count,
+            page_count=r.page_count,
+            topics=r.topics or [],
+            on_disk=file_path.exists(),
+        ))
+    return ingested
 
 
 @router.post("/ingest")
