@@ -114,6 +114,31 @@ def classify_query_intent(query: str) -> QueryIntent:
     return QueryIntent.VEHICLE_TECHNICAL
 
 
+def is_toc_or_index_page(content: str) -> bool:
+    """Detect table of contents, index, and cross-reference pages.
+
+    These pages have high keyword density but no actual information —
+    they just list page numbers and section titles.
+    """
+    # Count page reference patterns: "P. 123", "→ P. 123", "... 123"
+    page_refs = len(re.findall(r'(?:→\s*)?P\.\s*\d+', content))
+    page_refs += len(re.findall(r'\.{3,}\s*\d+', content))
+
+    # High ratio of page references to total words = TOC/index page
+    word_count = len(content.split())
+    if word_count > 0 and page_refs >= 4 and page_refs / word_count > 0.03:
+        return True
+
+    # Explicit TOC/index headers
+    lower = content.lower()
+    if any(marker in lower for marker in [
+        'pictorial index', 'table of contents', 'alphabetical index',
+    ]):
+        return True
+
+    return False
+
+
 def calculate_keyword_score(query: str, content: str) -> float:
     """Calculate keyword overlap score between query and content."""
     query_words = set(re.findall(r'\b\w+\b', query.lower()))
@@ -171,9 +196,12 @@ def hybrid_search(
         {"embedding": embedding_str, "limit": candidate_limit}
     ).fetchall()
 
-    # Calculate combined scores and filter
+    # Calculate combined scores and filter (skip TOC/index pages)
     scored_results = []
     for r in results:
+        if is_toc_or_index_page(r.content):
+            continue
+
         semantic_score = float(r.semantic_score)
         keyword_score = calculate_keyword_score(query, r.content)
         combined_score = (semantic_score * 0.7) + (keyword_score * 0.3)
@@ -202,6 +230,10 @@ def hybrid_search(
             for r in qdrant_results:
                 payload = r["payload"]
                 content = payload.get("content", "")
+
+                if is_toc_or_index_page(content):
+                    continue
+
                 semantic_score = float(r["score"])
                 keyword_score = calculate_keyword_score(query, content)
                 combined_score = (semantic_score * 0.7) + (keyword_score * 0.3)

@@ -87,7 +87,7 @@ async def chat(request: ChatRequest, db: Session = Depends(get_db)):
     user_message = request.messages[-1].content
 
     # Smart search: Classify intent and only search when needed
-    intent, rag_results = smart_search(user_message, db, limit=3)
+    intent, rag_results = smart_search(user_message, db, limit=4)
 
     # Build context from search results
     context = build_context_from_results(rag_results)
