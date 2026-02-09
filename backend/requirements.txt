@@ -25,7 +25,7 @@ email-validator==2.3.0
 # Replaced python-jose with PyJWT (FastAPI official recommendation as of 2025)
 # python-jose is abandoned (last release 3+ years ago) and pulls in vulnerable ecdsa==0.19.1
 # PyJWT is actively maintained and does not have the ecdsa dependency issue
-PyJWT==2.10.1
+PyJWT==2.11.0
 passlib[bcrypt]==1.7.4
 bcrypt==5.0.0
 
