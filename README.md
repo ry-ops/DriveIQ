@@ -10,7 +10,7 @@
 
 [![Security Scan](https://github.com/ry-ops/DriveIQ/actions/workflows/security-scan.yml/badge.svg)](https://github.com/ry-ops/DriveIQ/actions/workflows/security-scan.yml)
 
-**Intelligent Vehicle Management Application** | v1.1.0
+**Intelligent Vehicle Management Application** | v1.1.1
 
 A full-stack application for tracking maintenance, managing service reminders, and consulting your vehicle's documentation using AI-powered search with RAG (Retrieval-Augmented Generation).
 
@@ -345,6 +345,10 @@ Services:
 ---
 
 ## Changelog
+
+### v1.1.1 (2026-02-14)
+- Fixed CVE-2026-25639: Bump axios to >=1.13.5 (DoS via __proto__ key in mergeConfig)
+- Fixed CVE-2026-25990: Bump pillow to >=12.1.1 (out-of-bounds write loading PSD images)
 
 ### v1.1.0 (2026-02-03)
 - Added floating chat widget with context-aware "Ask about this" integration

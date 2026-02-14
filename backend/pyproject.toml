@@ -1,6 +1,6 @@
 [project]
 name = "driveiq-backend"
-version = "1.0.0"
+version = "1.0.1"
 description = "DriveIQ Vehicle Management API"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -47,7 +47,7 @@ dependencies = [
     "tenacity>=8.2.3",
 
     # Security pins (Snyk)
-    "pillow>=10.0.0",
+    "pillow>=12.1.1",
     "transformers>=4.36.0",
     "urllib3>=2.6.3",
     "sentencepiece>=0.2.1",

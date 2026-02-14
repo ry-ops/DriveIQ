@@ -1,7 +1,7 @@
 {
   "name": "driveiq-frontend",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.1.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.8.4",
-    "axios": "^1.6.2",
+    "axios": "^1.13.5",
     "date-fns": "^2.30.0",
     "lucide-react": "^0.553.0",
     "react": "^18.2.0",
