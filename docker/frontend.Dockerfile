@@ -16,7 +16,7 @@ COPY frontend/ .
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine
+FROM nginx:1.29.5-alpine3.23
 
 # Copy built assets from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
