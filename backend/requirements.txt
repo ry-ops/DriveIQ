@@ -14,7 +14,7 @@ alembic==1.18.3
 redis==7.1.0
 
 # Vector Database
-qdrant-client==1.9.0
+qdrant-client==1.17.0
 
 # Validation
 pydantic==2.12.5
