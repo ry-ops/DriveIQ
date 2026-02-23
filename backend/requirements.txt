@@ -1,6 +1,6 @@
 # FastAPI
 fastapi==0.128.5
-uvicorn[standard]==0.40.0
+uvicorn[standard]==0.41.0
 python-multipart>=0.0.22  # Updated to fix CVE-2024-47874 arbitrary file write
 starlette==0.52.1
 
