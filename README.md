@@ -68,7 +68,7 @@ A full-stack application for tracking maintenance, managing service reminders, a
 | Database | PostgreSQL 15+ with pgvector |
 | Vector DB | Qdrant (optional, for high-performance search) |
 | Cache | Redis (LLM responses, search results, embeddings, sessions, rate limiting) |
-| AI | Claude AI (Anthropic) or Docker Model Runner (local), Local Embeddings (sentence-transformers) |
+| AI | Anthropic API or Docker Model Runner (local), Local Embeddings (sentence-transformers) |
 | Observability | Redis Insight (GUI dashboard) |
 
 ---
@@ -256,7 +256,7 @@ DriveIQ/
 
 ### Search & AI
 - `POST /api/search` - Semantic search in documents
-- `POST /api/search/ask` - AI-powered Q&A with Claude
+- `POST /api/search/ask` - AI-powered Q&A with RAG
 
 ### Uploads
 - `GET /api/uploads` - List uploaded documents
@@ -303,7 +303,7 @@ LIMIT 5;
 - No API key required for embeddings
 
 ### LLM Inference
-- **Cloud**: Claude Sonnet (`claude-sonnet-4-20250514`) via Anthropic API
+- **Cloud**: Anthropic API (e.g., `claude-sonnet-4-20250514`)
 - **Local**: Docker Model Runner with OpenAI-compatible API (e.g., `ai/qwen3-coder`, `ai/glm-4.7-flash`, `ai/devstral-small-2`)
 - Unified `llm_client.py` abstraction with automatic Redis response caching
 - Set `USE_LOCAL_LLM=true` to switch to local inference
@@ -412,4 +412,4 @@ MIT License - see [LICENSE](LICENSE) for details
 
 ---
 
-Built with [Claude Code](https://github.com/anthropics/claude-code), [Commit-Relay](https://github.com/ry-ops/commit-relay), and [Git-Steer](https://github.com/ry-ops/git-steer) by Ry-Ops
+Built with [Commit-Relay](https://github.com/ry-ops/commit-relay) and [Git-Steer](https://github.com/ry-ops/git-steer) by Ry-Ops
