@@ -70,11 +70,12 @@ export default function ChatWidget() {
 
       {/* Chat Panel */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-[calc(100vw-3rem)] sm:w-96 h-[500px] bg-white rounded-lg shadow-2xl flex flex-col z-50 border border-gray-200">
-          <div className="flex items-center justify-between px-4 py-3 bg-toyota-red text-white rounded-t-lg">
-            <span className="font-semibold">DriveIQ Assistant</span>
-            <button onClick={closeChat} className="hover:bg-red-700 p-1 rounded transition-colors">
-              <X className="h-5 w-5" />
+        <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-96 sm:h-[500px] sm:rounded-lg bg-white shadow-2xl flex flex-col z-50 border border-gray-200">
+          <div className="flex items-center justify-between px-4 py-3 bg-toyota-red text-white sm:rounded-t-lg">
+            <span className="font-semibold text-lg sm:text-base">DriveIQ Assistant</span>
+            <button onClick={closeChat} className="flex items-center gap-1.5 px-3 py-1.5 bg-white/20 hover:bg-white/30 rounded-full transition-colors">
+              <span className="text-sm font-medium">Close</span>
+              <X className="h-4 w-4" />
             </button>
           </div>
 
