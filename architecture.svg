@@ -166,27 +166,16 @@
   <text x="970" y="267" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="bold" fill="#94A3B8">LLM Client</text>
   <text x="970" y="285" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">llm_client.py</text>
 
-  <!-- Cloud LLM Box -->
-  <g filter="url(#glow)">
-    <rect x="1050" y="150" width="130" height="120" rx="12" fill="url(#aiGrad)" class="pulse-box" style="animation-delay: 1s"/>
-  </g>
-  <text x="1115" y="180" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="white">Cloud LLM</text>
-  <text x="1115" y="198" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#FEF3C7">Anthropic API</text>
-  <line x1="1065" y1="210" x2="1165" y2="210" stroke="#FEF3C7" stroke-opacity="0.3"/>
-  <text x="1065" y="228" font-family="system-ui, sans-serif" font-size="10" fill="#FEF9C3">Q&amp;A Responses</text>
-  <text x="1065" y="243" font-family="system-ui, sans-serif" font-size="10" fill="#FEF9C3">RAG Context</text>
-  <text x="1065" y="258" font-family="system-ui, sans-serif" font-size="10" fill="#FEF9C3">MoE Experts</text>
-
   <!-- Docker Model Runner Box -->
   <g filter="url(#glow)">
-    <rect x="1050" y="310" width="130" height="120" rx="12" fill="url(#localLlmGrad)" class="pulse-box" style="animation-delay: 1.1s"/>
+    <rect x="1050" y="210" width="130" height="130" rx="12" fill="url(#localLlmGrad)" class="pulse-box" style="animation-delay: 1.1s"/>
   </g>
-  <text x="1115" y="340" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="white">Model Runner</text>
-  <text x="1115" y="358" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#CFFAFE">Local LLM</text>
-  <line x1="1065" y1="370" x2="1165" y2="370" stroke="#CFFAFE" stroke-opacity="0.3"/>
-  <text x="1065" y="388" font-family="system-ui, sans-serif" font-size="10" fill="#ECFEFF">qwen3-coder</text>
-  <text x="1065" y="403" font-family="system-ui, sans-serif" font-size="10" fill="#ECFEFF">glm-4.7-flash</text>
-  <text x="1065" y="418" font-family="system-ui, sans-serif" font-size="10" fill="#ECFEFF">devstral-small-2</text>
+  <text x="1115" y="240" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="bold" fill="white">Model Runner</text>
+  <text x="1115" y="258" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#CFFAFE">Local LLM</text>
+  <line x1="1065" y1="270" x2="1165" y2="270" stroke="#CFFAFE" stroke-opacity="0.3"/>
+  <text x="1065" y="288" font-family="system-ui, sans-serif" font-size="10" fill="#ECFEFF">qwen3-coder</text>
+  <text x="1065" y="303" font-family="system-ui, sans-serif" font-size="10" fill="#ECFEFF">glm-4.7-flash</text>
+  <text x="1065" y="318" font-family="system-ui, sans-serif" font-size="10" fill="#ECFEFF">devstral-small-2</text>
 
   <!-- PDF Documents -->
   <g class="float-icon" style="animation-delay: 0.5s">
@@ -221,11 +210,8 @@
   <!-- Backend to LLM Client -->
   <path d="M630 270 L915 270" stroke="#6B7280" stroke-width="2" marker-end="url(#arrowhead)" class="data-flow" style="animation-delay: 0.6s"/>
 
-  <!-- LLM Client to Cloud LLM -->
-  <path d="M1020 255 L1045 210" stroke="#6B7280" stroke-width="2" marker-end="url(#arrowhead)" class="data-flow" style="animation-delay: 0.7s"/>
-
   <!-- LLM Client to Model Runner -->
-  <path d="M1020 285 L1045 355" stroke="#6B7280" stroke-width="2" marker-end="url(#arrowhead)" class="data-flow" style="animation-delay: 0.8s"/>
+  <path d="M1020 270 L1045 270" stroke="#6B7280" stroke-width="2" marker-end="url(#arrowhead)" class="data-flow" style="animation-delay: 0.7s"/>
 
   <!-- Documents to Backend -->
   <path d="M490 620 L540 555" stroke="#6B7280" stroke-width="2" marker-end="url(#arrowhead)" class="data-flow" style="animation-delay: 0.9s"/>
@@ -240,11 +226,7 @@
   <text x="655" y="455" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">Cache</text>
   <text x="770" y="260" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">RAG + MoE</text>
   <text x="510" y="600" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">Ingest</text>
-  <text x="1030" y="195" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">Cloud</text>
-  <text x="1030" y="345" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">Local</text>
-
-  <!-- "or" label between Cloud/Local -->
-  <text x="1040" y="270" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" font-weight="bold" fill="#64748B">or</text>
+  <text x="1030" y="260" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">Local</text>
 
   <!-- Legend -->
   <rect x="30" y="620" width="150" height="100" rx="8" fill="#1E293B" stroke="#334155"/>
