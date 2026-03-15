@@ -406,16 +406,28 @@ export default function Dashboard() {
                   Last updated: {format(new Date(vehicle.last_mileage_update), 'MMM d, yyyy')}
                 </p>
               )}
-              <a
-                href="http://localhost:6333/dashboard"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3 py-1.5 mt-2 text-xs font-medium text-gray-300 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors"
-              >
-                <Database className="h-3.5 w-3.5 text-cyan-400" />
-                <span>Qdrant Dashboard</span>
-                <ExternalLink className="h-3 w-3 text-gray-500" />
-              </a>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <a
+                  href="http://localhost:6333/dashboard"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-300 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors"
+                >
+                  <Database className="h-3.5 w-3.5 text-cyan-400" />
+                  <span>Qdrant Dashboard</span>
+                  <ExternalLink className="h-3 w-3 text-gray-500" />
+                </a>
+                <a
+                  href="http://localhost:5540"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-300 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors"
+                >
+                  <Database className="h-3.5 w-3.5 text-red-400" />
+                  <span>Redis Insight</span>
+                  <ExternalLink className="h-3 w-3 text-gray-500" />
+                </a>
+              </div>
             </div>
           </div>
 

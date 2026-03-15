@@ -37,6 +37,18 @@ services:
     networks:
       - driveiq-network
 
+  # Redis Insight (Redis GUI dashboard)
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: driveiq-redis-insight
+    ports:
+      - "5540:5540"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - driveiq-network
+
   # Qdrant for vector similarity search
   qdrant:
     image: qdrant/qdrant:latest

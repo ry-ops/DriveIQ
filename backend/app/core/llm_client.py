@@ -4,6 +4,7 @@ import logging
 from typing import Optional
 
 from app.core.config import settings
+from app.core.redis_client import llm_cache
 
 logger = logging.getLogger(__name__)
 
@@ -33,10 +34,21 @@ def generate(
     Returns:
         The generated text response
     """
+    # Check cache first
+    cached = llm_cache.get_response(system, messages)
+    if cached:
+        logger.info("LLM cache hit — returning cached response")
+        return cached
+
     if settings.USE_LOCAL_LLM:
-        return _generate_openai(system, messages, max_tokens)
+        result = _generate_openai(system, messages, max_tokens)
     else:
-        return _generate_anthropic(system, messages, max_tokens, stream)
+        result = _generate_anthropic(system, messages, max_tokens, stream)
+
+    # Cache the response
+    llm_cache.set_response(system, messages, result, get_model_name())
+
+    return result
 
 
 def _generate_openai(

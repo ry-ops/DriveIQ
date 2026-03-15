@@ -272,6 +272,32 @@ class DistributedRateLimiter:
             return limit
 
 
+class LLMResponseCache(RedisCache):
+    """Cache for LLM responses to avoid redundant inference."""
+
+    def __init__(self):
+        super().__init__(prefix="driveiq:llm")
+
+    def _hash_prompt(self, system: str, messages: list) -> str:
+        data = system + json.dumps(messages, sort_keys=True)
+        return hashlib.sha256(data.encode()).hexdigest()[:20]
+
+    def get_response(self, system: str, messages: list) -> Optional[str]:
+        """Get cached LLM response."""
+        key = self._hash_prompt(system, messages)
+        cached = self.get(key)
+        if cached:
+            return cached.get("response")
+        return None
+
+    def set_response(
+        self, system: str, messages: list, response: str, model: str, ttl: int = 1800
+    ) -> bool:
+        """Cache LLM response (default 30min TTL)."""
+        key = self._hash_prompt(system, messages)
+        return self.set(key, {"response": response, "model": model}, ttl)
+
+
 # Convenience instances
 embedding_cache = EmbeddingCache()
 search_cache = SearchCache()
@@ -279,3 +305,4 @@ session_store = SessionStore()
 token_blacklist = TokenBlacklist()
 rate_limiter = DistributedRateLimiter()
 chat_session_store = ChatSessionStore()
+llm_cache = LLMResponseCache()
