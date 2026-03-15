@@ -1,172 +1,306 @@
 import { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
-import Chip from "@mui/material/Chip";
-import CircularProgress from "@mui/material/CircularProgress";
-import Alert from "@mui/material/Alert";
-import LinearProgress from "@mui/material/LinearProgress";
-import WarningIcon from "@mui/icons-material/Warning";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import ScheduleIcon from "@mui/icons-material/Schedule";
-import { vehicleApi, remindersApi, SmartReminder } from "./api";
+import { format } from "date-fns";
+import { Plus, Check, Trash2, Bell, Calendar, Wrench, AlertTriangle, Clock, DollarSign } from "lucide-react";
+import { remindersApi, vehicleApi } from "./api";
+import type { Vehicle, Reminder, SmartReminder, AutoGenerateResponse } from "./types";
 
-const STATUS_CONFIG = {
-  overdue: { color: "error" as const, icon: <WarningIcon fontSize="small" />, label: "Overdue" },
-  due_soon: { color: "warning" as const, icon: <ScheduleIcon fontSize="small" />, label: "Due Soon" },
-  ok: { color: "success" as const, icon: <CheckCircleIcon fontSize="small" />, label: "OK" },
-};
+function getStatusColor(status: SmartReminder["status"]) {
+  switch (status) {
+    case "overdue": return { border: "border-l-red-500", bg: "bg-red-50", text: "text-red-700", badge: "bg-red-100 text-red-800" };
+    case "due_soon": return { border: "border-l-yellow-500", bg: "bg-yellow-50", text: "text-yellow-700", badge: "bg-yellow-100 text-yellow-800" };
+    case "ok": return { border: "border-l-green-500", bg: "bg-green-50", text: "text-green-700", badge: "bg-green-100 text-green-800" };
+  }
+}
 
-const PRIORITY_COLOR = {
-  high: "error" as const,
-  medium: "warning" as const,
-  low: "default" as const,
-};
+function getPriorityBadge(priority: SmartReminder["priority"]) {
+  switch (priority) {
+    case "high": return <span className="px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 rounded-full">High</span>;
+    case "medium": return <span className="px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-700 rounded-full">Medium</span>;
+    case "low": return <span className="px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-full">Low</span>;
+  }
+}
 
-export function Reminders() {
-  const [reminders, setReminders] = useState<SmartReminder[]>([]);
+function getStatusLabel(status: SmartReminder["status"]) {
+  switch (status) {
+    case "overdue": return "Overdue";
+    case "due_soon": return "Due Soon";
+    case "ok": return "OK";
+  }
+}
+
+export default function Reminders() {
+  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [smartReminders, setSmartReminders] = useState<SmartReminder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [autoGenResult, setAutoGenResult] = useState<AutoGenerateResponse | null>(null);
+  const [generating, setGenerating] = useState(false);
 
-  useEffect(() => {
-    loadReminders();
-  }, []);
+  useEffect(() => { loadData(); }, []);
 
-  async function loadReminders() {
+  async function loadData() {
     setLoading(true);
     try {
       const v = await vehicleApi.get();
-      const data = await remindersApi.getSmart(v.current_mileage ?? 0);
-      // Sort: overdue first, then due_soon, then ok
-      const order = { overdue: 0, due_soon: 1, ok: 2 };
-      data.sort((a, b) => order[a.status] - order[b.status]);
-      setReminders(data);
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to load reminders");
-    } finally {
-      setLoading(false);
-    }
+      setVehicle(v);
+      const [r, sr] = await Promise.all([
+        remindersApi.getAll(false),
+        v.current_mileage ? remindersApi.getSmart(v.current_mileage) : Promise.resolve([]),
+      ]);
+      setReminders(r);
+      setSmartReminders(sr);
+    } catch { /* */ } finally { setLoading(false); }
   }
 
-  if (loading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-        <CircularProgress />
-      </Box>
-    );
+  async function handleAutoGenerate() {
+    if (!vehicle) return;
+    setGenerating(true);
+    try {
+      const result = await remindersApi.autoGenerate(vehicle.id, vehicle.current_mileage!);
+      setAutoGenResult(result);
+      loadData();
+    } catch { /* */ } finally { setGenerating(false); }
   }
 
-  if (error) {
-    return <Alert severity="error">{error}</Alert>;
+  async function handleComplete(id: number) {
+    await remindersApi.complete(id);
+    loadData();
   }
 
-  const counts = {
-    overdue: reminders.filter((r) => r.status === "overdue").length,
-    due_soon: reminders.filter((r) => r.status === "due_soon").length,
-    ok: reminders.filter((r) => r.status === "ok").length,
-  };
+  async function handleDelete(id: number) {
+    await remindersApi.delete(id);
+    loadData();
+  }
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!vehicle) return;
+    const fd = new FormData(e.currentTarget);
+    const reminderType = fd.get("reminder_type") as string;
+    const dueDate = fd.get("due_date") as string;
+    const dueMileage = fd.get("due_mileage") as string;
+
+    await remindersApi.create({
+      vehicle_id: vehicle.id,
+      title: fd.get("title") as string,
+      description: (fd.get("description") as string) || undefined,
+      reminder_type: reminderType,
+      due_date: reminderType !== "mileage" && dueDate ? dueDate : undefined,
+      due_mileage: reminderType !== "date" && dueMileage ? parseInt(dueMileage) : undefined,
+      is_recurring: fd.get("is_recurring") === "on",
+      notify_days_before: parseInt(fd.get("notify_days") as string) || 7,
+      notify_miles_before: parseInt(fd.get("notify_miles") as string) || 500,
+    });
+    setShowForm(false);
+    loadData();
+  }
+
+  if (loading) return <div className="text-center py-12">Loading...</div>;
+
+  const activeReminders = reminders.filter((r) => !r.is_completed);
+  const completedReminders = reminders.filter((r) => r.is_completed);
 
   return (
-    <Box>
-      <Typography variant="h6" fontWeight={600} gutterBottom>
-        Smart Maintenance Schedule
-      </Typography>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-gray-900">Reminders</h1>
+        <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 px-4 py-2 bg-toyota-red text-white rounded-md hover:bg-red-700">
+          <Plus className="h-4 w-4" />
+          Add Reminder
+        </button>
+      </div>
 
-      {/* Status Summary */}
-      <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
-        {counts.overdue > 0 && (
-          <Chip icon={<WarningIcon />} label={`${counts.overdue} Overdue`} color="error" />
-        )}
-        {counts.due_soon > 0 && (
-          <Chip icon={<ScheduleIcon />} label={`${counts.due_soon} Due Soon`} color="warning" />
-        )}
-        <Chip icon={<CheckCircleIcon />} label={`${counts.ok} OK`} color="success" variant="outlined" />
-      </Box>
-
-      {reminders.length === 0 ? (
-        <Alert severity="info">No maintenance schedule items found.</Alert>
-      ) : (
-        reminders.map((r) => {
-          const cfg = STATUS_CONFIG[r.status];
-          // Progress bar: how much of the interval has been used
-          const progressPct =
-            r.interval_miles > 0
-              ? Math.min(100, ((r.interval_miles - r.miles_remaining) / r.interval_miles) * 100)
-              : 0;
-
-          return (
-            <Card key={r.service_key} sx={{ mb: 1.5 }}>
-              <CardContent sx={{ py: 1.5, "&:last-child": { pb: 1.5 } }}>
-                <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-                  <Box sx={{ flex: 1 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-                      <Typography variant="body1" fontWeight={600}>
-                        {r.name}
-                      </Typography>
-                      <Chip
-                        icon={cfg.icon}
-                        label={cfg.label}
-                        size="small"
-                        color={cfg.color}
-                        variant={r.status === "ok" ? "outlined" : "filled"}
-                      />
-                      <Chip
-                        label={r.priority}
-                        size="small"
-                        color={PRIORITY_COLOR[r.priority]}
-                        variant="outlined"
-                        sx={{ textTransform: "capitalize" }}
-                      />
-                    </Box>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      {r.description}
-                    </Typography>
-
-                    {/* Progress Bar */}
-                    <Box sx={{ mb: 1 }}>
-                      <LinearProgress
-                        variant="determinate"
-                        value={progressPct}
-                        color={cfg.color}
-                        sx={{ height: 6, borderRadius: 3 }}
-                      />
-                    </Box>
-
-                    <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
-                      <Typography variant="caption" color="text.secondary">
-                        Next: {r.next_mileage.toLocaleString()} mi
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {r.miles_remaining > 0
-                          ? `${r.miles_remaining.toLocaleString()} mi remaining`
-                          : `${Math.abs(r.miles_remaining).toLocaleString()} mi overdue`}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {r.days_remaining > 0
-                          ? `${r.days_remaining} days remaining`
-                          : `${Math.abs(r.days_remaining)} days overdue`}
-                      </Typography>
-                      {r.estimated_cost > 0 && (
-                        <Typography variant="caption" color="text.secondary">
-                          Est. ${r.estimated_cost}
-                        </Typography>
-                      )}
-                    </Box>
-                    {r.last_service && (
-                      <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
-                        Last: {r.last_service.service_type} on{" "}
-                        {new Date(r.last_service.date).toLocaleDateString()} at{" "}
-                        {r.last_service.mileage.toLocaleString()} mi
-                      </Typography>
-                    )}
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          );
-        })
+      {showForm && (
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold mb-4">New Reminder</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                <input type="text" name="title" required placeholder="e.g., Oil Change" className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Reminder Type *</label>
+                <select name="reminder_type" required className="w-full px-3 py-2 border border-gray-300 rounded-md">
+                  <option value="both">Date & Mileage</option>
+                  <option value="date">Date Only</option>
+                  <option value="mileage">Mileage Only</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+                <input type="date" name="due_date" className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Due Mileage</label>
+                <input type="number" name="due_mileage" placeholder="e.g., 75000" className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+              </div>
+              <div className="flex items-center gap-2">
+                <input type="checkbox" name="is_recurring" id="is_recurring" className="h-4 w-4" />
+                <label htmlFor="is_recurring" className="text-sm text-gray-700">Recurring reminder</label>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <textarea name="description" rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-md" />
+            </div>
+            <div className="flex gap-3">
+              <button type="submit" className="px-4 py-2 bg-toyota-red text-white rounded-md hover:bg-red-700">Save Reminder</button>
+              <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">Cancel</button>
+            </div>
+          </form>
+        </div>
       )}
-    </Box>
+
+      {/* Maintenance Schedule */}
+      <div className="bg-white rounded-lg shadow">
+        <div className="px-6 py-4 border-b flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Wrench className="h-5 w-5 text-gray-600" />
+            <div>
+              <h2 className="text-lg font-semibold">Maintenance Schedule</h2>
+              {vehicle?.current_mileage && (
+                <p className="text-sm text-gray-500">Current mileage: {vehicle.current_mileage.toLocaleString()} miles</p>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={handleAutoGenerate}
+            disabled={generating || !vehicle}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 disabled:opacity-50"
+          >
+            <Calendar className="h-4 w-4" />
+            {generating ? "Generating..." : "Auto-Generate Reminders"}
+          </button>
+        </div>
+
+        {autoGenResult && (
+          <div className="mx-6 mt-4 p-3 bg-green-50 border border-green-200 rounded-md text-sm text-green-700">
+            {autoGenResult.message}
+          </div>
+        )}
+
+        {smartReminders.length > 0 ? (
+          <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {smartReminders.map((item) => {
+              const colors = getStatusColor(item.status);
+              return (
+                <div key={item.service_key} className={`border-l-4 ${colors.border} rounded-lg border border-gray-200 p-4 ${colors.bg}`}>
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-medium text-gray-900 text-sm">{item.name}</h3>
+                    {getPriorityBadge(item.priority)}
+                  </div>
+
+                  <span className={`inline-block mb-3 px-2 py-0.5 text-xs font-medium rounded ${colors.badge}`}>
+                    {getStatusLabel(item.status)}
+                  </span>
+
+                  <div className="space-y-1.5 text-sm">
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
+                      <span>
+                        Next: {item.next_mileage.toLocaleString()} mi
+                        {item.miles_remaining > 0
+                          ? <span className="text-gray-500"> ({item.miles_remaining.toLocaleString()} mi remaining)</span>
+                          : <span className="text-red-600 font-medium"> (overdue)</span>}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-700">
+                      <Clock className="h-3.5 w-3.5 flex-shrink-0" />
+                      <span>
+                        {item.last_service
+                          ? `Last: ${format(new Date(item.last_service.date), "MMM d, yyyy")} at ${item.last_service.mileage.toLocaleString()} mi`
+                          : "No service history"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-500">
+                      <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                      <span>Every {item.interval_miles.toLocaleString()} mi / {item.interval_months} mo</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-gray-500">
+                      <DollarSign className="h-3.5 w-3.5 flex-shrink-0" />
+                      <span>Est. ${item.estimated_cost}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="p-8 text-center text-gray-500">
+            {vehicle?.current_mileage ? "No maintenance schedule data available." : "Set your current mileage to see the maintenance schedule."}
+          </div>
+        )}
+      </div>
+
+      {/* Active Reminders */}
+      <div className="bg-white rounded-lg shadow">
+        <div className="px-6 py-4 border-b">
+          <h2 className="text-lg font-semibold">Active Reminders</h2>
+        </div>
+        {activeReminders.length > 0 ? (
+          <div className="divide-y">
+            {activeReminders.map((reminder) => (
+              <div key={reminder.id} className="p-4 hover:bg-gray-50">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-3">
+                    <Bell className="h-5 w-5 text-toyota-red mt-0.5" />
+                    <div>
+                      <h3 className="font-medium">{reminder.title}</h3>
+                      <p className="text-sm text-gray-600">
+                        {reminder.due_date && `Due: ${format(new Date(reminder.due_date), "MMM d, yyyy")}`}
+                        {reminder.due_date && reminder.due_mileage && " • "}
+                        {reminder.due_mileage && `${reminder.due_mileage.toLocaleString()} miles`}
+                      </p>
+                      {reminder.description && <p className="text-sm text-gray-500 mt-1">{reminder.description}</p>}
+                      {reminder.is_recurring && (
+                        <span className="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">Recurring</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => handleComplete(reminder.id)} className="p-2 text-gray-400 hover:text-green-500" title="Mark complete">
+                      <Check className="h-4 w-4" />
+                    </button>
+                    <button onClick={() => handleDelete(reminder.id)} className="p-2 text-gray-400 hover:text-red-500" title="Delete">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="p-8 text-center text-gray-500">No active reminders.</div>
+        )}
+      </div>
+
+      {/* Completed Reminders */}
+      {completedReminders.length > 0 && (
+        <div className="bg-white rounded-lg shadow">
+          <div className="px-6 py-4 border-b">
+            <h2 className="text-lg font-semibold text-gray-500">Completed</h2>
+          </div>
+          <div className="divide-y opacity-60">
+            {completedReminders.map((reminder) => (
+              <div key={reminder.id} className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium line-through">{reminder.title}</h3>
+                    {reminder.completed_at && (
+                      <p className="text-sm text-gray-500">Completed {format(new Date(reminder.completed_at), "MMM d, yyyy")}</p>
+                    )}
+                  </div>
+                  <button onClick={() => handleDelete(reminder.id)} className="text-gray-400 hover:text-red-500">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

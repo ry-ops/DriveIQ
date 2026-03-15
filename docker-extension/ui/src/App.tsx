@@ -1,63 +1,70 @@
 import { useState } from "react";
-import Box from "@mui/material/Box";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Typography from "@mui/material/Typography";
-import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
-import BuildIcon from "@mui/icons-material/Build";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import ChatIcon from "@mui/icons-material/Chat";
-import { Dashboard } from "./Dashboard";
-import { Maintenance } from "./Maintenance";
-import { Reminders } from "./Reminders";
-import { Chat } from "./Chat";
+import { Car, Wrench, Bell, Search, FileText } from "lucide-react";
+import { ChatProvider } from "./ChatContext";
+import ChatWidget from "./ChatWidget";
+import Dashboard from "./Dashboard";
+import Maintenance from "./Maintenance";
+import Reminders from "./Reminders";
+import Documents from "./Documents";
+import SearchPage from "./Search";
+
+const navItems = [
+  { id: "dashboard", label: "Dashboard", icon: Car },
+  { id: "maintenance", label: "Maintenance", icon: Wrench },
+  { id: "reminders", label: "Reminders", icon: Bell },
+  { id: "documents", label: "Documents", icon: FileText },
+  { id: "search", label: "Ask", icon: Search },
+];
 
 export function App() {
-  const [tab, setTab] = useState(0);
+  const [activePage, setActivePage] = useState("dashboard");
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-      {/* Header */}
-      <Box
-        sx={{
-          px: 3,
-          py: 1.5,
-          display: "flex",
-          alignItems: "center",
-          gap: 1.5,
-          borderBottom: 1,
-          borderColor: "divider",
-          background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
-        }}
-      >
-        <DirectionsCarIcon sx={{ color: "#e63946", fontSize: 28 }} />
-        <Typography variant="h6" sx={{ color: "#fff", fontWeight: 700 }}>
-          DriveIQ
-        </Typography>
-        <Typography variant="caption" sx={{ color: "grey.400", ml: 0.5 }}>
-          Intelligent Vehicle Management
-        </Typography>
-      </Box>
+    <ChatProvider>
+      <div className="min-h-screen bg-gray-50">
+        {/* Navigation */}
+        <nav className="bg-toyota-black text-white">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="flex items-center justify-between h-16">
+              <button
+                onClick={() => setActivePage("dashboard")}
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              >
+                <Car className="h-8 w-8 text-toyota-red" />
+                <span className="text-xl font-bold">DriveIQ</span>
+              </button>
+              <div className="flex gap-1">
+                {navItems.map(({ id, label, icon: Icon }) => (
+                  <button
+                    key={id}
+                    onClick={() => setActivePage(id)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
+                      activePage === id
+                        ? "bg-toyota-red text-white"
+                        : "text-gray-300 hover:bg-gray-800"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span className="hidden sm:inline">{label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </nav>
 
-      {/* Navigation */}
-      <Tabs
-        value={tab}
-        onChange={(_, v) => setTab(v)}
-        sx={{ borderBottom: 1, borderColor: "divider", px: 2 }}
-      >
-        <Tab icon={<DirectionsCarIcon />} iconPosition="start" label="Dashboard" />
-        <Tab icon={<BuildIcon />} iconPosition="start" label="Maintenance" />
-        <Tab icon={<NotificationsIcon />} iconPosition="start" label="Reminders" />
-        <Tab icon={<ChatIcon />} iconPosition="start" label="Ask AI" />
-      </Tabs>
+        {/* Main Content */}
+        <main className="max-w-7xl mx-auto px-4 py-8">
+          {activePage === "dashboard" && <Dashboard />}
+          {activePage === "maintenance" && <Maintenance />}
+          {activePage === "reminders" && <Reminders />}
+          {activePage === "documents" && <Documents />}
+          {activePage === "search" && <SearchPage />}
+        </main>
 
-      {/* Content */}
-      <Box sx={{ flex: 1, overflow: "auto", p: 3 }}>
-        {tab === 0 && <Dashboard />}
-        {tab === 1 && <Maintenance />}
-        {tab === 2 && <Reminders />}
-        {tab === 3 && <Chat />}
-      </Box>
-    </Box>
+        {/* Floating Chat Widget */}
+        <ChatWidget />
+      </div>
+    </ChatProvider>
   );
 }
