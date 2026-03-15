@@ -97,6 +97,7 @@ Question: {search.query}"""
             }
         ],
         max_tokens=600,
+        cache_ttl=0,  # Permanent cache — manual content doesn't change
     )
     key_terms = extract_key_terms(answer_text)
 

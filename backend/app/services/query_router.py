@@ -139,6 +139,7 @@ Question: {query}"""
             }
         ],
         max_tokens=600,
+        cache_ttl=0,
     )
 
     return {

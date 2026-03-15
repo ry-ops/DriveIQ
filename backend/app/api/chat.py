@@ -171,12 +171,15 @@ provide general guidance and suggest they consult their owner's manual or a Toyo
     claude_messages.append({"role": "user", "content": user_message})
 
     # Call LLM (cloud or local)
+    # Permanently cache vehicle questions, 30min for conversational
+    cache_ttl = 0 if intent != QueryIntent.CONVERSATIONAL else 1800
     try:
         response_text = generate(
             system=system_prompt,
             messages=claude_messages,
             max_tokens=600,
             stream=not settings.USE_LOCAL_LLM,
+            cache_ttl=cache_ttl,
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"AI service error: {str(e)}")

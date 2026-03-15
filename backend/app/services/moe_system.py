@@ -103,6 +103,7 @@ Question: {query}"""
                 }
             ],
             max_tokens=600,
+            cache_ttl=0,
         )
 
         response_id = f"{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{expert_type.value}"

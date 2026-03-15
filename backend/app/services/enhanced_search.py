@@ -10,6 +10,7 @@ from sqlalchemy import text
 from app.services.embeddings import generate_embedding
 from app.core.config import settings
 from app.core.qdrant_client import search_vectors
+from app.core.redis_client import search_cache
 
 logger = logging.getLogger(__name__)
 
@@ -177,6 +178,13 @@ def hybrid_search(
 
     Returns results sorted by combined score, filtered by minimum threshold.
     """
+    # Check search cache first (permanent for manual searches)
+    cache_filters = {"limit": limit, "min_score": min_score}
+    cached = search_cache.get_results(query, cache_filters)
+    if cached:
+        logger.info("Search cache hit for: %s", query[:50])
+        return [SearchResult(**r) for r in cached]
+
     # Generate semantic embedding once (reused for both backends)
     query_embedding = generate_embedding(query)
     embedding_str = "[" + ",".join(str(x) for x in query_embedding) + "]"
@@ -262,7 +270,16 @@ def hybrid_search(
 
     deduped = list(seen.values())
     deduped.sort(key=lambda x: x.combined_score, reverse=True)
-    return deduped[:limit]
+    final = deduped[:limit]
+
+    # Cache results permanently — manual content doesn't change
+    if final:
+        from dataclasses import asdict
+        search_cache.set_results(
+            query, [asdict(r) for r in final], cache_filters, ttl=0
+        )
+
+    return final
 
 
 def smart_search(

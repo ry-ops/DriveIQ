@@ -79,12 +79,13 @@ class RedisCache:
             return None
 
     def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
-        """Set value in cache with optional TTL."""
+        """Set value in cache with optional TTL. Use ttl=0 for permanent storage."""
         try:
+            serialized = json.dumps(value)
+            if ttl == 0:
+                return self.client.set(self._make_key(key), serialized)
             ttl = ttl or settings.REDIS_CACHE_TTL
-            return self.client.setex(
-                self._make_key(key), ttl, json.dumps(value)
-            )
+            return self.client.setex(self._make_key(key), ttl, serialized)
         except Exception as e:
             logger.warning(f"Redis set error for {key}: {e}")
             return False

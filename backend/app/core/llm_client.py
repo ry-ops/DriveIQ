@@ -21,6 +21,7 @@ def generate(
     messages: list[dict],
     max_tokens: int = 600,
     stream: bool = False,
+    cache_ttl: int = 1800,
 ) -> str:
     """
     Generate a response from the configured LLM.
@@ -30,6 +31,7 @@ def generate(
         messages: List of {"role": str, "content": str} dicts
         max_tokens: Maximum tokens in response
         stream: Whether to stream (only used for Anthropic)
+        cache_ttl: Cache TTL in seconds. 0 = permanent, default 1800 (30min)
 
     Returns:
         The generated text response
@@ -46,7 +48,7 @@ def generate(
         result = _generate_anthropic(system, messages, max_tokens, stream)
 
     # Cache the response
-    llm_cache.set_response(system, messages, result, get_model_name())
+    llm_cache.set_response(system, messages, result, get_model_name(), ttl=cache_ttl)
 
     return result
 
