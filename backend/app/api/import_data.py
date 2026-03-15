@@ -1,16 +1,20 @@
 """Import data API for CARFAX and service records."""
-from fastapi import APIRouter, HTTPException, UploadFile, File, Depends, Query
+from fastapi import APIRouter, BackgroundTasks, HTTPException, UploadFile, File, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from typing import List
+import logging
 import tempfile
 import os
 import shutil
 from pathlib import Path
 
-from app.core.database import get_db
+from app.core.database import get_db, SessionLocal
 from app.core.security import get_current_user
 from app.services.carfax_parser import parse_carfax_pdf, convert_to_maintenance_records
+from app.services.document_ingestion import embed_maintenance_records
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -73,7 +77,8 @@ def ensure_carfax_tables(db: Session):
 @router.post("/carfax")
 async def import_carfax(
     file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    background_tasks: BackgroundTasks = None,
+    db: Session = Depends(get_db),
 ):
     """Import comprehensive data from a CARFAX PDF."""
     if not file.filename.lower().endswith(".pdf"):
@@ -191,6 +196,16 @@ async def import_carfax(
                 continue
 
         db.commit()
+
+        # Re-embed maintenance records to include new CARFAX entries
+        if background_tasks:
+            def _bg_embed():
+                bg_db = SessionLocal()
+                try:
+                    embed_maintenance_records(bg_db)
+                finally:
+                    bg_db.close()
+            background_tasks.add_task(_bg_embed)
 
         return {
             "message": "CARFAX imported successfully",

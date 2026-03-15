@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, UploadFile, File
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from pathlib import Path
@@ -7,8 +7,9 @@ from pydantic import BaseModel
 import os
 import json
 import re
+import logging
 
-from app.core.database import get_db
+from app.core.database import get_db, SessionLocal
 from app.models.maintenance import MaintenanceRecord
 from app.models.reminder import Reminder
 from app.models.vehicle import Vehicle
@@ -16,8 +17,23 @@ from app.schemas.maintenance import MaintenanceCreate, MaintenanceUpdate, Mainte
 from app.data.maintenance_schedule import get_service_key, get_maintenance_item
 from app.services.embeddings import generate_embedding
 from app.core.qdrant_client import search_vectors
+from app.services.document_ingestion import embed_maintenance_records
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+def _background_embed_maintenance():
+    """Background task to re-embed all maintenance records."""
+    try:
+        db = SessionLocal()
+        try:
+            embed_maintenance_records(db)
+        finally:
+            db.close()
+    except Exception as e:
+        logger.error(f"Background maintenance embedding failed: {e}")
 
 
 # Mapping of maintenance types to search queries for finding related docs
@@ -165,6 +181,13 @@ def get_maintenance_records(
     return query.order_by(MaintenanceRecord.date_performed.desc()).offset(skip).limit(limit).all()
 
 
+@router.post("/reindex")
+def reindex_maintenance_records(background_tasks: BackgroundTasks):
+    """Manually trigger re-embedding of all maintenance records for RAG search."""
+    background_tasks.add_task(_background_embed_maintenance)
+    return {"message": "Maintenance record re-embedding started in background"}
+
+
 @router.get("/{record_id}", response_model=MaintenanceResponse)
 def get_maintenance_record(record_id: int, db: Session = Depends(get_db)):
     """Get a specific maintenance record."""
@@ -175,7 +198,11 @@ def get_maintenance_record(record_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=MaintenanceResponse)
-def create_maintenance_record(record: MaintenanceCreate, db: Session = Depends(get_db)):
+def create_maintenance_record(
+    record: MaintenanceCreate,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
     """Create a new maintenance record and sync with reminders."""
     db_record = MaintenanceRecord(**record.model_dump())
     db.add(db_record)
@@ -191,6 +218,9 @@ def create_maintenance_record(record: MaintenanceCreate, db: Session = Depends(g
     )
     db.commit()
 
+    # Re-embed maintenance records in background
+    background_tasks.add_task(_background_embed_maintenance)
+
     return db_record
 
 
@@ -198,7 +228,8 @@ def create_maintenance_record(record: MaintenanceCreate, db: Session = Depends(g
 def update_maintenance_record(
     record_id: int,
     record: MaintenanceUpdate,
-    db: Session = Depends(get_db)
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
 ):
     """Update a maintenance record and sync with reminders if mileage changes."""
     db_record = db.query(MaintenanceRecord).filter(MaintenanceRecord.id == record_id).first()
@@ -227,11 +258,18 @@ def update_maintenance_record(
         )
         db.commit()
 
+    # Re-embed maintenance records in background
+    background_tasks.add_task(_background_embed_maintenance)
+
     return db_record
 
 
 @router.delete("/{record_id}")
-def delete_maintenance_record(record_id: int, db: Session = Depends(get_db)):
+def delete_maintenance_record(
+    record_id: int,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
     """Delete a maintenance record."""
     db_record = db.query(MaintenanceRecord).filter(MaintenanceRecord.id == record_id).first()
     if not db_record:
@@ -239,6 +277,10 @@ def delete_maintenance_record(record_id: int, db: Session = Depends(get_db)):
 
     db.delete(db_record)
     db.commit()
+
+    # Re-embed maintenance records in background
+    background_tasks.add_task(_background_embed_maintenance)
+
     return {"message": "Maintenance record deleted"}
 
 

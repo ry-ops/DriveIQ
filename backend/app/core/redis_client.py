@@ -299,6 +299,33 @@ class LLMResponseCache(RedisCache):
         return self.set(key, {"response": response, "model": model}, ttl)
 
 
+def flush_document_caches() -> dict:
+    """
+    Flush stale LLM and search caches after document changes.
+    Uses SCAN to avoid blocking Redis on large keyspaces.
+    Does NOT flush embeddings (model unchanged) or chat sessions (unrelated).
+    """
+    try:
+        client = get_redis()
+        deleted = {"llm": 0, "search": 0}
+
+        for pattern, key in [("driveiq:llm:*", "llm"), ("driveiq:search:*", "search")]:
+            cursor = 0
+            while True:
+                cursor, keys = client.scan(cursor=cursor, match=pattern, count=100)
+                if keys:
+                    client.delete(*keys)
+                    deleted[key] += len(keys)
+                if cursor == 0:
+                    break
+
+        logger.info(f"Flushed document caches: {deleted['llm']} LLM, {deleted['search']} search keys")
+        return deleted
+    except (ConnectionError, TimeoutError) as e:
+        logger.warning(f"Failed to flush document caches: {e}")
+        return {"llm": 0, "search": 0, "error": str(e)}
+
+
 # Convenience instances
 embedding_cache = EmbeddingCache()
 search_cache = SearchCache()

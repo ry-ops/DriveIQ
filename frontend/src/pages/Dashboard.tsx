@@ -4,9 +4,9 @@ import { format, differenceInDays, addMonths } from 'date-fns'
 import {
   Gauge, Plus, X, TrendingUp, ChevronDown, ChevronUp,
   RotateCcw, Circle, Disc, FileText, Droplets, CheckCircle2, Star,
-  Clock, MapPin, Database, ExternalLink
+  Clock, MapPin, Database, ExternalLink, RefreshCw
 } from 'lucide-react'
-import { vehicleApi, maintenanceApi, remindersApi } from '../services/api'
+import { vehicleApi, maintenanceApi, remindersApi, uploadsApi } from '../services/api'
 import type { Reminder, MaintenanceRecord } from '../types'
 
 interface CarfaxReport {
@@ -249,6 +249,14 @@ export default function Dashboard() {
     },
   })
 
+  const reindexDocuments = useMutation({
+    mutationFn: uploadsApi.reindex,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ingested-documents'] })
+      queryClient.invalidateQueries({ queryKey: ['documents'] })
+    },
+  })
+
   const toggleCard = (id: string) => {
     setExpandedCards(prev => {
       const next = new Set(prev)
@@ -427,6 +435,14 @@ export default function Dashboard() {
                   <span>Redis Insight</span>
                   <ExternalLink className="h-3 w-3 text-gray-500" />
                 </a>
+                <button
+                  onClick={() => reindexDocuments.mutate()}
+                  disabled={reindexDocuments.isPending}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-300 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 text-green-400 ${reindexDocuments.isPending ? 'animate-spin' : ''}`} />
+                  <span>{reindexDocuments.isPending ? 'Reindexing...' : 'Reindex Docs'}</span>
+                </button>
               </div>
             </div>
           </div>

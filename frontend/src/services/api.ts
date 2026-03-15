@@ -53,6 +53,7 @@ export const maintenanceApi = {
   update: (id: number, data: Partial<MaintenanceRecord>) => api.patch<MaintenanceRecord>(`/maintenance/${id}`, data).then(r => r.data),
   delete: (id: number) => api.delete(`/maintenance/${id}`),
   getSummary: () => api.get<MaintenanceSummary[]>('/maintenance/types/summary').then(r => r.data),
+  reindex: () => api.post<{ message: string }>('/maintenance/reindex').then(r => r.data),
   // Document management
   uploadDocument: (recordId: number, file: File) => {
     const formData = new FormData()
@@ -252,6 +253,7 @@ export const uploadsApi = {
     }).then(r => r.data)
   },
   delete: (filename: string) => api.delete(`/uploads/${encodeURIComponent(filename)}`),
+  reindex: () => api.post<{ message: string; documents: Record<string, number | string> }>('/uploads/ingest').then(r => r.data),
 }
 
 export default api

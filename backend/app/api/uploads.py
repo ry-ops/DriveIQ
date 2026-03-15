@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 from app.core.database import get_db, SessionLocal
 from app.core.qdrant_client import delete_by_filter
+from app.core.redis_client import flush_document_caches
 from app.services.document_ingestion import ingest_all_documents, ingest_document
 from app.services.page_images import extract_page_images, delete_page_images
 import logging
@@ -238,6 +239,9 @@ async def delete_document(
 
     # Delete vectors from Qdrant
     delete_by_filter("document_name", safe_filename)
+
+    # Flush cached answers that may reference the deleted document
+    flush_document_caches()
 
     # Delete page images
     deleted_images = delete_page_images(safe_filename)
