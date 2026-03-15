@@ -1,9 +1,9 @@
 <img src="https://github.com/ry-ops/DriveIQ/blob/main/4Runner.png" width="100%">
 
-[\![Version](https://img.shields.io/github/v/release/ry-ops/DriveIQ?style=flat-square)](https://github.com/ry-ops/DriveIQ/releases)
-[\![License](https://img.shields.io/github/license/ry-ops/DriveIQ?style=flat-square)](LICENSE)
-[\![Python](https://img.shields.io/badge/python-3.11+-blue?style=flat-square&logo=python&logoColor=white)](https://python.org)
-[\![FastAPI](https://img.shields.io/badge/FastAPI-0.123+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![Version](https://img.shields.io/github/v/release/ry-ops/DriveIQ?style=flat-square)](https://github.com/ry-ops/DriveIQ/releases)
+[![License](https://img.shields.io/github/license/ry-ops/DriveIQ?style=flat-square)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.11+-blue?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.123+-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 
 
 # DriveIQ
@@ -412,4 +412,4 @@ MIT License - see [LICENSE](LICENSE) for details
 
 ---
 
-Built with Claude Code and Commit-Relay by Ry-Ops
+Built with [Claude Code](https://github.com/anthropics/claude-code), [Commit-Relay](https://github.com/ry-ops/commit-relay), and [Git-Steer](https://github.com/ry-ops/git-steer) by Ry-Ops
