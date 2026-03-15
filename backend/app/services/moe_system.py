@@ -1,11 +1,10 @@
 """Mixture of Experts (MoE) system with learning feedback loop."""
 import json
-import os
 from datetime import datetime
 from typing import Dict, List, Optional
 from pathlib import Path
-import anthropic
 from app.core.config import settings
+from app.core.llm_client import generate, get_model_name
 from app.services.query_router import QueryType, classify_query, get_expert_prompt
 
 
@@ -85,37 +84,14 @@ class MoESystem:
 
     def get_expert_response(self, query: str, context: str) -> dict:
         """Get response from the appropriate expert."""
-        # Check API configuration and determine model
-        if settings.USE_LOCAL_LLM:
-            if not settings.ANTHROPIC_BASE_URL:
-                raise ValueError("Local LLM enabled but ANTHROPIC_BASE_URL not configured")
-            model_name = settings.LOCAL_LLM_MODEL
-        else:
-            if not settings.ANTHROPIC_API_KEY:
-                raise ValueError("Anthropic API key not configured")
-            model_name = "claude-sonnet-4-20250514"
-
+        model_name = get_model_name()
         expert_type = self.route_query(query)
         system_prompt = get_expert_prompt(expert_type)
 
         # Track query
         self.experts[expert_type].total_queries += 1
 
-        # Build client kwargs for cloud or local
-        client_kwargs = {}
-        if settings.USE_LOCAL_LLM:
-            client_kwargs["base_url"] = settings.ANTHROPIC_BASE_URL
-            client_kwargs["api_key"] = "local"
-        else:
-            client_kwargs["api_key"] = settings.ANTHROPIC_API_KEY
-            if settings.ANTHROPIC_BASE_URL:
-                client_kwargs["base_url"] = settings.ANTHROPIC_BASE_URL
-
-        client = anthropic.Anthropic(**client_kwargs)
-
-        message = client.messages.create(
-            model=model_name,
-            max_tokens=600,
+        answer_text = generate(
             system=system_prompt,
             messages=[
                 {
@@ -125,17 +101,18 @@ class MoESystem:
 
 Question: {query}"""
                 }
-            ]
+            ],
+            max_tokens=600,
         )
 
         response_id = f"{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{expert_type.value}"
 
         return {
             "response_id": response_id,
-            "answer": message.content[0].text,
+            "answer": answer_text,
             "expert_type": expert_type.value,
             "model": model_name,
-            "confidence": self.experts[expert_type].satisfaction_rate
+            "confidence": self.experts[expert_type].satisfaction_rate,
         }
 
     def record_feedback(self, response_id: str, helpful: bool, comment: Optional[str] = None):

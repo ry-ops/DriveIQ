@@ -1,17 +1,15 @@
 """Chat API with conversational AI, smart RAG, and session-based history."""
-import os
 from urllib.parse import quote
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import text
 from typing import List, Optional
 from pydantic import BaseModel
-import anthropic
 import uuid
 
 from app.core.database import get_db
 from app.core.config import settings
 from app.core.redis_client import chat_session_store
+from app.core.llm_client import generate, get_model_name
 from app.services.enhanced_search import (
     smart_search, build_context_from_results,
     QueryIntent, SearchResult
@@ -74,17 +72,8 @@ async def chat(request: ChatRequest, db: Session = Depends(get_db)):
     # Get existing conversation history from Redis
     history = chat_session_store.get_history(session_id)
 
-    # Determine model configuration
-    if settings.USE_LOCAL_LLM:
-        if not settings.ANTHROPIC_BASE_URL:
-            raise HTTPException(
-                status_code=500, detail="Local LLM enabled but ANTHROPIC_BASE_URL not configured"
-            )
-        model_name = settings.LOCAL_LLM_MODEL
-    else:
-        if not settings.ANTHROPIC_API_KEY:
-            raise HTTPException(status_code=500, detail="Anthropic API key not configured")
-        model_name = "claude-sonnet-4-20250514"
+    # Determine model name
+    model_name = get_model_name()
 
     # Get latest user message
     user_message = request.messages[-1].content
@@ -94,21 +83,6 @@ async def chat(request: ChatRequest, db: Session = Depends(get_db)):
 
     # Build context from search results
     context = build_context_from_results(rag_results)
-
-    # Build Claude client
-    if os.environ.get("ANTHROPIC_BASE_URL") == "":
-        os.environ.pop("ANTHROPIC_BASE_URL", None)
-
-    client_kwargs = {}
-    if settings.USE_LOCAL_LLM:
-        client_kwargs["base_url"] = settings.ANTHROPIC_BASE_URL
-        client_kwargs["api_key"] = "local"
-    else:
-        client_kwargs["api_key"] = settings.ANTHROPIC_API_KEY
-        if settings.ANTHROPIC_BASE_URL:
-            client_kwargs["base_url"] = settings.ANTHROPIC_BASE_URL
-
-    claude_client = anthropic.Anthropic(**client_kwargs)
 
     # Build system prompt based on intent
     base_prompt = f"""You are DriveIQ, an intelligent assistant for vehicle owners powered by AI.
@@ -196,18 +170,15 @@ provide general guidance and suggest they consult their owner's manual or a Toyo
     # Add new user message
     claude_messages.append({"role": "user", "content": user_message})
 
-    # Call Claude with streaming (buffer internally, return complete)
-    response_text = ""
+    # Call LLM (cloud or local)
     try:
-        with claude_client.messages.stream(
-            model=model_name,
-            max_tokens=600,
+        response_text = generate(
             system=system_prompt,
             messages=claude_messages,
-        ) as stream:
-            for chunk in stream.text_stream:
-                response_text += chunk
-    except anthropic.APIError as e:
+            max_tokens=600,
+            stream=not settings.USE_LOCAL_LLM,
+        )
+    except Exception as e:
         raise HTTPException(status_code=502, detail=f"AI service error: {str(e)}")
 
     # Persist messages to session

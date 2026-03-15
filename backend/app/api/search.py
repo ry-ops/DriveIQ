@@ -1,15 +1,14 @@
 """Search API with Claude AI for reasoning and enhanced hybrid search."""
-import os
 from urllib.parse import quote
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from typing import List
 from pydantic import BaseModel
-import anthropic
 
 from app.core.database import get_db
 from app.core.config import settings
+from app.core.llm_client import generate, get_model_name
 from app.services.embeddings import generate_embedding
 from app.services.page_images import extract_key_terms
 from app.services.enhanced_search import hybrid_search, build_context_from_results
@@ -57,15 +56,7 @@ async def search_documents(search: SearchQuery, db: Session = Depends(get_db)):
 @router.post("/ask")
 async def ask_question(search: SearchQuery, db: Session = Depends(get_db)):
     """Ask a question using Claude AI with enhanced hybrid RAG search."""
-    # Check API configuration and determine model
-    if settings.USE_LOCAL_LLM:
-        if not settings.ANTHROPIC_BASE_URL:
-            raise HTTPException(status_code=500, detail="Local LLM enabled but ANTHROPIC_BASE_URL not configured")
-        model_name = settings.LOCAL_LLM_MODEL
-    else:
-        if not settings.ANTHROPIC_API_KEY:
-            raise HTTPException(status_code=500, detail="Anthropic API key not configured")
-        model_name = "claude-sonnet-4-20250514"
+    model_name = get_model_name()
 
     # Check for documents
     doc_count = db.execute(text("SELECT COUNT(*) FROM document_chunks")).scalar()
@@ -86,21 +77,7 @@ async def ask_question(search: SearchQuery, db: Session = Depends(get_db)):
             "model": model_name
         }
 
-    # Generate answer with Claude (cloud or local)
-    if os.environ.get("ANTHROPIC_BASE_URL") == "":
-        os.environ.pop("ANTHROPIC_BASE_URL", None)
-
-    client_kwargs = {}
-    if settings.USE_LOCAL_LLM:
-        client_kwargs["base_url"] = settings.ANTHROPIC_BASE_URL
-        client_kwargs["api_key"] = "local"
-    else:
-        client_kwargs["api_key"] = settings.ANTHROPIC_API_KEY
-        if settings.ANTHROPIC_BASE_URL:
-            client_kwargs["base_url"] = settings.ANTHROPIC_BASE_URL
-
-    claude_client = anthropic.Anthropic(**client_kwargs)
-
+    # Generate answer with LLM (cloud or local)
     system_prompt = f"""You are DriveIQ, an intelligent assistant for vehicle owners powered by AI.
 You help answer questions about a {settings.VEHICLE_YEAR} {settings.VEHICLE_MAKE} {settings.VEHICLE_MODEL} {settings.VEHICLE_TRIM}.
 VIN: {settings.VEHICLE_VIN}
@@ -108,9 +85,7 @@ VIN: {settings.VEHICLE_VIN}
 Answer based on the provided documentation. Be concise, practical, and safety-focused.
 If the documentation doesn't fully answer the question, say what you found and suggest checking the full manual."""
 
-    message = claude_client.messages.create(
-        model=model_name,
-        max_tokens=600,
+    answer_text = generate(
         system=system_prompt,
         messages=[
             {
@@ -120,11 +95,9 @@ If the documentation doesn't fully answer the question, say what you found and s
 
 Question: {search.query}"""
             }
-        ]
+        ],
+        max_tokens=600,
     )
-
-    # Extract key terms from the answer for highlighting
-    answer_text = message.content[0].text
     key_terms = extract_key_terms(answer_text)
 
     # Build sources with page image URLs and relevance scores

@@ -1,8 +1,8 @@
 """Query router for classifying and routing queries to specialized experts."""
 from enum import Enum
 from typing import Tuple
-import anthropic
 from app.core.config import settings
+from app.core.llm_client import generate, get_model_name
 
 
 class QueryType(str, Enum):
@@ -123,17 +123,11 @@ def get_expert_topics(query_type: QueryType) -> list:
 
 
 async def ask_expert(query: str, context: str) -> dict:
-    """Ask a question using the appropriate expert with Claude AI."""
-    if not settings.ANTHROPIC_API_KEY:
-        raise ValueError("Anthropic API key not configured")
-
+    """Ask a question using the appropriate expert with AI."""
     query_type, system_prompt = route_query(query)
+    model_name = get_model_name()
 
-    client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
-
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=600,
+    answer_text = generate(
         system=system_prompt,
         messages=[
             {
@@ -143,11 +137,12 @@ async def ask_expert(query: str, context: str) -> dict:
 
 Question: {query}"""
             }
-        ]
+        ],
+        max_tokens=600,
     )
 
     return {
-        "answer": message.content[0].text,
+        "answer": answer_text,
         "expert_type": query_type.value,
-        "model": "claude-sonnet-4-20250514"
+        "model": model_name,
     }
