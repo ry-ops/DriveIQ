@@ -81,6 +81,36 @@ export const maintenanceApi = {
 }
 
 // Reminders API
+export interface SmartReminder {
+  service_key: string
+  name: string
+  description: string
+  interval_miles: number
+  interval_months: number
+  priority: 'high' | 'medium' | 'low'
+  estimated_cost: number
+  next_mileage: number
+  next_date: string | null
+  miles_remaining: number
+  days_remaining: number | null
+  status: 'overdue' | 'due_soon' | 'ok'
+  last_service: {
+    date: string
+    mileage: number
+    service_type: string
+  } | null
+}
+
+export interface AutoGenerateResponse {
+  message: string
+  reminders: {
+    service_key: string
+    name: string
+    due_date: string | null
+    due_mileage: number
+  }[]
+}
+
 export const remindersApi = {
   getAll: (activeOnly = true) => api.get<Reminder[]>('/reminders', { params: { active_only: activeOnly } }).then(r => r.data),
   getUpcoming: (currentMileage?: number) => api.get<Reminder[]>('/reminders/upcoming', { params: { current_mileage: currentMileage } }).then(r => r.data),
@@ -89,6 +119,9 @@ export const remindersApi = {
   update: (id: number, data: Partial<Reminder>) => api.patch<Reminder>(`/reminders/${id}`, data).then(r => r.data),
   complete: (id: number) => api.post<Reminder>(`/reminders/${id}/complete`).then(r => r.data),
   delete: (id: number) => api.delete(`/reminders/${id}`),
+  getSmart: (currentMileage: number) => api.get<SmartReminder[]>('/reminders/smart', { params: { current_mileage: currentMileage } }).then(r => r.data),
+  getSchedule: () => api.get('/reminders/schedule').then(r => r.data),
+  autoGenerate: (vehicleId: number, currentMileage: number) => api.post<AutoGenerateResponse>('/reminders/auto-generate', null, { params: { vehicle_id: vehicleId, current_mileage: currentMileage } }).then(r => r.data),
 }
 
 // Search API

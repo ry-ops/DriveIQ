@@ -35,14 +35,21 @@ def get_last_service_for_type(db: Session, service_key: str) -> Optional[Dict]:
 
     terms = search_terms.get(service_key, [service_key.replace("_", " ")])
 
-    # Build search query
-    conditions = " OR ".join([f"LOWER(service_type) LIKE '%{term}%'" for term in terms])
+    # Build search conditions for each table
+    conditions_logs = " OR ".join([f"LOWER(service_type) LIKE '%{term}%'" for term in terms])
+    conditions_records = " OR ".join([f"LOWER(maintenance_type) LIKE '%{term}%'" for term in terms])
 
     result = db.execute(
         text(f"""
-        SELECT date, mileage, service_type
-        FROM maintenance_logs
-        WHERE {conditions}
+        SELECT date, mileage, service_type FROM (
+            SELECT date, mileage, service_type
+            FROM maintenance_logs
+            WHERE {conditions_logs}
+            UNION ALL
+            SELECT date_performed AS date, mileage, maintenance_type AS service_type
+            FROM maintenance_records
+            WHERE {conditions_records}
+        ) combined
         ORDER BY COALESCE(mileage, 0) DESC, date DESC
         LIMIT 1
         """)

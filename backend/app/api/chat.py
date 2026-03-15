@@ -17,6 +17,9 @@ from app.services.enhanced_search import (
     QueryIntent, SearchResult
 )
 from app.services.page_images import extract_key_terms
+from app.services.reminder_generator import generate_smart_reminders
+from app.models.vehicle import Vehicle
+from app.models.maintenance import MaintenanceRecord
 
 router = APIRouter()
 
@@ -113,6 +116,48 @@ You help answer questions about a {settings.VEHICLE_YEAR} {settings.VEHICLE_MAKE
 VIN: {settings.VEHICLE_VIN}
 
 Be conversational, helpful, and concise. Always prioritize safety for any vehicle-related advice."""
+
+    # Inject maintenance context into system prompt
+    try:
+        vehicle = db.query(Vehicle).first()
+        current_mileage = vehicle.current_mileage if vehicle else None
+
+        if current_mileage:
+            reminders = generate_smart_reminders(db, current_mileage)
+
+            maintenance_lines = [f"\nCurrent Mileage: {current_mileage:,} miles\n\nMaintenance Status:"]
+            for r in reminders:
+                if r["status"] == "overdue":
+                    maintenance_lines.append(
+                        f"- OVERDUE: {r['name']} (was due at {r['next_mileage']:,} mi)"
+                    )
+                elif r["status"] == "due_soon":
+                    maintenance_lines.append(
+                        f"- DUE SOON: {r['name']} (next at {r['next_mileage']:,} mi, {r['miles_remaining']:,} mi remaining)"
+                    )
+                else:
+                    maintenance_lines.append(
+                        f"- OK: {r['name']} (next at {r['next_mileage']:,} mi, {r['miles_remaining']:,} mi remaining)"
+                    )
+
+            # Recent service history from maintenance_records
+            recent_records = (
+                db.query(MaintenanceRecord)
+                .order_by(MaintenanceRecord.date_performed.desc())
+                .limit(5)
+                .all()
+            )
+            if recent_records:
+                maintenance_lines.append("\nRecent Service History:")
+                for rec in recent_records:
+                    date_str = rec.date_performed.strftime("%b %d, %Y") if rec.date_performed else "Unknown"
+                    maintenance_lines.append(
+                        f"- {rec.maintenance_type} at {rec.mileage:,} mi on {date_str}"
+                    )
+
+            base_prompt += "\n" + "\n".join(maintenance_lines)
+    except Exception:
+        pass  # Don't let maintenance context errors break chat
 
     if intent == QueryIntent.CONVERSATIONAL:
         system_prompt = base_prompt + """
