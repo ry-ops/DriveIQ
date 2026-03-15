@@ -68,7 +68,7 @@ A full-stack application for tracking maintenance, managing service reminders, a
 | Database | PostgreSQL 15+ with pgvector |
 | Vector DB | Qdrant (optional, for high-performance search) |
 | Cache | Redis (LLM responses, search results, embeddings, sessions, rate limiting) |
-| AI | Anthropic API or Docker Model Runner (local), Local Embeddings (sentence-transformers) |
+| AI | Docker Model Runner (local LLM), Local Embeddings (sentence-transformers) |
 | Observability | Redis Insight (GUI dashboard) |
 
 ---
@@ -104,7 +104,7 @@ ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 
 # AI APIs
-ANTHROPIC_API_KEY=your-anthropic-api-key
+# ANTHROPIC_API_KEY=your-anthropic-api-key  # Not needed for local LLM
 
 # Vector Database (optional)
 QDRANT_HOST=localhost
@@ -114,9 +114,9 @@ QDRANT_COLLECTION=driveiq_docs
 # Redis
 REDIS_URL=redis://localhost:6379
 
-# Local LLM (optional, use instead of Anthropic API)
-USE_LOCAL_LLM=false
-ANTHROPIC_BASE_URL=
+# Local LLM
+USE_LOCAL_LLM=true
+ANTHROPIC_BASE_URL=http://model-runner.docker.internal:12434
 LOCAL_LLM_MODEL=ai/qwen3-coder
 
 # Vehicle Info
@@ -179,7 +179,7 @@ DriveIQ/
 │   │   │   ├── moe.py
 │   │   │   └── import_data.py
 │   │   ├── core/           # Config, database, security
-│   │   │   ├── llm_client.py     # LLM abstraction (cloud/local)
+│   │   │   ├── llm_client.py     # LLM abstraction (local inference)
 │   │   │   ├── qdrant_client.py  # Qdrant integration
 │   │   │   └── redis_client.py   # Caching, sessions, rate limiting
 │   │   ├── models/         # SQLAlchemy models
@@ -303,17 +303,16 @@ LIMIT 5;
 - No API key required for embeddings
 
 ### LLM Inference
-- **Cloud**: Anthropic API (e.g., `claude-sonnet-4-20250514`)
-- **Local**: Docker Model Runner with OpenAI-compatible API (e.g., `ai/qwen3-coder`, `ai/glm-4.7-flash`, `ai/devstral-small-2`)
+- Docker Model Runner with OpenAI-compatible API (e.g., `ai/qwen3-coder`, `ai/glm-4.7-flash`, `ai/devstral-small-2`)
 - Unified `llm_client.py` abstraction with automatic Redis response caching
-- Set `USE_LOCAL_LLM=true` to switch to local inference
+- All inference runs locally — no cloud API keys or costs
 
 ### RAG Pipeline
 1. User asks question or clicks "Ask about this"
 2. Query embedded using sentence-transformers
 3. Similar chunks retrieved from pgvector/Qdrant (includes embedded maintenance records)
 4. LLM cache checked for identical prior queries
-5. Context + question sent to LLM (cloud or local)
+5. Context + question sent to local LLM via Docker Model Runner
 6. Response cached and returned with source thumbnails
 
 ### MoE Experts
@@ -331,7 +330,7 @@ LIMIT 5;
 - macOS (for Homebrew setup) or manual PostgreSQL installation
 - Python 3.11+
 - Node.js 18+
-- Anthropic API key (or Docker Model Runner for local LLM)
+- Docker Desktop with Model Runner enabled
 
 ### Running Tests
 
@@ -350,10 +349,7 @@ npm test
 ## Docker Deployment
 
 ```bash
-# Cloud AI mode
-docker-compose up -d
-
-# Local LLM mode (no API key needed)
+# Start all services
 docker-compose --profile local-llm up -d
 ```
 
@@ -374,7 +370,7 @@ Services:
 
 ### v1.3.1 (2026-03-15)
 - Added Docker Model Runner support for local LLM inference (no API key needed)
-- Added LLM client abstraction layer (`llm_client.py`) supporting cloud and local backends
+- Added LLM client abstraction layer (`llm_client.py`) for local inference
 - Added Redis LLM response cache to avoid redundant inference calls
 - Added Redis Insight GUI dashboard (port 5540)
 - Added permanent Redis caching for vehicle queries and search results
