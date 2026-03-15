@@ -10,7 +10,7 @@
 
 [![Security Scan](https://github.com/ry-ops/DriveIQ/actions/workflows/security-scan.yml/badge.svg)](https://github.com/ry-ops/DriveIQ/actions/workflows/security-scan.yml)
 
-**Intelligent Vehicle Management Application** | v1.1.0
+**Intelligent Vehicle Management Application** | v1.3.1
 
 A full-stack application for tracking maintenance, managing service reminders, and consulting your vehicle's documentation using AI-powered search with RAG (Retrieval-Augmented Generation).
 
@@ -27,7 +27,7 @@ A full-stack application for tracking maintenance, managing service reminders, a
 ## Features
 
 ### Core Features
-- **Dashboard** - Vehicle overview with mileage tracking, maintenance stats, and total spent KPI
+- **Dashboard** - Vehicle overview with mileage tracking, maintenance forecast, CARFAX value estimate, and one-click reindexing
 - **Maintenance Log** - Record oil changes, tire rotations, brake service, and more with cost tracking
 - **Receipt/Document Uploads** - Attach PDFs, images, and receipts to maintenance records
 - **Service Records** - Import CARFAX reports and track complete service history
@@ -39,6 +39,7 @@ A full-stack application for tracking maintenance, managing service reminders, a
 - **Document Search** - Semantic search across owner's manual, QRG, and service records
 - **RAG Integration** - Retrieval-Augmented Generation with source thumbnails
 - **MoE System** - Mixture of Experts routing to specialized vehicle knowledge domains
+- **Local LLM Support** - Run AI queries locally via Docker Model Runner with no cloud API costs
 
 ### Visual Features
 - **Rich Maintenance Cards** - Expandable cards with related manual page thumbnails
@@ -46,10 +47,17 @@ A full-stack application for tracking maintenance, managing service reminders, a
 - **Document Carousel** - Browse related manual pages in timeline view
 - **Full-Size Image Modal** - Click any thumbnail to view full-size document pages
 
+### Caching & Performance
+- **LLM Response Cache** - Redis-backed cache for LLM responses to avoid redundant inference
+- **Permanent Search Cache** - Vehicle queries and search results cached permanently in Redis
+- **Embedding Cache** - Document embeddings cached to skip redundant computation
+- **Cache-Aware Reindexing** - Stale LLM and search caches automatically flushed on document changes
+
 ### Auto-Ingestion
 - **Automatic Document Processing** - Upload PDFs and they're automatically ingested into both PostgreSQL and Qdrant
+- **Maintenance Record Embedding** - Service history is embedded into the vector store for RAG search (e.g., "when was my last brake job?")
 - **Dual Vector Storage** - pgvector for PostgreSQL + Qdrant for high-performance similarity search
-- **Background Processing** - Non-blocking document ingestion
+- **Background Processing** - Non-blocking document ingestion and maintenance re-embedding on CRUD operations
 
 ## Tech Stack
 
@@ -59,8 +67,9 @@ A full-stack application for tracking maintenance, managing service reminders, a
 | Backend | FastAPI, Python 3.11+, SQLAlchemy, Pydantic |
 | Database | PostgreSQL 15+ with pgvector |
 | Vector DB | Qdrant (optional, for high-performance search) |
-| Cache | Redis (session management, chat history) |
-| AI | Claude AI (Anthropic), Local Embeddings (sentence-transformers) |
+| Cache | Redis (LLM responses, search results, embeddings, sessions, rate limiting) |
+| AI | Claude AI (Anthropic) or Docker Model Runner (local), Local Embeddings (sentence-transformers) |
+| Observability | Redis Insight (GUI dashboard) |
 
 ---
 
@@ -102,8 +111,13 @@ QDRANT_HOST=localhost
 QDRANT_PORT=6333
 QDRANT_COLLECTION=driveiq_docs
 
-# Redis (optional, for chat sessions)
+# Redis
 REDIS_URL=redis://localhost:6379
+
+# Local LLM (optional, use instead of Anthropic API)
+USE_LOCAL_LLM=false
+ANTHROPIC_BASE_URL=
+LOCAL_LLM_MODEL=ai/qwen3-coder
 
 # Vehicle Info
 VEHICLE_VIN=YOUR_VIN_HERE
@@ -165,8 +179,9 @@ DriveIQ/
 │   │   │   ├── moe.py
 │   │   │   └── import_data.py
 │   │   ├── core/           # Config, database, security
+│   │   │   ├── llm_client.py     # LLM abstraction (cloud/local)
 │   │   │   ├── qdrant_client.py  # Qdrant integration
-│   │   │   └── redis_client.py   # Chat session store
+│   │   │   └── redis_client.py   # Caching, sessions, rate limiting
 │   │   ├── models/         # SQLAlchemy models
 │   │   ├── schemas/        # Pydantic schemas
 │   │   └── services/       # Business logic
@@ -210,9 +225,10 @@ DriveIQ/
 
 ### Maintenance
 - `GET /api/maintenance` - List all maintenance records
-- `POST /api/maintenance` - Create new record (auto-syncs with reminders)
-- `PATCH /api/maintenance/{id}` - Update record
-- `DELETE /api/maintenance/{id}` - Delete record
+- `POST /api/maintenance` - Create new record (auto-syncs with reminders, re-embeds for RAG)
+- `PATCH /api/maintenance/{id}` - Update record (re-embeds for RAG)
+- `DELETE /api/maintenance/{id}` - Delete record (re-embeds for RAG)
+- `POST /api/maintenance/reindex` - Manually trigger maintenance record re-embedding
 - `GET /api/maintenance/types/summary` - Get summary by type
 - `GET /api/maintenance/related-docs/{type}` - Get related manual pages (RAG)
 - `POST /api/maintenance/{id}/documents` - Upload receipt/document
@@ -286,17 +302,19 @@ LIMIT 5;
 - Dimensions: 384
 - No API key required for embeddings
 
-### Claude AI
-- Model: `claude-sonnet-4-20250514`
-- Used for: Q&A reasoning, expert responses
-- Requires: Anthropic API key
+### LLM Inference
+- **Cloud**: Claude Sonnet (`claude-sonnet-4-20250514`) via Anthropic API
+- **Local**: Docker Model Runner with OpenAI-compatible API (e.g., `ai/qwen3-coder`, `ai/glm-4.7-flash`, `ai/devstral-small-2`)
+- Unified `llm_client.py` abstraction with automatic Redis response caching
+- Set `USE_LOCAL_LLM=true` to switch to local inference
 
 ### RAG Pipeline
 1. User asks question or clicks "Ask about this"
 2. Query embedded using sentence-transformers
-3. Similar chunks retrieved from pgvector/Qdrant
-4. Context + question sent to Claude
-5. Response returned with source thumbnails
+3. Similar chunks retrieved from pgvector/Qdrant (includes embedded maintenance records)
+4. LLM cache checked for identical prior queries
+5. Context + question sent to LLM (cloud or local)
+6. Response cached and returned with source thumbnails
 
 ### MoE Experts
 - **Maintenance Expert** - Service intervals, fluid specs, routine maintenance
@@ -313,7 +331,7 @@ LIMIT 5;
 - macOS (for Homebrew setup) or manual PostgreSQL installation
 - Python 3.11+
 - Node.js 18+
-- Anthropic API key
+- Anthropic API key (or Docker Model Runner for local LLM)
 
 ### Running Tests
 
@@ -332,19 +350,40 @@ npm test
 ## Docker Deployment
 
 ```bash
+# Cloud AI mode
 docker-compose up -d
+
+# Local LLM mode (no API key needed)
+docker-compose --profile local-llm up -d
 ```
 
 Services:
-- **frontend**: http://localhost:3000
-- **backend**: http://localhost:8001
-- **postgres**: localhost:5432
-- **qdrant**: localhost:6333
-- **redis**: localhost:6379
+| Service | URL | Purpose |
+|---------|-----|---------|
+| **frontend** | http://localhost:3000 | React app (nginx) |
+| **backend** | http://localhost:8001 | FastAPI API |
+| **postgres** | localhost:5432 | PostgreSQL + pgvector |
+| **qdrant** | http://localhost:6333 | Vector similarity search |
+| **redis** | localhost:6379 | Caching, sessions, rate limiting |
+| **redis-insight** | http://localhost:5540 | Redis GUI dashboard |
+| **model-runner** | localhost:12434 | Local LLM (optional, `--profile local-llm`) |
 
 ---
 
 ## Changelog
+
+### v1.3.1 (2026-03-15)
+- Added Docker Model Runner support for local LLM inference (no API key needed)
+- Added LLM client abstraction layer (`llm_client.py`) supporting cloud and local backends
+- Added Redis LLM response cache to avoid redundant inference calls
+- Added Redis Insight GUI dashboard (port 5540)
+- Added permanent Redis caching for vehicle queries and search results
+- Added maintenance record embedding into vector store for RAG search
+- Added dashboard "Reindex Docs" button with background re-embedding
+- Added cache-aware reindexing with automatic stale cache flush
+- Added `POST /api/maintenance/reindex` endpoint
+- Maintenance CRUD operations now trigger background re-embedding
+- Fixed chat close button visibility at all viewport sizes
 
 ### v1.1.0 (2026-02-03)
 - Added floating chat widget with context-aware "Ask about this" integration
