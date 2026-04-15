@@ -9,7 +9,7 @@ dependencies = [
     # FastAPI
     "fastapi>=0.123.0",
     "uvicorn[standard]>=0.38.0",
-    "python-multipart>=0.0.22",
+    "python-multipart>=0.0.26",
     "starlette>=0.50.0",
 
     # Database
