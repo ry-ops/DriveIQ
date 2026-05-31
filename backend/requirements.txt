@@ -25,7 +25,7 @@ email-validator==2.3.0
 # Replaced python-jose with PyJWT (FastAPI official recommendation as of 2025)
 # python-jose is abandoned (last release 3+ years ago) and pulls in vulnerable ecdsa==0.19.1
 # PyJWT is actively maintained and does not have the ecdsa dependency issue
-PyJWT==2.11.0
+PyJWT>=2.12.0
 passlib[bcrypt]==1.7.4
 bcrypt==5.0.0
 
@@ -37,7 +37,7 @@ pypdf>=6.6.0
 pymupdf>=1.23.0
 
 # Utilities
-python-dotenv==1.2.1
+python-dotenv>=1.2.2
 httpx==0.28.1
 tenacity==9.1.4
 
@@ -46,7 +46,7 @@ pytest>=8.2.0
 pytest-asyncio>=0.23.0
 
 # Development
-black==26.1.0
+black>=26.3.1
 isort==8.0.1
 mypy==1.19.1
 pillow>=10.0.0 # not directly required, pinned by Snyk to avoid a vulnerability
