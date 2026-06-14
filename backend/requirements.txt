@@ -2,7 +2,7 @@
 fastapi==0.135.1
 uvicorn[standard]==0.41.0
 python-multipart>=0.0.22  # Updated to fix CVE-2024-47874 arbitrary file write
-starlette==0.52.1
+starlette>=1.0.1
 
 # Database
 sqlalchemy==2.0.46
@@ -33,7 +33,7 @@ bcrypt==5.0.0
 anthropic==0.83.0
 sentence-transformers>=3.1.0
 torch>=2.2.0
-pypdf>=6.6.0
+pypdf>=6.12.0
 pymupdf>=1.23.0
 
 # Utilities
@@ -51,7 +51,7 @@ isort==8.0.1
 mypy==1.19.1
 pillow>=10.0.0 # not directly required, pinned by Snyk to avoid a vulnerability
 transformers>=4.36.0 # not directly required, pinned by Snyk to avoid a vulnerability
-urllib3>=2.6.3 # not directly required, pinned by Snyk to avoid a vulnerability
+urllib3>=2.7.0
 sentencepiece>=0.2.1 # not directly required, pinned by Snyk to avoid a vulnerability
 nltk>=3.9 # not directly required, pinned by Snyk to avoid a vulnerability
 wheel>=0.46.2 # not directly required, pinned by Snyk to avoid a vulnerability
