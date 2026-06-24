@@ -1,8 +1,8 @@
 # FastAPI
 fastapi==0.135.1
 uvicorn[standard]==0.41.0
-python-multipart>=0.0.22  # Updated to fix CVE-2024-47874 arbitrary file write
-starlette==0.52.1
+python-multipart>=0.0.30
+starlette>=1.1.0
 
 # Database
 sqlalchemy==2.0.46
@@ -25,7 +25,7 @@ email-validator==2.3.0
 # Replaced python-jose with PyJWT (FastAPI official recommendation as of 2025)
 # python-jose is abandoned (last release 3+ years ago) and pulls in vulnerable ecdsa==0.19.1
 # PyJWT is actively maintained and does not have the ecdsa dependency issue
-PyJWT>=2.12.0
+pyjwt>=2.13.0
 passlib[bcrypt]==1.7.4
 bcrypt==5.0.0
 
