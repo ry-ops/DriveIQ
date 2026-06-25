@@ -1,0 +1,64 @@
+{
+  "@context": "https://openvex.dev/ns/v0.2.0",
+  "@id": "https://ry-ops.dev/vex/ry-ops/DriveIQ/no-fix",
+  "author": "git-steer",
+  "timestamp": "2026-06-25T10:57:36.848Z",
+  "version": 1,
+  "statements": [
+    {
+      "vulnerability": {
+        "name": "CVE-2026-54293"
+      },
+      "products": [
+        {
+          "@id": "pkg:pypi/nltk"
+        }
+      ],
+      "status": "under_investigation"
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2025-3000"
+      },
+      "products": [
+        {
+          "@id": "pkg:pypi/torch"
+        }
+      ],
+      "status": "under_investigation"
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-0847"
+      },
+      "products": [
+        {
+          "@id": "pkg:pypi/nltk"
+        }
+      ],
+      "status": "under_investigation"
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-33236"
+      },
+      "products": [
+        {
+          "@id": "pkg:pypi/nltk"
+        }
+      ],
+      "status": "under_investigation"
+    },
+    {
+      "vulnerability": {
+        "name": "GHSA-rf74-v2fm-23pw"
+      },
+      "products": [
+        {
+          "@id": "pkg:pypi/nltk"
+        }
+      ],
+      "status": "under_investigation"
+    }
+  ]
+}
