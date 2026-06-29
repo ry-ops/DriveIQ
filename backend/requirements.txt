@@ -17,7 +17,7 @@ redis==7.2.1
 qdrant-client==1.17.0
 
 # Validation
-pydantic==2.12.5
+pydantic==2.13.4
 pydantic-settings>=2.14.2
 email-validator==2.3.0
 
