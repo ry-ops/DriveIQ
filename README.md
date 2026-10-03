@@ -409,3 +409,8 @@ MIT License - see [LICENSE](LICENSE) for details
 ---
 
 Built with [Commit-Relay](https://github.com/ry-ops/commit-relay) and [Git-Steer](https://github.com/ry-ops/git-steer) by Ry-Ops
+
+<!-- org-footer -->
+---
+
+<p align="center"><sub>Part of <a href="https://github.com/ry-ops">ry-ops</a> · building the pipes between infrastructure, automation, and observability · built by <a href="https://github.com/ry-ops">ry-ops</a></sub></p>
