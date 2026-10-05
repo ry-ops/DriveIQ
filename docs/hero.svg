@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="960" height="400" role="img" aria-labelledby="t d">
+  <title id="t">DriveIQ: track your vehicle and ask it anything</title>
+  <desc id="d">DriveIQ tracks a vehicle's mileage, maintenance and reminders, and answers questions about it with RAG over the owner's manual and service records — for example how to reset the tire-pressure light, citing the manual page.</desc>
+  <defs><linearGradient id="title" x1="0" x2="1"><stop offset="0" stop-color="#009688"/><stop offset=".5" stop-color="#3ec7ff"/><stop offset="1" stop-color="#b58cff"/></linearGradient></defs>
+  <style>
+    text { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill:#e6ebf5; }
+    .muted { fill:#8b96ad; } .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    @keyframes ask { 0%,4.00% { opacity:0; transform:translateY(8px); } 7.50%,94.00% { opacity:1; transform:translateY(0); } 97.00%,100% { opacity:0 } } .ask { animation:ask 10.0s infinite; }
+    @keyframes search { 0%,20.00% { opacity:0; } 23.50%,94.00% { opacity:1; } 97.00%,100% { opacity:0 } } .search { animation:search 10.0s infinite; }
+    @keyframes ans { 0%,42.00% { opacity:0; transform:translateY(8px); } 45.50%,94.00% { opacity:1; transform:translateY(0); } 97.00%,100% { opacity:0 } } .ans { animation:ans 10.0s infinite; }
+    @keyframes src { 0%,60.00% { opacity:0; } 63.50%,94.00% { opacity:1; } 97.00%,100% { opacity:0 } } .src { animation:src 10.0s infinite; }
+    @keyframes rem { 0%,10.00% { opacity:0; transform:translateX(-6px); } 13.50%,94.00% { opacity:1; transform:translateX(0); } 97.00%,100% { opacity:0 } } .rem { animation:rem 10.0s infinite; }
+    @media (prefers-reduced-motion: reduce) { * { animation:none !important; } }
+  </style>
+  <rect width="960" height="400" rx="20" fill="#0f1420"/>
+  <text x="40" y="58" font-size="40" font-weight="800" style="fill:url(#title)">DriveIQ</text>
+  <text x="42" y="88" font-size="16" class="muted">Track your vehicle — and ask it anything. AI answers from the actual owner's manual.</text>
+
+  <!-- vehicle card -->
+  <rect x="40" y="130" width="300" height="230" rx="14" fill="#161d2b" stroke="#2c3750"/>
+  <text x="60" y="160" font-size="16" font-weight="800">2019 4Runner</text>
+  <text x="60" y="182" font-size="12" class="muted">84,210 mi</text>
+  <rect x="60" y="198" width="260" height="1" fill="#2c3750"/>
+  <text x="60" y="224" font-size="12" class="muted">NEXT SERVICE</text>
+  <rect x="60" y="234" width="260" height="14" rx="7" fill="#232c3f"/><rect x="60" y="234" width="200" height="14" rx="7" fill="#3ddc84"/>
+  <text x="60" y="268" font-size="12.5">Oil change in <tspan font-weight="700">790 mi</tspan></text>
+  <g class="rem"><rect x="60" y="286" width="260" height="30" rx="8" fill="#2d2512" stroke="#ffb02e" stroke-opacity=".6"/><text x="74" y="306" font-size="11.5" style="fill:#ffd88a">⏰ Registration renews in 12 days</text></g>
+  <text x="60" y="340" font-size="11" class="muted">CARFAX value · maintenance log · receipts</text>
+
+  <!-- chat -->
+  <g class="ask"><rect x="400" y="140" width="520" height="34" rx="12" fill="#2a3550"/><text x="416" y="162" font-size="13.5">"How do I reset the tire-pressure light?"</text></g>
+  <g class="search"><rect x="380" y="186" width="250" height="26" rx="8" fill="#1d2536" stroke="#3ec7ff"/><text x="392" y="204" font-size="12" class="mono" style="fill:#a8e4ff">RAG · search manual + records</text></g>
+  <g class="ans"><rect x="380" y="226" width="540" height="100" rx="12" fill="#13233a"/>
+    <text x="396" y="252" font-size="13">Drive below 20 mph for a few minutes, then hold the</text>
+    <text x="396" y="272" font-size="13">TPMS reset button until the light blinks three times.</text>
+    <g class="src"><rect x="396" y="288" width="240" height="24" rx="6" fill="#0d1d2b" stroke="#3ec7ff" stroke-opacity=".5"/><text x="408" y="304" font-size="11" class="mono" style="fill:#8fd6ff">📄 Owner's manual · p.212</text></g></g>
+  <text x="396" y="346" font-size="11" class="muted">Answers cite their source — manual, QRG, or your service records.</text>
+</svg>
