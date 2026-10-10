@@ -5,7 +5,7 @@ python-multipart>=0.0.26
 starlette>=1.0.1
 
 # Database
-sqlalchemy==2.0.46
+sqlalchemy==2.0.51
 psycopg2-binary==2.9.11
 pgvector==0.2.4
 alembic==1.18.4
