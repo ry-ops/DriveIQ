@@ -40,9 +40,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: |
-            frontend/package-lock.json
-            docker-extension/ui/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install frontend dependencies
         working-directory: ./frontend
@@ -50,12 +48,4 @@ jobs:
 
       - name: Build frontend
         working-directory: ./frontend
-        run: npm run build
-
-      - name: Install Docker extension UI dependencies
-        working-directory: ./docker-extension/ui
-        run: npm ci
-
-      - name: Build Docker extension UI
-        working-directory: ./docker-extension/ui
         run: npm run build
