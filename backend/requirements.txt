@@ -32,7 +32,7 @@ passlib[bcrypt]==1.7.4
 bcrypt==4.0.1
 
 # AI/ML
-anthropic==0.83.0
+anthropic==1.13.0
 sentence-transformers>=3.1.0
 torch>=2.2.0
 pypdf>=6.7.5
