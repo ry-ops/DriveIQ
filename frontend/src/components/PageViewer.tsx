@@ -44,7 +44,7 @@ export default function PageViewer({ sources, keyTerms = [] }: PageViewerProps) 
             onClick={() => setSelectedPage(source)}
             className="group relative bg-white border border-gray-200 rounded-lg overflow-hidden hover:border-toyota-red hover:shadow-md transition-all"
           >
-            <div className="aspect-[3/4] bg-gray-100">
+            <div className="aspect-3/4 bg-gray-100">
               <img
                 src={getImageUrl(source.thumbnail_url)}
                 alt={`${source.document} page ${source.page}`}
@@ -86,7 +86,7 @@ export default function PageViewer({ sources, keyTerms = [] }: PageViewerProps) 
                       type="checkbox"
                       checked={showHighlighted}
                       onChange={(e) => setShowHighlighted(e.target.checked)}
-                      className="rounded text-toyota-red focus:ring-toyota-red"
+                      className="rounded-sm text-toyota-red focus:ring-toyota-red"
                     />
                     Show highlights
                   </label>
@@ -131,7 +131,7 @@ export default function PageViewer({ sources, keyTerms = [] }: PageViewerProps) 
                     {selectedPage.topics.map((topic) => (
                       <span
                         key={topic}
-                        className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs"
+                        className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-sm text-xs"
                       >
                         {topic}
                       </span>

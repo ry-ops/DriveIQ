@@ -172,13 +172,13 @@ export default function ChatWidget() {
                       <button
                         key={idx}
                         onClick={() => setSelectedImage(source.fullsize_url)}
-                        className="flex-shrink-0 group relative"
+                        className="shrink-0 group relative"
                         title={`${source.document} - Page ${source.page}`}
                       >
                         <img
                           src={source.thumbnail_url}
                           alt={`Page ${source.page}`}
-                          className="w-16 h-20 object-cover rounded border border-gray-200 hover:border-toyota-red transition-colors"
+                          className="w-16 h-20 object-cover rounded-sm border border-gray-200 hover:border-toyota-red transition-colors"
                           onError={(e) => {
                             // Hide broken images
                             (e.target as HTMLImageElement).style.display = 'none'
@@ -238,7 +238,7 @@ export default function ChatWidget() {
       {/* Full-size image modal */}
       {selectedImage && (
         <div
-          className="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/80 z-60 flex items-center justify-center p-4"
           onClick={() => setSelectedImage(null)}
         >
           <div className="relative max-w-4xl max-h-full">

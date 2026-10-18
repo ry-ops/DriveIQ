@@ -43,9 +43,9 @@ export default function CarfaxDashboard() {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-white rounded-lg shadow p-4 animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-            <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+          <div key={i} className="bg-white rounded-lg shadow-sm p-4 animate-pulse">
+            <div className="h-4 bg-gray-200 rounded-sm w-1/2 mb-2"></div>
+            <div className="h-8 bg-gray-200 rounded-sm w-3/4"></div>
           </div>
         ))}
       </div>
@@ -71,7 +71,7 @@ export default function CarfaxDashboard() {
   return (
     <div className="space-y-4 mb-8">
       {/* Main Value Card */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-lg shadow-lg p-6 text-white">
+      <div className="bg-linear-to-r from-green-600 to-green-700 rounded-lg shadow-lg p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-green-100 text-sm font-medium">CARFAX Retail Value</p>
@@ -87,7 +87,7 @@ export default function CarfaxDashboard() {
       </div>
 
       {/* Value Factors */}
-      <div className="bg-white rounded-lg shadow p-4">
+      <div className="bg-white rounded-lg shadow-sm p-4">
         <h3 className="text-sm font-semibold text-gray-600 mb-3">Value Impact Factors</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className={`flex items-center gap-2 p-2 rounded-lg ${report.no_accidents ? 'bg-green-50' : 'bg-red-50'}`}>
@@ -128,7 +128,7 @@ export default function CarfaxDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white rounded-lg shadow-sm p-4">
           <div className="flex items-center gap-2 text-gray-500 mb-1">
             <Car className="h-4 w-4" />
             <span className="text-xs font-medium">Annual Miles</span>
@@ -137,7 +137,7 @@ export default function CarfaxDashboard() {
           <p className="text-xs text-gray-500">per year</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white rounded-lg shadow-sm p-4">
           <div className="flex items-center gap-2 text-gray-500 mb-1">
             <User className="h-4 w-4" />
             <span className="text-xs font-medium">Ownership</span>
@@ -147,7 +147,7 @@ export default function CarfaxDashboard() {
         </div>
 
         {report.cpo_status && report.cpo_inspection_points && (
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-white rounded-lg shadow-sm p-4">
             <div className="flex items-center gap-2 text-gray-500 mb-1">
               <Shield className="h-4 w-4" />
               <span className="text-xs font-medium">CPO Inspection</span>

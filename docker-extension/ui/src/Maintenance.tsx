@@ -108,7 +108,7 @@ export default function Maintenance() {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Maintenance Log</h1>
         <div className="flex items-center gap-3">
-          <div className="flex rounded-md shadow-sm">
+          <div className="flex rounded-md shadow-xs">
             <button
               onClick={() => setViewMode("list")}
               className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-l-md border ${viewMode === "list" ? "bg-gray-100 text-gray-900 border-gray-300" : "bg-white text-gray-500 border-gray-300 hover:bg-gray-50"}`}
@@ -135,7 +135,7 @@ export default function Maintenance() {
       </div>
 
       {showForm && (
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow-sm p-6">
           <h2 className="text-lg font-semibold mb-4">New Maintenance Record</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -235,7 +235,7 @@ export default function Maintenance() {
                   {record.tags.length > 0 && (
                     <div className="flex gap-1 mt-2">
                       {record.tags.map((tag) => (
-                        <span key={tag} className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded">{tag}</span>
+                        <span key={tag} className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded-sm">{tag}</span>
                       ))}
                     </div>
                   )}
@@ -243,7 +243,7 @@ export default function Maintenance() {
                 <div className="flex items-center gap-1 ml-4">
                   <button
                     onClick={() => handleAskAbout(record.maintenance_type)}
-                    className="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                    className="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded-sm transition-colors"
                   >
                     Ask AI
                   </button>
@@ -258,7 +258,7 @@ export default function Maintenance() {
             </div>
           ))
         ) : (
-          <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+          <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">
             No maintenance records yet. Add your first record above or import a CARFAX report.
           </div>
         )}

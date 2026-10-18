@@ -86,7 +86,7 @@ export default function MaintenanceCard({ record, onEdit, onDelete, onAskAbout }
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+      <div className="bg-white rounded-lg shadow-xs border border-gray-200 hover:shadow-md transition-shadow">
         {/* Header */}
         <div
           className="p-4 cursor-pointer"
@@ -114,7 +114,7 @@ export default function MaintenanceCard({ record, onEdit, onDelete, onAskAbout }
                     </span>
                   )}
                   {record.tags?.map(tag => (
-                    <span key={tag} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+                    <span key={tag} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-sm">
                       {tag}
                     </span>
                   ))}
@@ -159,7 +159,7 @@ export default function MaintenanceCard({ record, onEdit, onDelete, onAskAbout }
             {docsLoading ? (
               <div className="flex gap-2">
                 {[1, 2, 3].map(i => (
-                  <div key={i} className="w-20 h-24 bg-gray-100 animate-pulse rounded" />
+                  <div key={i} className="w-20 h-24 bg-gray-100 animate-pulse rounded-sm" />
                 ))}
               </div>
             ) : relatedDocs && relatedDocs.documents.length > 0 ? (
@@ -175,13 +175,13 @@ export default function MaintenanceCard({ record, onEdit, onDelete, onAskAbout }
                         e.stopPropagation()
                         setSelectedImage(doc.fullsize_url)
                       }}
-                      className="flex-shrink-0 group relative"
+                      className="shrink-0 group relative"
                       title={`${doc.document_name} - Page ${doc.page_number}`}
                     >
                       <img
                         src={doc.thumbnail_url}
                         alt={`Page ${doc.page_number}`}
-                        className="w-20 h-24 object-cover rounded border-2 border-gray-200 group-hover:border-toyota-red transition-colors"
+                        className="w-20 h-24 object-cover rounded-sm border-2 border-gray-200 group-hover:border-toyota-red transition-colors"
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = 'none'
                         }}
@@ -222,7 +222,7 @@ export default function MaintenanceCard({ record, onEdit, onDelete, onAskAbout }
                       <select
                         value={photoType}
                         onChange={(e) => setPhotoType(e.target.value as 'before' | 'after' | 'general')}
-                        className="text-sm border border-gray-300 rounded px-2 py-1"
+                        className="text-sm border border-gray-300 rounded-sm px-2 py-1"
                       >
                         <option value="before">Before</option>
                         <option value="after">After</option>
@@ -233,7 +233,7 @@ export default function MaintenanceCard({ record, onEdit, onDelete, onAskAbout }
                         placeholder="Caption (optional)"
                         value={photoCaption}
                         onChange={(e) => setPhotoCaption(e.target.value)}
-                        className="flex-1 text-sm border border-gray-300 rounded px-2 py-1"
+                        className="flex-1 text-sm border border-gray-300 rounded-sm px-2 py-1"
                       />
                     </div>
                     <div className="flex gap-2">
@@ -247,7 +247,7 @@ export default function MaintenanceCard({ record, onEdit, onDelete, onAskAbout }
                       <button
                         onClick={() => fileInputRef.current?.click()}
                         disabled={uploadPhoto.isPending}
-                        className="flex items-center gap-1 px-3 py-1.5 bg-toyota-red text-white text-sm rounded hover:bg-red-700 disabled:opacity-50"
+                        className="flex items-center gap-1 px-3 py-1.5 bg-toyota-red text-white text-sm rounded-sm hover:bg-red-700 disabled:opacity-50"
                       >
                         {uploadPhoto.isPending ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -258,7 +258,7 @@ export default function MaintenanceCard({ record, onEdit, onDelete, onAskAbout }
                       </button>
                       <button
                         onClick={() => setShowPhotoUpload(false)}
-                        className="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300"
+                        className="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded-sm hover:bg-gray-300"
                       >
                         Cancel
                       </button>
@@ -270,7 +270,7 @@ export default function MaintenanceCard({ record, onEdit, onDelete, onAskAbout }
                 {photos && photos.length > 0 ? (
                   <div className="flex gap-2 overflow-x-auto pb-2">
                     {photos.map((photo, idx) => (
-                      <div key={idx} className="flex-shrink-0 group relative">
+                      <div key={idx} className="shrink-0 group relative">
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
@@ -281,7 +281,7 @@ export default function MaintenanceCard({ record, onEdit, onDelete, onAskAbout }
                           <img
                             src={photo.thumbnail_url}
                             alt={photo.caption || `Photo ${idx + 1}`}
-                            className="w-20 h-20 object-cover rounded border-2 border-gray-200 group-hover:border-toyota-red transition-colors"
+                            className="w-20 h-20 object-cover rounded-sm border-2 border-gray-200 group-hover:border-toyota-red transition-colors"
                           />
                         </button>
                         <div className="absolute top-1 left-1">
@@ -353,7 +353,7 @@ export default function MaintenanceCard({ record, onEdit, onDelete, onAskAbout }
                     e.stopPropagation()
                     onEdit()
                   }}
-                  className="p-1.5 text-gray-400 hover:text-blue-500 rounded"
+                  className="p-1.5 text-gray-400 hover:text-blue-500 rounded-sm"
                   title="Edit"
                 >
                   <Edit2 className="h-4 w-4" />
@@ -366,7 +366,7 @@ export default function MaintenanceCard({ record, onEdit, onDelete, onAskAbout }
                     e.stopPropagation()
                     onDelete()
                   }}
-                  className="p-1.5 text-gray-400 hover:text-red-500 rounded"
+                  className="p-1.5 text-gray-400 hover:text-red-500 rounded-sm"
                   title="Delete"
                 >
                   <Trash2 className="h-4 w-4" />

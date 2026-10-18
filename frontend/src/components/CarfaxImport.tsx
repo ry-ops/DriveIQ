@@ -85,7 +85,7 @@ export default function CarfaxImport() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow-sm p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Import CARFAX Report</h2>
         {importResult && (
@@ -135,7 +135,7 @@ export default function CarfaxImport() {
       {/* Error Message */}
       {error && (
         <div className="mt-4 p-3 rounded-md bg-red-50 text-red-700 flex items-center gap-2">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          <AlertCircle className="h-5 w-5 shrink-0" />
           <span className="text-sm">{error}</span>
         </div>
       )}
@@ -144,7 +144,7 @@ export default function CarfaxImport() {
       {importResult && (
         <div className="mt-4 space-y-3">
           <div className="p-3 rounded-md bg-green-50 text-green-700 flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 flex-shrink-0" />
+            <CheckCircle className="h-5 w-5 shrink-0" />
             <span className="text-sm">{importResult.message}</span>
           </div>
 
@@ -186,17 +186,17 @@ export default function CarfaxImport() {
                 {/* Status Badges */}
                 <div className="flex flex-wrap gap-2 mt-3">
                   {importResult.no_accidents && (
-                    <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded">
+                    <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-sm">
                       No Accidents
                     </span>
                   )}
                   {importResult.single_owner && (
-                    <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
+                    <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-sm">
                       1-Owner
                     </span>
                   )}
                   {importResult.cpo_status && (
-                    <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded">
+                    <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-sm">
                       CPO {importResult.cpo_status}
                     </span>
                   )}

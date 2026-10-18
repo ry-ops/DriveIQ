@@ -80,9 +80,9 @@ export default function Documents() {
         {documents.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {documents.map((doc) => (
-              <div key={doc.filename} className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+              <div key={doc.filename} className="bg-white rounded-xl shadow-xs border border-gray-200 p-4 hover:shadow-md transition-shadow">
                 <div className="flex items-start gap-3">
-                  <div className={`p-2 rounded-lg flex-shrink-0 ${doc.document_type === "manual" ? "bg-blue-50" : "bg-green-50"}`}>
+                  <div className={`p-2 rounded-lg shrink-0 ${doc.document_type === "manual" ? "bg-blue-50" : "bg-green-50"}`}>
                     {doc.document_type === "manual" ? (
                       <BookOpen className="h-6 w-6 text-blue-600" />
                     ) : (
@@ -92,13 +92,13 @@ export default function Documents() {
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-gray-900 text-sm truncate" title={doc.filename}>{doc.filename}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className={`px-2 py-0.5 text-xs rounded ${getDocumentTypeColor(doc.document_type)}`}>
+                      <span className={`px-2 py-0.5 text-xs rounded-sm ${getDocumentTypeColor(doc.document_type)}`}>
                         {getDocumentTypeLabel(doc.document_type)}
                       </span>
                       <span className="text-xs text-gray-500">{formatFileSize(doc.size)}</span>
                     </div>
                   </div>
-                  <button onClick={() => handleDelete(doc.filename)} className="p-1.5 text-gray-400 hover:text-red-500 rounded flex-shrink-0" title="Delete">
+                  <button onClick={() => handleDelete(doc.filename)} className="p-1.5 text-gray-400 hover:text-red-500 rounded-sm shrink-0" title="Delete">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
@@ -106,7 +106,7 @@ export default function Documents() {
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center text-gray-500">
+          <div className="bg-white rounded-xl shadow-xs border border-gray-200 p-8 text-center text-gray-500">
             <BookOpen className="h-12 w-12 mx-auto text-gray-300 mb-3" />
             <p>No reference documents yet.</p>
             <p className="text-sm mt-1">Upload your vehicle manual to enable AI-powered search.</p>
@@ -126,11 +126,11 @@ export default function Documents() {
           </div>
           <p className="text-sm text-gray-500">All ingested documents are searchable via AI, even after the source PDF is removed.</p>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 divide-y">
+          <div className="bg-white rounded-xl shadow-xs border border-gray-200 divide-y">
             {ingestedDocs.map((doc) => (
               <div key={doc.document_name} className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className={`p-1.5 rounded flex-shrink-0 ${getDocumentTypeColor(doc.document_type)}`}>
+                  <div className={`p-1.5 rounded-sm shrink-0 ${getDocumentTypeColor(doc.document_type)}`}>
                     <FileText className="h-4 w-4" />
                   </div>
                   <div className="min-w-0">
@@ -142,7 +142,7 @@ export default function Documents() {
                     </div>
                   </div>
                 </div>
-                <div className="flex-shrink-0 ml-3">
+                <div className="shrink-0 ml-3">
                   {doc.on_disk ? (
                     <span className="text-xs text-green-600 flex items-center gap-1"><CheckCircle className="h-3 w-3" /> On disk</span>
                   ) : (

@@ -336,7 +336,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Vehicle Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-gray-900 via-gray-800 to-gray-900">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-toyota-red blur-3xl" />
           <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-blue-500 blur-3xl" />
@@ -370,7 +370,7 @@ export default function Dashboard() {
                   value={mileageInput}
                   onChange={(e) => setMileageInput(e.target.value)}
                   placeholder="Update mileage"
-                  className="w-40 px-3 py-2 text-sm text-gray-900 bg-white/90 backdrop-blur border-0 rounded-lg focus:ring-2 focus:ring-toyota-red"
+                  className="w-40 px-3 py-2 text-sm text-gray-900 bg-white/90 backdrop-blur-sm border-0 rounded-lg focus:ring-2 focus:ring-toyota-red"
                 />
                 <button
                   onClick={handleMileageUpdate}
@@ -392,7 +392,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div
               onClick={() => toggleBlur("odometer")}
-              className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+              className="bg-white/5 backdrop-blur-xs rounded-xl p-4 border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
             >
               <div className="flex items-center gap-2 mb-2">
                 <Gauge className="h-5 w-5 text-blue-400" />
@@ -406,7 +406,7 @@ export default function Dashboard() {
 
             <div
               onClick={() => toggleBlur("value")}
-              className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+              className="bg-white/5 backdrop-blur-xs rounded-xl p-4 border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
             >
               <div className="flex items-center gap-2 mb-2">
                 <TrendingUp className="h-5 w-5 text-green-400" />
@@ -418,7 +418,7 @@ export default function Dashboard() {
               <p className="text-sm text-gray-500">CARFAX estimate</p>
             </div>
 
-            <div className="bg-green-500/10 backdrop-blur-sm rounded-xl p-4 border border-green-500/20">
+            <div className="bg-green-500/10 backdrop-blur-xs rounded-xl p-4 border border-green-500/20">
               <div className="flex items-center gap-2 mb-2">
                 <CheckCircle2 className="h-5 w-5 text-green-400" />
                 <span className="text-xs font-medium uppercase tracking-wider text-green-400">Recalls</span>
@@ -429,7 +429,7 @@ export default function Dashboard() {
 
             <div
               onClick={() => toggleBlur("vin")}
-              className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+              className="bg-white/5 backdrop-blur-xs rounded-xl p-4 border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
             >
               <div className="flex items-center gap-2 mb-2">
                 <FileText className="h-5 w-5 text-purple-400" />
