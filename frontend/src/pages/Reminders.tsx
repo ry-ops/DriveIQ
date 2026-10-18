@@ -129,7 +129,7 @@ export default function Reminders() {
       </div>
 
       {showForm && (
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow-sm p-6">
           <h2 className="text-lg font-semibold mb-4">New Reminder</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -223,7 +223,7 @@ export default function Reminders() {
       )}
 
       {/* Maintenance Schedule */}
-      <div className="bg-white rounded-lg shadow">
+      <div className="bg-white rounded-lg shadow-sm">
         <div className="px-6 py-4 border-b flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Wrench className="h-5 w-5 text-gray-600" />
@@ -268,13 +268,13 @@ export default function Reminders() {
                     {getPriorityBadge(item.priority)}
                   </div>
 
-                  <span className={`inline-block mb-3 px-2 py-0.5 text-xs font-medium rounded ${colors.badge}`}>
+                  <span className={`inline-block mb-3 px-2 py-0.5 text-xs font-medium rounded-sm ${colors.badge}`}>
                     {getStatusLabel(item.status)}
                   </span>
 
                   <div className="space-y-1.5 text-sm">
                     <div className="flex items-center gap-2 text-gray-700">
-                      <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
+                      <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
                       <span>
                         Next: {item.next_mileage.toLocaleString()} mi
                         {item.miles_remaining > 0
@@ -285,7 +285,7 @@ export default function Reminders() {
                     </div>
 
                     <div className="flex items-center gap-2 text-gray-700">
-                      <Clock className="h-3.5 w-3.5 flex-shrink-0" />
+                      <Clock className="h-3.5 w-3.5 shrink-0" />
                       <span>
                         {item.last_service
                           ? `Last: ${format(new Date(item.last_service.date), 'MMM d, yyyy')} at ${item.last_service.mileage.toLocaleString()} mi`
@@ -295,12 +295,12 @@ export default function Reminders() {
                     </div>
 
                     <div className="flex items-center gap-2 text-gray-500">
-                      <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
+                      <Calendar className="h-3.5 w-3.5 shrink-0" />
                       <span>Every {item.interval_miles.toLocaleString()} mi / {item.interval_months} mo</span>
                     </div>
 
                     <div className="flex items-center gap-2 text-gray-500">
-                      <DollarSign className="h-3.5 w-3.5 flex-shrink-0" />
+                      <DollarSign className="h-3.5 w-3.5 shrink-0" />
                       <span>Est. ${item.estimated_cost}</span>
                     </div>
                   </div>
@@ -319,7 +319,7 @@ export default function Reminders() {
       </div>
 
       {/* Active Reminders */}
-      <div className="bg-white rounded-lg shadow">
+      <div className="bg-white rounded-lg shadow-sm">
         <div className="px-6 py-4 border-b">
           <h2 className="text-lg font-semibold">Active Reminders</h2>
         </div>
@@ -341,7 +341,7 @@ export default function Reminders() {
                         <p className="text-sm text-gray-500 mt-1">{reminder.description}</p>
                       )}
                       {reminder.is_recurring && (
-                        <span className="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">
+                        <span className="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-sm">
                           Recurring
                         </span>
                       )}
@@ -376,7 +376,7 @@ export default function Reminders() {
 
       {/* Completed Reminders */}
       {completedReminders.length > 0 && (
-        <div className="bg-white rounded-lg shadow">
+        <div className="bg-white rounded-lg shadow-sm">
           <div className="px-6 py-4 border-b">
             <h2 className="text-lg font-semibold text-gray-500">Completed</h2>
           </div>

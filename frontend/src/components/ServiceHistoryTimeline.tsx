@@ -52,7 +52,7 @@ function DocumentCarousel({ serviceType }: { serviceType: string }) {
     return (
       <div className="flex gap-2 mt-2">
         {[1, 2, 3].map(i => (
-          <div key={i} className="w-16 h-20 bg-gray-200 animate-pulse rounded" />
+          <div key={i} className="w-16 h-20 bg-gray-200 animate-pulse rounded-sm" />
         ))}
       </div>
     )
@@ -88,14 +88,14 @@ function DocumentCarousel({ serviceType }: { serviceType: string }) {
               <button
                 onClick={() => scroll('left')}
                 disabled={currentIndex === 0}
-                className="p-0.5 rounded hover:bg-gray-200 disabled:opacity-30"
+                className="p-0.5 rounded-sm hover:bg-gray-200 disabled:opacity-30"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <button
                 onClick={() => scroll('right')}
                 disabled={currentIndex >= docs.length - 3}
-                className="p-0.5 rounded hover:bg-gray-200 disabled:opacity-30"
+                className="p-0.5 rounded-sm hover:bg-gray-200 disabled:opacity-30"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
@@ -107,13 +107,13 @@ function DocumentCarousel({ serviceType }: { serviceType: string }) {
             <button
               key={idx}
               onClick={() => setSelectedImage(doc.fullsize_url)}
-              className="flex-shrink-0 group relative"
+              className="shrink-0 group relative"
               title={`${doc.document_name} - Page ${doc.page_number}`}
             >
               <img
                 src={doc.thumbnail_url}
                 alt={`Page ${doc.page_number}`}
-                className="w-16 h-20 object-cover rounded border border-gray-200 group-hover:border-toyota-red transition-colors"
+                className="w-16 h-20 object-cover rounded-sm border border-gray-200 group-hover:border-toyota-red transition-colors"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none'
                 }}
@@ -182,15 +182,15 @@ export default function ServiceHistoryTimeline() {
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+          <div className="h-6 bg-gray-200 rounded-sm w-1/3"></div>
           {[...Array(5)].map((_, i) => (
             <div key={i} className="flex gap-4">
-              <div className="h-16 w-1 bg-gray-200 rounded"></div>
+              <div className="h-16 w-1 bg-gray-200 rounded-sm"></div>
               <div className="flex-1 space-y-2">
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded-sm w-1/2"></div>
+                <div className="h-3 bg-gray-200 rounded-sm w-3/4"></div>
               </div>
             </div>
           ))}
@@ -201,7 +201,7 @@ export default function ServiceHistoryTimeline() {
 
   if (error || !records || records.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white rounded-lg shadow-sm p-6">
         <h2 className="text-lg font-semibold mb-4">Service History Timeline</h2>
         <p className="text-gray-500 text-center py-8">
           No service records found. Import a CARFAX report to see your service history.
@@ -223,7 +223,7 @@ export default function ServiceHistoryTimeline() {
   const years = Object.keys(recordsByYear).sort((a, b) => parseInt(b) - parseInt(a))
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow-sm p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold">Service History Timeline</h2>
         <span className="text-sm text-gray-500">{records.length} records</span>
@@ -249,7 +249,7 @@ export default function ServiceHistoryTimeline() {
                 return (
                   <div key={record.id} className="relative pl-8 pb-6">
                     {/* Timeline dot */}
-                    <div className={`absolute left-0 w-3 h-3 rounded-full transform -translate-x-1/2 mt-1.5 ${category.bg} border-2 border-white shadow`}></div>
+                    <div className={`absolute left-0 w-3 h-3 rounded-full transform -translate-x-1/2 mt-1.5 ${category.bg} border-2 border-white shadow-sm`}></div>
 
                     <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
                       {/* Header */}
@@ -274,7 +274,7 @@ export default function ServiceHistoryTimeline() {
                         </div>
                         <div className="flex items-center gap-2">
                           {record.source && (
-                            <span className={`text-xs px-2 py-0.5 rounded ${record.source === 'CARFAX' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-200 text-gray-600'}`}>
+                            <span className={`text-xs px-2 py-0.5 rounded-sm ${record.source === 'CARFAX' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-200 text-gray-600'}`}>
                               {record.source}
                             </span>
                           )}
@@ -330,7 +330,7 @@ export default function ServiceHistoryTimeline() {
                       {record.tags && record.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-2">
                           {record.tags.map((tag) => (
-                            <span key={tag} className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded">
+                            <span key={tag} className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-sm">
                               {tag}
                             </span>
                           ))}

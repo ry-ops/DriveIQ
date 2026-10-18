@@ -179,7 +179,7 @@ export default function Maintenance() {
         <h1 className="text-3xl font-bold text-gray-900">Maintenance Log</h1>
         <div className="flex items-center gap-3">
           {/* View Toggle */}
-          <div className="flex rounded-md shadow-sm">
+          <div className="flex rounded-md shadow-xs">
             <button
               onClick={() => setViewMode('list')}
               className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-l-md border ${
@@ -214,7 +214,7 @@ export default function Maintenance() {
       </div>
 
       {showForm && (
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow-sm p-6">
           <h2 className="text-lg font-semibold mb-4">New Maintenance Record</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -489,7 +489,7 @@ export default function Maintenance() {
                   {editServiceRecord.tags?.map(tag => (
                     <span
                       key={tag}
-                      className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm"
+                      className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 rounded-sm text-sm"
                     >
                       <Tag className="h-3 w-3" />
                       {tag}
@@ -601,7 +601,7 @@ export default function Maintenance() {
               />
             ))
           ) : (
-            <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+            <div className="bg-white rounded-lg shadow-sm p-8 text-center text-gray-500">
               No maintenance records yet. Add your first record above or import a CARFAX report.
             </div>
           )}

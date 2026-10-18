@@ -106,7 +106,7 @@ export default function Documents() {
         <CarfaxImport />
 
         {/* Right: General PDF Upload */}
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white rounded-lg shadow-sm p-6">
           <h2 className="text-lg font-semibold mb-4">Upload Document</h2>
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-toyota-red transition-colors">
             <input
@@ -139,19 +139,19 @@ export default function Documents() {
               uploadStatus.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
             }`}>
               {uploadStatus.type === 'success' ? (
-                <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                <CheckCircle className="h-4 w-4 shrink-0" />
               ) : (
-                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                <AlertCircle className="h-4 w-4 shrink-0" />
               )}
               {uploadStatus.message}
             </div>
           )}
 
           <div className="mt-4 flex flex-wrap gap-2">
-            <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">Manuals</span>
-            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">Quick Reference Guides</span>
-            <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded">Service Records</span>
-            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">Other PDFs</span>
+            <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-sm">Manuals</span>
+            <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-sm">Quick Reference Guides</span>
+            <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-sm">Service Records</span>
+            <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-sm">Other PDFs</span>
           </div>
         </div>
       </div>
@@ -166,9 +166,9 @@ export default function Documents() {
         {documents && documents.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {documents.map((doc) => (
-              <div key={doc.filename} className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
+              <div key={doc.filename} className="bg-white rounded-xl shadow-xs border border-gray-200 p-4 hover:shadow-md transition-shadow">
                 <div className="flex items-start gap-3">
-                  <div className={`p-2 rounded-lg flex-shrink-0 ${
+                  <div className={`p-2 rounded-lg shrink-0 ${
                     doc.document_type === 'manual' ? 'bg-blue-50' : 'bg-green-50'
                   }`}>
                     {doc.document_type === 'manual' ? (
@@ -182,7 +182,7 @@ export default function Documents() {
                       {doc.filename}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className={`px-2 py-0.5 text-xs rounded ${getDocumentTypeColor(doc.document_type)}`}>
+                      <span className={`px-2 py-0.5 text-xs rounded-sm ${getDocumentTypeColor(doc.document_type)}`}>
                         {getDocumentTypeLabel(doc.document_type)}
                       </span>
                       <span className="text-xs text-gray-500">
@@ -196,7 +196,7 @@ export default function Documents() {
                         deleteMutation.mutate(doc.filename)
                       }
                     }}
-                    className="p-1.5 text-gray-400 hover:text-red-500 rounded flex-shrink-0"
+                    className="p-1.5 text-gray-400 hover:text-red-500 rounded-sm shrink-0"
                     title="Delete document"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -206,7 +206,7 @@ export default function Documents() {
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center text-gray-500">
+          <div className="bg-white rounded-xl shadow-xs border border-gray-200 p-8 text-center text-gray-500">
             <BookOpen className="h-12 w-12 mx-auto text-gray-300 mb-3" />
             <p>No reference documents yet.</p>
             <p className="text-sm mt-1">
@@ -230,11 +230,11 @@ export default function Documents() {
             All ingested documents are searchable via AI, even after the source PDF is removed.
           </p>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 divide-y">
+          <div className="bg-white rounded-xl shadow-xs border border-gray-200 divide-y">
             {ingestedDocs.map((doc) => (
               <div key={doc.document_name} className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className={`p-1.5 rounded flex-shrink-0 ${getDocumentTypeColor(doc.document_type)}`}>
+                  <div className={`p-1.5 rounded-sm shrink-0 ${getDocumentTypeColor(doc.document_type)}`}>
                     <FileText className="h-4 w-4" />
                   </div>
                   <div className="min-w-0">
@@ -248,7 +248,7 @@ export default function Documents() {
                     </div>
                   </div>
                 </div>
-                <div className="flex-shrink-0 ml-3">
+                <div className="shrink-0 ml-3">
                   {doc.on_disk ? (
                     <span className="text-xs text-green-600 flex items-center gap-1">
                       <CheckCircle className="h-3 w-3" /> On disk

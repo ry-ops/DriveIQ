@@ -47,7 +47,7 @@ export default function Search() {
         </p>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white rounded-lg shadow-sm p-6">
         <form onSubmit={handleSubmit} className="flex gap-4">
           <div className="flex-1 relative">
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -71,7 +71,7 @@ export default function Search() {
       </div>
 
       {askQuestion.isPending && (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
+        <div className="bg-white rounded-lg shadow-sm p-8 text-center">
           <div className="animate-pulse">
             <p className="text-gray-600">Searching documentation...</p>
           </div>
@@ -79,7 +79,7 @@ export default function Search() {
       )}
 
       {answer && (
-        <div className="bg-white rounded-lg shadow p-6 space-y-4">
+        <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
           <div className="prose prose-gray max-w-none prose-headings:text-gray-900 prose-h2:text-xl prose-h2:mt-4 prose-h2:mb-2 prose-h3:text-lg prose-h3:mt-3 prose-h3:mb-1 prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-strong:font-semibold">
             <ReactMarkdown>{answer.text}</ReactMarkdown>
           </div>
