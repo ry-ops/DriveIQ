@@ -21,6 +21,9 @@ DOCS_DIR = Path(__file__).parent.parent / "docs"
 CHUNK_SIZE = 500  # characters (approximate)
 CHUNK_OVERLAP = 50  # characters
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://localhost/driveiq")
+# SQLAlchemy 2.1 maps a bare postgresql:// URL to psycopg 3; this project ships psycopg2.
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = "postgresql+psycopg2://" + DATABASE_URL[len("postgresql://"):]
 
 # Initialize embedding model
 print("Loading embedding model...")

@@ -1,3 +1,4 @@
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 from typing import List, Optional
 
@@ -9,6 +10,14 @@ class Settings(BaseSettings):
     DB_MAX_OVERFLOW: int = 10
     DB_POOL_TIMEOUT: int = 30
     DB_POOL_RECYCLE: int = 1800  # 30 minutes
+
+    @field_validator("DATABASE_URL")
+    @classmethod
+    def use_psycopg2(cls, v: str) -> str:
+        # SQLAlchemy 2.1 maps a bare postgresql:// URL to psycopg 3; this app ships psycopg2.
+        if v.startswith("postgresql://"):
+            return "postgresql+psycopg2://" + v[len("postgresql://"):]
+        return v
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
