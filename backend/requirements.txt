@@ -52,7 +52,7 @@ black>=26.3.1
 isort==8.0.1
 mypy==2.4.0
 pillow>=12.3.0
-transformers>=4.36.0 # not directly required, pinned by Snyk to avoid a vulnerability
+transformers>=5.20.1 # not directly required, pinned by Snyk to avoid a vulnerability
 urllib3>=2.7.0
 sentencepiece>=0.2.1 # not directly required, pinned by Snyk to avoid a vulnerability
 nltk>=3.9.4
