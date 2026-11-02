@@ -7,7 +7,7 @@ starlette>=1.9.0
 # Database
 sqlalchemy==2.0.46
 psycopg2-binary==2.9.13
-pgvector==0.2.4
+pgvector==0.5.1
 alembic==1.18.4
 
 # Redis
