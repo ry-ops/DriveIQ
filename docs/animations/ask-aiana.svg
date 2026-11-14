@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 660" width="1200" height="660" role="img" aria-labelledby="t d">
+<title id="t">How Aiana answers a question</title>
+<desc id="d">Animated diagram: the question is embedded with Workers AI, matched against your documents in Vectorize (top 8, score at least 0.35), combined with your records from D1, and sent to Claude through AI Gateway. The answer cites the page it used, shown from R2.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0b1220"/><stop offset="100%" stop-color="#1f2937"/></linearGradient>
+  <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6"/></filter>
+</defs>
+<style>
+  text { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  @media (prefers-reduced-motion: reduce) { .mv { display: none; } }
+</style>
+<rect width="1200" height="660" rx="24" fill="url(#bg)"/>
+<text x="40" y="56" font-size="28" font-weight="800" fill="#f9fafb" text-anchor="start">How Aiana answers a question</text>
+<text x="40" y="84" font-size="16" font-weight="400" fill="#9ca3af" text-anchor="start">One question, five steps, about as long as it takes to read this line. (Demo manual shown.)</text>
+<rect x="40" y="110" width="340" height="520" rx="18" fill="#111827" stroke="#374151" stroke-width="1.5"/>
+<text x="60" y="144" font-size="17" font-weight="800" fill="#f9fafb" text-anchor="start">Aiana</text>
+<circle cx="122" cy="138" r="5" fill="#10b981"/>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.0187;0.0344;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="100" y="170" width="260" height="56" rx="14" fill="#eb0a1e"/><text x="116" y="194" font-size="15" font-weight="500" fill="#fff" text-anchor="start">How much oil does the</text>
+<text x="116" y="214" font-size="15" font-weight="500" fill="#fff" text-anchor="start">engine take?</text>
+</g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.0625;0.0781;0.7125;0.7281;1.0000" dur="16s" repeatCount="indefinite"/>
+<circle cx="80" cy="260" r="4" fill="#9ca3af"><animate attributeName="opacity" values=".2;1;.2" dur="1s" begin="0.0s" repeatCount="indefinite"/></circle><circle cx="94" cy="260" r="4" fill="#9ca3af"><animate attributeName="opacity" values=".2;1;.2" dur="1s" begin="0.2s" repeatCount="indefinite"/></circle><circle cx="108" cy="260" r="4" fill="#9ca3af"><animate attributeName="opacity" values=".2;1;.2" dur="1s" begin="0.4s" repeatCount="indefinite"/></circle></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.7250;0.7406;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="60" y="250" width="300" height="196" rx="14" fill="#1f2937" stroke="#374151"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.7438;0.7594;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<text x="78" y="282" font-size="15" font-weight="400" fill="#f9fafb" text-anchor="start">About 4.8 qt with a new filter.</text>
+</g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.7656;0.7812;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<text x="78" y="304" font-size="15" font-weight="400" fill="#f9fafb" text-anchor="start">The demo manual lists filter</text>
+</g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.7875;0.8031;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<text x="78" y="326" font-size="15" font-weight="400" fill="#f9fafb" text-anchor="start">DM-15400 for this engine.</text>
+</g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.8125;0.8281;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="78" y="354" width="170" height="26" rx="13" fill="none" stroke="#3b82f6"/><text x="92" y="372" font-size="13" font-weight="600" fill="#93c5fd" text-anchor="start">Owner&#x27;s Manual · p.3</text>
+</g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.8500;0.8656;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="78" y="390" width="40" height="46" rx="4" fill="#e5e7eb"/><rect x="84" y="398" width="28" height="3" rx="1.5" fill="#9ca3af"/><rect x="84" y="406" width="20" height="3" rx="1.5" fill="#9ca3af"/><rect x="84" y="414" width="28" height="3" rx="1.5" fill="#9ca3af"/><rect x="84" y="422" width="20" height="3" rx="1.5" fill="#9ca3af"/><rect x="128" y="390" width="40" height="46" rx="4" fill="#e5e7eb"/><rect x="134" y="398" width="20" height="3" rx="1.5" fill="#9ca3af"/><rect x="134" y="406" width="28" height="3" rx="1.5" fill="#9ca3af"/><rect x="134" y="414" width="20" height="3" rx="1.5" fill="#9ca3af"/><rect x="134" y="422" width="28" height="3" rx="1.5" fill="#9ca3af"/></g>
+<text x="60" y="608" font-size="13" font-weight="400" fill="#6b7280" text-anchor="start">Answers cite the page they came from.</text>
+<rect x="420" y="110" width="740" height="92" rx="14" fill="#111827" stroke="#374151" stroke-width="1.5"/>
+<circle cx="452" cy="142" r="15" fill="#f38020"/><text x="452" y="147" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+<text x="480" y="148" font-size="18" font-weight="700" fill="#f9fafb" text-anchor="start">Embed the question</text>
+<text x="480" y="172" font-size="13.5" font-weight="400" fill="#9ca3af" text-anchor="start">Workers AI turns it into 768 numbers</text>
+<text x="480" y="191" font-size="13.5" font-weight="400" fill="#9ca3af" text-anchor="start">(bge-base-en-v1.5).</text>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.0625;0.0781;0.1875;0.2031;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="420" y="110" width="740" height="92" rx="14" fill="none" stroke="#f38020" stroke-width="3"/><rect x="420" y="110" width="740" height="92" rx="14" fill="none" stroke="#f38020" stroke-width="8" opacity=".45" filter="url(#glow)"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.1750;0.1906;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<circle cx="1134" cy="140" r="10" fill="#10b981"/><path d="M1129 140 l4 4 l7 -8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<rect x="420" y="214" width="740" height="92" rx="14" fill="#111827" stroke="#374151" stroke-width="1.5"/>
+<circle cx="452" cy="246" r="15" fill="#f38020"/><text x="452" y="251" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">2</text>
+<text x="480" y="252" font-size="18" font-weight="700" fill="#f9fafb" text-anchor="start">Search your documents</text>
+<text x="480" y="276" font-size="13.5" font-weight="400" fill="#9ca3af" text-anchor="start">Vectorize: top 8 matches, keep scores ≥ 0.35. Short</text>
+<text x="480" y="295" font-size="13.5" font-weight="400" fill="#9ca3af" text-anchor="start">follow-ups search with the last question too.</text>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.1875;0.2031;0.3500;0.3656;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="420" y="214" width="740" height="92" rx="14" fill="none" stroke="#f38020" stroke-width="3"/><rect x="420" y="214" width="740" height="92" rx="14" fill="none" stroke="#f38020" stroke-width="8" opacity=".45" filter="url(#glow)"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.3375;0.3531;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<circle cx="1134" cy="244" r="10" fill="#10b981"/><path d="M1129 244 l4 4 l7 -8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<rect x="420" y="318" width="740" height="92" rx="14" fill="#111827" stroke="#374151" stroke-width="1.5"/>
+<circle cx="452" cy="350" r="15" fill="#f38020"/><text x="452" y="355" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+<text x="480" y="356" font-size="18" font-weight="700" fill="#f9fafb" text-anchor="start">Gather what DriveIQ knows</text>
+<text x="480" y="380" font-size="13.5" font-weight="400" fill="#9ca3af" text-anchor="start">From D1: service history, forecast, NHTSA recalls,</text>
+<text x="480" y="399" font-size="13.5" font-weight="400" fill="#9ca3af" text-anchor="start">your specs, reminders, the last 4 hours of chat.</text>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.3500;0.3656;0.5125;0.5281;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="420" y="318" width="740" height="92" rx="14" fill="none" stroke="#f38020" stroke-width="3"/><rect x="420" y="318" width="740" height="92" rx="14" fill="none" stroke="#f38020" stroke-width="8" opacity=".45" filter="url(#glow)"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.5000;0.5156;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<circle cx="1134" cy="348" r="10" fill="#10b981"/><path d="M1129 348 l4 4 l7 -8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<rect x="420" y="422" width="740" height="92" rx="14" fill="#111827" stroke="#374151" stroke-width="1.5"/>
+<circle cx="452" cy="454" r="15" fill="#3b82f6"/><text x="452" y="459" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">4</text>
+<text x="480" y="460" font-size="18" font-weight="700" fill="#f9fafb" text-anchor="start">Ask Claude</text>
+<text x="480" y="484" font-size="13.5" font-weight="400" fill="#9ca3af" text-anchor="start">Through your AI Gateway to Claude Haiku 5.5, with</text>
+<text x="480" y="503" font-size="13.5" font-weight="400" fill="#9ca3af" text-anchor="start">tools to add or edit reminders.</text>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.5125;0.5281;0.7125;0.7281;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="420" y="422" width="740" height="92" rx="14" fill="none" stroke="#3b82f6" stroke-width="3"/><rect x="420" y="422" width="740" height="92" rx="14" fill="none" stroke="#3b82f6" stroke-width="8" opacity=".45" filter="url(#glow)"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.7000;0.7156;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<circle cx="1134" cy="452" r="10" fill="#10b981"/><path d="M1129 452 l4 4 l7 -8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<rect x="420" y="526" width="740" height="92" rx="14" fill="#111827" stroke="#374151" stroke-width="1.5"/>
+<circle cx="452" cy="558" r="15" fill="#f38020"/><text x="452" y="563" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">5</text>
+<text x="480" y="564" font-size="18" font-weight="700" fill="#f9fafb" text-anchor="start">Show the pages</text>
+<text x="480" y="588" font-size="13.5" font-weight="400" fill="#9ca3af" text-anchor="start">The answer lists its sources; thumbnails come from</text>
+<text x="480" y="607" font-size="13.5" font-weight="400" fill="#9ca3af" text-anchor="start">R2.</text>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.7125;0.7281;0.8750;0.8906;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="420" y="526" width="740" height="92" rx="14" fill="none" stroke="#f38020" stroke-width="3"/><rect x="420" y="526" width="740" height="92" rx="14" fill="none" stroke="#f38020" stroke-width="8" opacity=".45" filter="url(#glow)"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.8625;0.8781;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<circle cx="1134" cy="556" r="10" fill="#10b981"/><path d="M1129 556 l4 4 l7 -8" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.1000;0.1156;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<g transform="translate(890 128)"><rect x="0" y="4" width="5" height="23" rx="1" fill="#f38020"/><rect x="7" y="20" width="5" height="7" rx="1" fill="#f38020"/><rect x="14" y="13" width="5" height="14" rx="1" fill="#f38020"/><rect x="21" y="6" width="5" height="21" rx="1" fill="#f38020"/><rect x="28" y="22" width="5" height="5" rx="1" fill="#f38020"/><rect x="35" y="15" width="5" height="12" rx="1" fill="#f38020"/><rect x="42" y="8" width="5" height="19" rx="1" fill="#f38020"/><rect x="49" y="1" width="5" height="26" rx="1" fill="#f38020"/><rect x="56" y="17" width="5" height="10" rx="1" fill="#f38020"/><rect x="63" y="10" width="5" height="17" rx="1" fill="#f38020"/><rect x="70" y="3" width="5" height="24" rx="1" fill="#f38020"/><rect x="77" y="19" width="5" height="8" rx="1" fill="#f38020"/><rect x="84" y="12" width="5" height="15" rx="1" fill="#f38020"/><rect x="91" y="5" width="5" height="22" rx="1" fill="#f38020"/><rect x="98" y="21" width="5" height="6" rx="1" fill="#f38020"/><rect x="105" y="14" width="5" height="13" rx="1" fill="#f38020"/><rect x="112" y="7" width="5" height="20" rx="1" fill="#f38020"/><rect x="119" y="23" width="5" height="4" rx="1" fill="#f38020"/><rect x="126" y="16" width="5" height="11" rx="1" fill="#f38020"/><rect x="133" y="9" width="5" height="18" rx="1" fill="#f38020"/><rect x="140" y="2" width="5" height="25" rx="1" fill="#f38020"/><rect x="147" y="18" width="5" height="9" rx="1" fill="#f38020"/><rect x="154" y="11" width="5" height="16" rx="1" fill="#f38020"/><rect x="161" y="4" width="5" height="23" rx="1" fill="#f38020"/><rect x="168" y="20" width="5" height="7" rx="1" fill="#f38020"/><rect x="175" y="13" width="5" height="14" rx="1" fill="#f38020"/><rect x="182" y="6" width="5" height="21" rx="1" fill="#f38020"/><rect x="189" y="22" width="5" height="5" rx="1" fill="#f38020"/></g></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.2125;0.2281;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<line x1="953.0" y1="226" x2="953.0" y2="294" stroke="#f59e0b" stroke-dasharray="3 3"/><text x="957.0" y="304" font-size="11" font-weight="400" fill="#f59e0b" text-anchor="start">0.35</text>
+</g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.2188;0.2344;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="890" y="228" width="128" height="5" rx="2.5" fill="#f38020"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.2281;0.2437;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="890" y="236" width="115" height="5" rx="2.5" fill="#f38020"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.2375;0.2531;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="890" y="244" width="104" height="5" rx="2.5" fill="#f38020"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.2469;0.2625;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="890" y="252" width="88" height="5" rx="2.5" fill="#f38020"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.2562;0.2719;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="890" y="260" width="74" height="5" rx="2.5" fill="#f38020"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.2656;0.2812;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="890" y="268" width="67" height="5" rx="2.5" fill="#f38020"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.2750;0.2906;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="890" y="276" width="56" height="5" rx="2.5" fill="#6b7280"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.2844;0.3000;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="890" y="284" width="40" height="5" rx="2.5" fill="#6b7280"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.3750;0.3906;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="860" y="328" width="68" height="24" rx="12" fill="#1f2937" stroke="#f38020"/><text x="894" y="344" font-size="12" font-weight="400" fill="#fdba74" text-anchor="middle">history</text>
+</g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.3906;0.4062;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="934" y="328" width="68" height="24" rx="12" fill="#1f2937" stroke="#f38020"/><text x="968" y="344" font-size="12" font-weight="400" fill="#fdba74" text-anchor="middle">forecast</text>
+</g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.4062;0.4219;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="1008" y="328" width="68" height="24" rx="12" fill="#1f2937" stroke="#f38020"/><text x="1042" y="344" font-size="12" font-weight="400" fill="#fdba74" text-anchor="middle">recalls</text>
+</g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.4219;0.4375;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="860" y="358" width="68" height="24" rx="12" fill="#1f2937" stroke="#f38020"/><text x="894" y="374" font-size="12" font-weight="400" fill="#fdba74" text-anchor="middle">specs</text>
+</g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.4375;0.4531;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="934" y="358" width="68" height="24" rx="12" fill="#1f2937" stroke="#f38020"/><text x="968" y="374" font-size="12" font-weight="400" fill="#fdba74" text-anchor="middle">reminders</text>
+</g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.4531;0.4688;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="1008" y="358" width="68" height="24" rx="12" fill="#1f2937" stroke="#f38020"/><text x="1042" y="374" font-size="12" font-weight="400" fill="#fdba74" text-anchor="middle">chat</text>
+</g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.5375;0.5531;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="860" y="440" width="110" height="24" rx="6" fill="#1e3a8a" stroke="#3b82f6"/><text x="915" y="456" font-size="11" font-weight="400" fill="#bfdbfe" text-anchor="middle" class="mono">create_reminder</text>
+</g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.5563;0.5719;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="976" y="440" width="110" height="24" rx="6" fill="#1e3a8a" stroke="#3b82f6"/><text x="1031" y="456" font-size="11" font-weight="400" fill="#bfdbfe" text-anchor="middle" class="mono">update_reminder</text>
+</g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.5750;0.5906;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<text x="860" y="488" font-size="12" font-weight="400" fill="#6b7280" text-anchor="start">used only when you ask for a change</text>
+</g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.7375;0.7531;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="890" y="542" width="40" height="56" rx="4" fill="#e5e7eb"/><rect x="896" y="550" width="28" height="3" rx="1.5" fill="#9ca3af"/><rect x="896" y="559" width="20" height="3" rx="1.5" fill="#9ca3af"/><rect x="896" y="568" width="28" height="3" rx="1.5" fill="#9ca3af"/><rect x="896" y="577" width="20" height="3" rx="1.5" fill="#9ca3af"/><rect x="896" y="586" width="28" height="3" rx="1.5" fill="#9ca3af"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.7563;0.7719;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="940" y="542" width="40" height="56" rx="4" fill="#e5e7eb"/><rect x="946" y="550" width="28" height="3" rx="1.5" fill="#9ca3af"/><rect x="946" y="559" width="20" height="3" rx="1.5" fill="#9ca3af"/><rect x="946" y="568" width="28" height="3" rx="1.5" fill="#9ca3af"/><rect x="946" y="577" width="20" height="3" rx="1.5" fill="#9ca3af"/><rect x="946" y="586" width="28" height="3" rx="1.5" fill="#9ca3af"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.7750;0.7906;0.9688;0.9844;1.0000" dur="16s" repeatCount="indefinite"/>
+<rect x="990" y="542" width="40" height="56" rx="4" fill="#e5e7eb"/><rect x="996" y="550" width="28" height="3" rx="1.5" fill="#9ca3af"/><rect x="996" y="559" width="20" height="3" rx="1.5" fill="#9ca3af"/><rect x="996" y="568" width="28" height="3" rx="1.5" fill="#9ca3af"/><rect x="996" y="577" width="20" height="3" rx="1.5" fill="#9ca3af"/><rect x="996" y="586" width="28" height="3" rx="1.5" fill="#9ca3af"/></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.0281;0.0344;0.0781;0.0844;1.0000" dur="16s" repeatCount="indefinite"/><g><animateMotion path="M360 198 C 400 198, 390 156, 420 156" keyPoints="0;0;1;1" keyTimes="0;0.0312;0.0688;1" calcMode="linear" dur="16s" repeatCount="indefinite"/><circle r="12" fill="#eb0a1e" opacity=".35" filter="url(#glow)"/><circle r="6" fill="#eb0a1e"/></g></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.6844;0.6906;0.7344;0.7406;1.0000" dur="16s" repeatCount="indefinite"/><g><animateMotion path="M420 572 C 390 572, 400 310, 360 310" keyPoints="0;0;1;1" keyTimes="0;0.6875;0.7250;1" calcMode="linear" dur="16s" repeatCount="indefinite"/><circle r="12" fill="#10b981" opacity=".35" filter="url(#glow)"/><circle r="6" fill="#10b981"/></g></g>
+<path d="M452 158 L452 230" fill="none" stroke="#374151" stroke-width="2" stroke-dasharray="6 7" stroke-linecap="round"/>
+<path d="M452 262 L452 334" fill="none" stroke="#374151" stroke-width="2" stroke-dasharray="6 7" stroke-linecap="round"/>
+<path d="M452 366 L452 438" fill="none" stroke="#374151" stroke-width="2" stroke-dasharray="6 7" stroke-linecap="round"/>
+<path d="M452 470 L452 542" fill="none" stroke="#374151" stroke-width="2" stroke-dasharray="6 7" stroke-linecap="round"/>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.1656;0.1719;0.1938;0.2000;1.0000" dur="16s" repeatCount="indefinite"/><g><animateMotion path="M452 160 L452 230" keyPoints="0;0;1;1" keyTimes="0;0.1688;0.1906;1" calcMode="linear" dur="16s" repeatCount="indefinite"/><circle r="11" fill="#f38020" opacity=".35" filter="url(#glow)"/><circle r="5" fill="#f38020"/></g></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.3281;0.3344;0.3562;0.3625;1.0000" dur="16s" repeatCount="indefinite"/><g><animateMotion path="M452 264 L452 334" keyPoints="0;0;1;1" keyTimes="0;0.3312;0.3531;1" calcMode="linear" dur="16s" repeatCount="indefinite"/><circle r="11" fill="#f38020" opacity=".35" filter="url(#glow)"/><circle r="5" fill="#f38020"/></g></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.4906;0.4969;0.5188;0.5250;1.0000" dur="16s" repeatCount="indefinite"/><g><animateMotion path="M452 368 L452 438" keyPoints="0;0;1;1" keyTimes="0;0.4937;0.5156;1" calcMode="linear" dur="16s" repeatCount="indefinite"/><circle r="11" fill="#3b82f6" opacity=".35" filter="url(#glow)"/><circle r="5" fill="#3b82f6"/></g></g>
+<g class="mv" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0.0000;0.6906;0.6969;0.7188;0.7250;1.0000" dur="16s" repeatCount="indefinite"/><g><animateMotion path="M452 472 L452 542" keyPoints="0;0;1;1" keyTimes="0;0.6937;0.7156;1" calcMode="linear" dur="16s" repeatCount="indefinite"/><circle r="11" fill="#f38020" opacity=".35" filter="url(#glow)"/><circle r="5" fill="#f38020"/></g></g>
+</svg>
