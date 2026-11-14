@@ -35,6 +35,24 @@ One Cloudflare Worker serves the app and its API:
 
 Your documents are read in your browser and never leave your Cloudflare account, except for the excerpts sent to Claude with each question.
 
+## Under the hood
+
+Every request passes Cloudflare Access first, and the Worker checks the sign-in again itself before it touches your data:
+
+<p align="center"><img src="docs/animations/how-it-works.svg" alt="Animated diagram: a request goes from the browser through Cloudflare Access to the DriveIQ Worker, which checks the Access token, then uses Workers AI, Vectorize, D1, AI Gateway with Claude, and R2" width="100%"></p>
+
+Uploading a manual: the PDF is read in your browser, and only its text and page images are sent on:
+
+<p align="center"><img src="docs/animations/upload-pipeline.svg" alt="Animated diagram: the browser splits the PDF's text into chunks and sends them 20 at a time; the Worker embeds each with Workers AI and stores them in Vectorize; each page is then saved as an image in R2" width="100%"></p>
+
+Asking Aiana a question:
+
+<p align="center"><img src="docs/animations/ask-aiana.svg" alt="Animated diagram: the question is embedded, matched against your documents in Vectorize, combined with your records from D1, and answered by Claude, with the cited page shown from R2" width="100%"></p>
+
+The What's Next forecast, for each service on your schedule:
+
+<p align="center"><img src="docs/animations/forecast.svg" alt="Animated diagram: an oil change every 5,000 miles or 6 months goes from OK to Due soon at 44,000 miles and Overdue at 45,000 miles as the odometer climbs" width="100%"></p>
+
 ## Upgrading from v1
 
 v2 is a new app on a new platform. **v1.3.1 is the last Docker release**, still available from [the releases page](https://github.com/ry-ops/DriveIQ/releases/tag/v1.3.1). There's no automatic migration: deploy v2, add your vehicle, re-upload your documents, and re-enter your service history. See [CHANGELOG.md](CHANGELOG.md) for what changed.
