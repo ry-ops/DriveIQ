@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "driveiq": {
+      "command": "python",
+      "args": [
+        "/Users/ryandahlberg/Projects/DriveIQ-Project/DriveIQ/mcp/server.py"
+      ],
+      "env": {
+        "DRIVEIQ_API_URL": "http://localhost:8000",
+        "DRIVEIQ_API_TOKEN": ""
+      }
+    }
+  }
+}

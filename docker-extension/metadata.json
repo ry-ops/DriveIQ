@@ -1,0 +1,13 @@
+{
+  "icon": "driveiq.svg",
+  "ui": {
+    "dashboard-tab": {
+      "title": "DriveIQ",
+      "root": "/ui",
+      "src": "index.html"
+    }
+  },
+  "vm": {
+    "composefile": "docker-compose.yaml"
+  }
+}

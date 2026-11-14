@@ -1,0 +1,11 @@
+# Grype configuration file
+# Reference: https://github.com/anchore/grype#configuration
+
+ignore:
+  # ecdsa Minerva timing attack - no fix available
+  # python-ecdsa project considers side channel attacks out of scope
+  # Reference: https://github.com/advisories/GHSA-wj6h-64fc-37mp
+  - vulnerability: GHSA-wj6h-64fc-37mp
+    package:
+      name: ecdsa
+    reason: "No fix available - timing attack considered out of scope by upstream project"

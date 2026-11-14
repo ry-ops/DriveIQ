@@ -1,0 +1,259 @@
+import axios from 'axios'
+import type { Vehicle, MaintenanceRecord, Reminder, SearchResult, MaintenanceSummary } from '../types'
+
+const api = axios.create({
+  baseURL: '/api',
+})
+
+// Vehicle API
+export const vehicleApi = {
+  get: () => api.get<Vehicle>('/vehicle').then(r => r.data),
+  update: (data: Partial<Vehicle>) => api.patch<Vehicle>('/vehicle', data).then(r => r.data),
+  updateMileage: (mileage: number) => api.patch<Vehicle>(`/vehicle/mileage/${mileage}`).then(r => r.data),
+}
+
+// Maintenance API
+export interface MaintenanceDocument {
+  filename: string
+  size: number
+  path: string
+}
+
+export interface MaintenancePhoto {
+  filename: string
+  type: 'before' | 'after' | 'general'
+  timestamp: string
+  caption?: string
+  url: string
+  thumbnail_url: string
+  size?: number
+}
+
+export interface RelatedDocument {
+  document_name: string
+  page_number: number
+  chapter?: string
+  section?: string
+  relevance: number
+  thumbnail_url: string
+  fullsize_url: string
+  content_preview: string
+}
+
+export interface RelatedDocsResponse {
+  maintenance_type: string
+  search_query: string
+  documents: RelatedDocument[]
+}
+
+export const maintenanceApi = {
+  getAll: (type?: string) => api.get<MaintenanceRecord[]>('/maintenance', { params: { maintenance_type: type } }).then(r => r.data),
+  get: (id: number) => api.get<MaintenanceRecord>(`/maintenance/${id}`).then(r => r.data),
+  create: (data: Omit<MaintenanceRecord, 'id' | 'created_at' | 'updated_at'>) => api.post<MaintenanceRecord>('/maintenance', data).then(r => r.data),
+  update: (id: number, data: Partial<MaintenanceRecord>) => api.patch<MaintenanceRecord>(`/maintenance/${id}`, data).then(r => r.data),
+  delete: (id: number) => api.delete(`/maintenance/${id}`),
+  getSummary: () => api.get<MaintenanceSummary[]>('/maintenance/types/summary').then(r => r.data),
+  reindex: () => api.post<{ message: string }>('/maintenance/reindex').then(r => r.data),
+  // Document management
+  uploadDocument: (recordId: number, file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.post<MaintenanceRecord>(`/maintenance/${recordId}/documents`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }).then(r => r.data)
+  },
+  getDocuments: (recordId: number) => api.get<MaintenanceDocument[]>(`/maintenance/${recordId}/documents`).then(r => r.data),
+  deleteDocument: (recordId: number, filename: string) => api.delete(`/maintenance/${recordId}/documents/${encodeURIComponent(filename)}`),
+  // Photo management
+  uploadPhoto: (recordId: number, file: File, photoType: 'before' | 'after' | 'general' = 'general', caption?: string) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const params = new URLSearchParams({ photo_type: photoType })
+    if (caption) params.append('caption', caption)
+    return api.post<MaintenancePhoto>(`/maintenance/${recordId}/photos?${params}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }).then(r => r.data)
+  },
+  getPhotos: (recordId: number) => api.get<MaintenancePhoto[]>(`/maintenance/${recordId}/photos`).then(r => r.data),
+  deletePhoto: (recordId: number, filename: string) => api.delete(`/maintenance/${recordId}/photos/${encodeURIComponent(filename)}`),
+  // Related documents (RAG search for maintenance procedures)
+  getRelatedDocs: (maintenanceType: string, limit = 5) =>
+    api.get<RelatedDocsResponse>(`/maintenance/related-docs/${maintenanceType}`, { params: { limit } }).then(r => r.data),
+}
+
+// Reminders API
+export interface SmartReminder {
+  service_key: string
+  name: string
+  description: string
+  interval_miles: number
+  interval_months: number
+  priority: 'high' | 'medium' | 'low'
+  estimated_cost: number
+  next_mileage: number
+  next_date: string | null
+  miles_remaining: number
+  days_remaining: number | null
+  status: 'overdue' | 'due_soon' | 'ok'
+  last_service: {
+    date: string
+    mileage: number
+    service_type: string
+  } | null
+}
+
+export interface AutoGenerateResponse {
+  message: string
+  reminders: {
+    service_key: string
+    name: string
+    due_date: string | null
+    due_mileage: number
+  }[]
+}
+
+export const remindersApi = {
+  getAll: (activeOnly = true) => api.get<Reminder[]>('/reminders', { params: { active_only: activeOnly } }).then(r => r.data),
+  getUpcoming: (currentMileage?: number) => api.get<Reminder[]>('/reminders/upcoming', { params: { current_mileage: currentMileage } }).then(r => r.data),
+  get: (id: number) => api.get<Reminder>(`/reminders/${id}`).then(r => r.data),
+  create: (data: Omit<Reminder, 'id' | 'created_at' | 'updated_at' | 'is_active' | 'is_completed' | 'completed_at' | 'last_notified'>) => api.post<Reminder>('/reminders', data).then(r => r.data),
+  update: (id: number, data: Partial<Reminder>) => api.patch<Reminder>(`/reminders/${id}`, data).then(r => r.data),
+  complete: (id: number) => api.post<Reminder>(`/reminders/${id}/complete`).then(r => r.data),
+  delete: (id: number) => api.delete(`/reminders/${id}`),
+  getSmart: (currentMileage: number) => api.get<SmartReminder[]>('/reminders/smart', { params: { current_mileage: currentMileage } }).then(r => r.data),
+  getSchedule: () => api.get('/reminders/schedule').then(r => r.data),
+  autoGenerate: (vehicleId: number, currentMileage: number) => api.post<AutoGenerateResponse>('/reminders/auto-generate', null, { params: { vehicle_id: vehicleId, current_mileage: currentMileage } }).then(r => r.data),
+}
+
+// Search API
+export interface AskSource {
+  document: string
+  page: number
+  chapter?: string
+  section?: string
+  topics?: string[]
+  thumbnail_url: string
+  fullsize_url: string
+  highlighted_url?: string | null
+}
+
+export interface AskResponse {
+  answer: string
+  sources: AskSource[]
+  key_terms?: string[]
+  model: string
+}
+
+export const searchApi = {
+  search: (query: string, limit = 5) => api.post<SearchResult[]>('/search', { query, limit }).then(r => r.data),
+  ask: (query: string) => api.post<AskResponse>('/search/ask', { query }).then(r => r.data),
+}
+
+// Chat API
+export interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+export interface ChatSource {
+  document: string
+  page: number
+  chapter?: string
+  section?: string
+  relevance?: number
+  thumbnail_url: string
+  fullsize_url: string
+  highlighted_url?: string | null
+}
+
+export interface ChatResponse {
+  message: string
+  sources: ChatSource[]
+  session_id: string
+  model: string
+  query_intent: string
+}
+
+export const chatApi = {
+  send: (messages: ChatMessage[], sessionId?: string | null) =>
+    api.post<ChatResponse>('/chat', { messages, session_id: sessionId }).then(r => r.data),
+  clearSession: (sessionId: string) => api.delete(`/chat/${sessionId}`),
+}
+
+// Service Records API (CARFAX imports)
+export interface ServiceRecord {
+  id: number
+  date: string
+  mileage: number | null
+  service_type: string
+  description: string | null
+  category: string
+  source: string
+  location: string | null
+  tags: string[]
+}
+
+export interface ServiceRecordUpdate {
+  date?: string
+  mileage?: number
+  service_type?: string
+  description?: string
+  category?: string
+  source?: string
+  location?: string
+  tags?: string[]
+}
+
+export const serviceRecordsApi = {
+  getAll: () => api.get<ServiceRecord[]>('/import/service-records').then(r => r.data),
+  get: (id: number) => api.get<ServiceRecord>(`/import/service-records/${id}`).then(r => r.data),
+  update: (id: number, data: ServiceRecordUpdate) => {
+    const params = new URLSearchParams()
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        if (key === 'tags' && Array.isArray(value)) {
+          value.forEach(tag => params.append('tags', tag))
+        } else {
+          params.append(key, String(value))
+        }
+      }
+    })
+    return api.patch(`/import/service-records/${id}?${params.toString()}`).then(r => r.data)
+  },
+  delete: (id: number) => api.delete(`/import/service-records/${id}`),
+  getKPIs: () => api.get('/import/kpis').then(r => r.data),
+  getTags: () => api.get<string[]>('/import/tags').then(r => r.data),
+}
+
+// Uploads API
+export interface DocumentInfo {
+  filename: string
+  size: number
+  path: string
+  document_type: string
+}
+
+export interface IngestedDocumentInfo {
+  document_name: string
+  document_type: string | null
+  chunk_count: number
+  page_count: number
+  topics: string[]
+  on_disk: boolean
+}
+
+export const uploadsApi = {
+  list: () => api.get<DocumentInfo[]>('/uploads').then(r => r.data),
+  listIngested: () => api.get<IngestedDocumentInfo[]>('/uploads/ingested').then(r => r.data),
+  upload: (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.post<{ filename: string; size: number; message: string }>('/uploads', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }).then(r => r.data)
+  },
+  delete: (filename: string) => api.delete(`/uploads/${encodeURIComponent(filename)}`),
+  reindex: () => api.post<{ message: string; documents: Record<string, number | string> }>('/uploads/ingest').then(r => r.data),
+}
+
+export default api

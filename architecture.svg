@@ -1,0 +1,208 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="frontendGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6"/>
+      <stop offset="100%" style="stop-color:#1D4ED8"/>
+    </linearGradient>
+    <linearGradient id="backendGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981"/>
+      <stop offset="100%" style="stop-color:#059669"/>
+    </linearGradient>
+    <linearGradient id="dbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6"/>
+      <stop offset="100%" style="stop-color:#6D28D9"/>
+    </linearGradient>
+    <linearGradient id="aiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F59E0B"/>
+      <stop offset="100%" style="stop-color:#D97706"/>
+    </linearGradient>
+    <linearGradient id="redisGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EF4444"/>
+      <stop offset="100%" style="stop-color:#DC2626"/>
+    </linearGradient>
+    <linearGradient id="qdrantGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EC4899"/>
+      <stop offset="100%" style="stop-color:#DB2777"/>
+    </linearGradient>
+
+    <!-- Glow filter -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Arrow marker -->
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#6B7280"/>
+    </marker>
+
+    <!-- Animated dash pattern -->
+    <style>
+      @keyframes dash {
+        to { stroke-dashoffset: -30; }
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
+      }
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+      }
+      .data-flow {
+        stroke-dasharray: 10 5;
+        animation: dash 1s linear infinite;
+      }
+      .pulse-box {
+        animation: pulse 2s ease-in-out infinite;
+      }
+      .float-icon {
+        animation: float 3s ease-in-out infinite;
+      }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="700" fill="#0F172A"/>
+
+  <!-- Title -->
+  <text x="600" y="45" text-anchor="middle" font-family="system-ui, sans-serif" font-size="28" font-weight="bold" fill="#F8FAFC">DriveIQ Architecture</text>
+  <text x="600" y="70" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#94A3B8">RAG-Powered Vehicle Management System</text>
+
+  <!-- User -->
+  <g class="float-icon" style="animation-delay: 0s">
+    <circle cx="100" cy="350" r="40" fill="#334155" stroke="#475569" stroke-width="2"/>
+    <circle cx="100" cy="335" r="12" fill="#94A3B8"/>
+    <path d="M75 365 Q100 385 125 365" stroke="#94A3B8" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <text x="100" y="410" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" fill="#94A3B8">User</text>
+  </g>
+
+  <!-- Frontend Box -->
+  <g filter="url(#glow)">
+    <rect x="200" y="250" width="180" height="200" rx="12" fill="url(#frontendGrad)" class="pulse-box" style="animation-delay: 0.2s"/>
+  </g>
+  <text x="290" y="285" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="bold" fill="white">Frontend</text>
+  <text x="290" y="305" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#BFDBFE">React + TypeScript</text>
+  <line x1="220" y1="320" x2="360" y2="320" stroke="#BFDBFE" stroke-opacity="0.3"/>
+  <text x="230" y="345" font-family="system-ui, sans-serif" font-size="11" fill="#DBEAFE">Dashboard</text>
+  <text x="230" y="365" font-family="system-ui, sans-serif" font-size="11" fill="#DBEAFE">MaintenanceCard</text>
+  <text x="230" y="385" font-family="system-ui, sans-serif" font-size="11" fill="#DBEAFE">ChatWidget</text>
+  <text x="230" y="405" font-family="system-ui, sans-serif" font-size="11" fill="#DBEAFE">Timeline View</text>
+  <text x="230" y="425" font-family="system-ui, sans-serif" font-size="11" fill="#DBEAFE">Photo Gallery</text>
+
+  <!-- Backend Box -->
+  <g filter="url(#glow)">
+    <rect x="450" y="180" width="180" height="340" rx="12" fill="url(#backendGrad)" class="pulse-box" style="animation-delay: 0.4s"/>
+  </g>
+  <text x="540" y="215" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="bold" fill="white">Backend</text>
+  <text x="540" y="235" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#A7F3D0">FastAPI + Python</text>
+  <line x1="470" y1="250" x2="610" y2="250" stroke="#A7F3D0" stroke-opacity="0.3"/>
+  <text x="480" y="275" font-family="system-ui, sans-serif" font-size="10" fill="#D1FAE5">/api/maintenance</text>
+  <text x="480" y="295" font-family="system-ui, sans-serif" font-size="10" fill="#D1FAE5">/api/chat</text>
+  <text x="480" y="315" font-family="system-ui, sans-serif" font-size="10" fill="#D1FAE5">/api/search</text>
+  <text x="480" y="335" font-family="system-ui, sans-serif" font-size="10" fill="#D1FAE5">/api/uploads</text>
+  <text x="480" y="355" font-family="system-ui, sans-serif" font-size="10" fill="#D1FAE5">/api/reminders</text>
+  <line x1="470" y1="370" x2="610" y2="370" stroke="#A7F3D0" stroke-opacity="0.3"/>
+  <text x="540" y="395" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="600" fill="#D1FAE5">Services</text>
+  <text x="480" y="415" font-family="system-ui, sans-serif" font-size="10" fill="#D1FAE5">RAG Search</text>
+  <text x="480" y="435" font-family="system-ui, sans-serif" font-size="10" fill="#D1FAE5">Document Ingestion</text>
+  <text x="480" y="455" font-family="system-ui, sans-serif" font-size="10" fill="#D1FAE5">Embeddings</text>
+  <text x="480" y="475" font-family="system-ui, sans-serif" font-size="10" fill="#D1FAE5">Photo Management</text>
+  <text x="480" y="495" font-family="system-ui, sans-serif" font-size="10" fill="#D1FAE5">MoE Router</text>
+
+  <!-- PostgreSQL Box -->
+  <g filter="url(#glow)">
+    <rect x="700" y="120" width="160" height="140" rx="12" fill="url(#dbGrad)" class="pulse-box" style="animation-delay: 0.6s"/>
+  </g>
+  <text x="780" y="155" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="white">PostgreSQL</text>
+  <text x="780" y="175" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#DDD6FE">+ pgvector</text>
+  <line x1="720" y1="190" x2="840" y2="190" stroke="#DDD6FE" stroke-opacity="0.3"/>
+  <text x="720" y="210" font-family="system-ui, sans-serif" font-size="10" fill="#EDE9FE">vehicles</text>
+  <text x="720" y="225" font-family="system-ui, sans-serif" font-size="10" fill="#EDE9FE">maintenance_records</text>
+  <text x="720" y="240" font-family="system-ui, sans-serif" font-size="10" fill="#EDE9FE">document_chunks</text>
+
+  <!-- Qdrant Box -->
+  <g filter="url(#glow)">
+    <rect x="700" y="290" width="160" height="100" rx="12" fill="url(#qdrantGrad)" class="pulse-box" style="animation-delay: 0.7s"/>
+  </g>
+  <text x="780" y="325" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="white">Qdrant</text>
+  <text x="780" y="345" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#FBCFE8">Vector Search</text>
+  <line x1="720" y1="355" x2="840" y2="355" stroke="#FBCFE8" stroke-opacity="0.3"/>
+  <text x="720" y="375" font-family="system-ui, sans-serif" font-size="10" fill="#FCE7F3">driveiq_docs</text>
+
+  <!-- Redis Box -->
+  <g filter="url(#glow)">
+    <rect x="700" y="420" width="160" height="100" rx="12" fill="url(#redisGrad)" class="pulse-box" style="animation-delay: 0.8s"/>
+  </g>
+  <text x="780" y="455" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="white">Redis</text>
+  <text x="780" y="475" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#FECACA">Session Cache</text>
+  <line x1="720" y1="485" x2="840" y2="485" stroke="#FECACA" stroke-opacity="0.3"/>
+  <text x="720" y="505" font-family="system-ui, sans-serif" font-size="10" fill="#FEE2E2">chat_sessions</text>
+
+  <!-- Claude AI Box -->
+  <g filter="url(#glow)">
+    <rect x="940" y="250" width="180" height="200" rx="12" fill="url(#aiGrad)" class="pulse-box" style="animation-delay: 1s"/>
+  </g>
+  <text x="1030" y="285" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="bold" fill="white">Claude AI</text>
+  <text x="1030" y="305" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#FEF3C7">Anthropic API</text>
+  <line x1="960" y1="320" x2="1100" y2="320" stroke="#FEF3C7" stroke-opacity="0.3"/>
+  <text x="970" y="345" font-family="system-ui, sans-serif" font-size="11" fill="#FEF9C3">Q&amp;A Responses</text>
+  <text x="970" y="365" font-family="system-ui, sans-serif" font-size="11" fill="#FEF9C3">RAG Context</text>
+  <text x="970" y="385" font-family="system-ui, sans-serif" font-size="11" fill="#FEF9C3">Expert Routing</text>
+  <text x="970" y="405" font-family="system-ui, sans-serif" font-size="11" fill="#FEF9C3">Streaming</text>
+  <text x="970" y="425" font-family="system-ui, sans-serif" font-size="11" fill="#FEF9C3">MoE Experts</text>
+
+  <!-- PDF Documents -->
+  <g class="float-icon" style="animation-delay: 0.5s">
+    <rect x="440" y="580" width="100" height="70" rx="8" fill="#334155" stroke="#475569" stroke-width="2"/>
+    <text x="490" y="610" text-anchor="middle" font-family="system-ui, sans-serif" font-size="20" fill="#94A3B8">PDF</text>
+    <text x="490" y="630" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#64748B">Manuals</text>
+    <text x="490" y="670" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#94A3B8">Documents</text>
+  </g>
+
+  <!-- Data Flow Lines -->
+  <!-- User to Frontend -->
+  <path d="M140 350 L195 350" stroke="#6B7280" stroke-width="2" marker-end="url(#arrowhead)" class="data-flow"/>
+
+  <!-- Frontend to Backend -->
+  <path d="M380 350 L445 350" stroke="#6B7280" stroke-width="2" marker-end="url(#arrowhead)" class="data-flow"/>
+
+  <!-- Backend to PostgreSQL -->
+  <path d="M630 280 L695 200" stroke="#6B7280" stroke-width="2" marker-end="url(#arrowhead)" class="data-flow" style="animation-delay: 0.3s"/>
+
+  <!-- Backend to Qdrant -->
+  <path d="M630 340 L695 340" stroke="#6B7280" stroke-width="2" marker-end="url(#arrowhead)" class="data-flow" style="animation-delay: 0.4s"/>
+
+  <!-- Backend to Redis -->
+  <path d="M630 420 L695 460" stroke="#6B7280" stroke-width="2" marker-end="url(#arrowhead)" class="data-flow" style="animation-delay: 0.5s"/>
+
+  <!-- Backend to Claude -->
+  <path d="M630 350 Q800 350 935 350" stroke="#6B7280" stroke-width="2" marker-end="url(#arrowhead)" class="data-flow" style="animation-delay: 0.6s"/>
+
+  <!-- Documents to Backend -->
+  <path d="M490 580 L540 525" stroke="#6B7280" stroke-width="2" marker-end="url(#arrowhead)" class="data-flow" style="animation-delay: 0.7s"/>
+
+  <!-- Labels for connections -->
+  <text x="420" y="335" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">REST API</text>
+  <text x="665" y="185" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">SQL</text>
+  <text x="665" y="325" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">gRPC</text>
+  <text x="665" y="440" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">Cache</text>
+  <text x="800" y="335" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">RAG + MoE</text>
+  <text x="510" y="560" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">Ingest</text>
+
+  <!-- Legend -->
+  <rect x="30" y="580" width="150" height="100" rx="8" fill="#1E293B" stroke="#334155"/>
+  <text x="105" y="605" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#94A3B8">Data Flow</text>
+  <line x1="45" y1="625" x2="85" y2="625" stroke="#6B7280" stroke-width="2" class="data-flow"/>
+  <text x="95" y="628" font-family="system-ui, sans-serif" font-size="10" fill="#64748B">Real-time</text>
+  <circle cx="55" cy="650" r="6" fill="#10B981"/>
+  <text x="70" y="653" font-family="system-ui, sans-serif" font-size="10" fill="#64748B">Active Service</text>
+
+  <!-- Version badge -->
+  <rect x="1050" y="620" width="80" height="30" rx="15" fill="#334155"/>
+  <text x="1090" y="640" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#94A3B8">v1.1.0</text>
+</svg>
