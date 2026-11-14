@@ -1,0 +1,37 @@
+// DriveIQ: one Worker that serves the app (static assets in ./dist) and its
+// API (/api/*). No account ID or resource IDs here on purpose: the Deploy to
+// Cloudflare button, or `wrangler deploy`, creates the database, bucket and
+// search index in your own account. See docs/SETUP.md.
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "driveiq",
+	"main": "src/worker/index.ts",
+	"compatibility_date": "2026-11-01",
+	"assets": {
+		"directory": "./dist",
+		"not_found_handling": "single-page-application",
+		"run_worker_first": ["/api/*"]
+	},
+	"vars": {
+		// Claude model for Aiana, and how hard it thinks (low, medium, high).
+		"CLAUDE_MODEL": "claude-haiku-5-5",
+		"CLAUDE_EFFORT": "medium",
+		// Cloudflare AI Gateway that Claude calls go through ("default" is
+		// created automatically the first time it's used).
+		"AI_GATEWAY_ID": "default",
+		// Embedding model for document search. Changing it means re-uploading
+		// every document, so leave it unless you know you need to.
+		"EMBEDDING_MODEL": "@cf/baai/bge-base-en-v1.5"
+	},
+	// The login check reads ACCESS_TEAM_DOMAIN and ACCESS_AUD, which you add in
+	// the dashboard after turning on Cloudflare Access (docs/SETUP.md). Until
+	// then the API refuses requests. keep_vars stops a later deploy from
+	// wiping those dashboard values. (ALLOW_UNAUTHENTICATED = "true" turns the
+	// check off; only for local development, see docs/SETUP.md.)
+	"keep_vars": true,
+	"ai": { "binding": "AI" },
+	"d1_databases": [{ "binding": "DB", "database_name": "driveiq", "migrations_dir": "migrations" }],
+	"r2_buckets": [{ "binding": "PAGE_IMAGES", "bucket_name": "driveiq-pages" }],
+	"vectorize": [{ "binding": "VECTORIZE", "index_name": "driveiq-docs" }],
+	"observability": { "enabled": true }
+}

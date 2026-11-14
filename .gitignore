@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.wrangler/
+.dev.vars
+.env
+*.log
+.DS_Store
+# Your own documents never belong in the repo; upload them in the app.
+*.pdf

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="1200" height="360" role="img" aria-label="DriveIQ">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#1f2937"/>
+    </linearGradient>
+  </defs>
+  <style>
+    @keyframes pulse { 0%,100% { opacity: .35 } 50% { opacity: 1 } }
+    .p1 { animation: pulse 3s ease-in-out infinite } .p2 { animation: pulse 3s ease-in-out infinite 1s } .p3 { animation: pulse 3s ease-in-out infinite 2s }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important } }
+  </style>
+  <rect width="1200" height="360" rx="24" fill="url(#bg)"/>
+  <circle cx="1050" cy="60" r="160" fill="#eb0a1e" opacity=".08"/>
+  <!-- car outline -->
+  <g fill="none" stroke="#eb0a1e" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" transform="translate(90 110)">
+    <path d="M10 120 V90 l30 -50 h110 l40 50 h40 a20 20 0 0 1 20 20 v30 Z"/>
+    <circle cx="60" cy="125" r="22" fill="#111827"/>
+    <circle cx="190" cy="125" r="22" fill="#111827"/>
+  </g>
+  <text x="370" y="170" font-family="ui-sans-serif, system-ui, -apple-system, sans-serif" font-size="84" font-weight="800" fill="#ffffff">DriveIQ</text>
+  <text x="372" y="222" font-family="ui-sans-serif, system-ui, -apple-system, sans-serif" font-size="26" fill="#9ca3af">Service history, reminders and manuals, with an assistant</text>
+  <text x="372" y="256" font-family="ui-sans-serif, system-ui, -apple-system, sans-serif" font-size="26" fill="#9ca3af">that answers from your own documents.</text>
+  <g font-family="ui-sans-serif, system-ui, -apple-system, sans-serif" font-size="18" font-weight="600">
+    <rect class="p1" x="372" y="286" width="150" height="34" rx="17" fill="#eb0a1e"/><text x="447" y="309" text-anchor="middle" fill="#fff">Cloudflare</text>
+    <rect class="p2" x="534" y="286" width="110" height="34" rx="17" fill="#2563eb"/><text x="589" y="309" text-anchor="middle" fill="#fff">Claude</text>
+    <rect class="p3" x="656" y="286" width="170" height="34" rx="17" fill="#059669"/><text x="741" y="309" text-anchor="middle" fill="#fff">Your own data</text>
+  </g>
+</svg>

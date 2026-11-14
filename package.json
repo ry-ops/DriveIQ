@@ -1,0 +1,59 @@
+{
+	"name": "driveiq",
+	"version": "2.0.0",
+	"description": "Your vehicle's service history, reminders and manuals in one place, with an assistant that answers from your own documents. Runs on your own Cloudflare account.",
+	"private": true,
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"dev": "npm run build && wrangler dev",
+		"dev:web": "vite --config web/vite.config.ts",
+		"build": "vite build --config web/vite.config.ts",
+		"db:migrate": "wrangler d1 migrations apply DB --remote",
+		"db:migrate:local": "wrangler d1 migrations apply DB --local",
+		"deploy": "npm run db:migrate && wrangler deploy",
+		"typecheck": "tsc --noEmit && tsc --noEmit -p web",
+		"test": "vitest run"
+	},
+	"cloudflare": {
+		"bindings": {
+			"ANTHROPIC_API_KEY": {
+				"description": "Your Anthropic API key, used for Aiana's answers. Create one at [console.anthropic.com](https://console.anthropic.com/settings/keys). It's stored as an encrypted secret on your Worker."
+			},
+			"CLAUDE_MODEL": {
+				"description": "The Claude model Aiana uses. The default works well for answering from your own documents."
+			},
+			"AI_GATEWAY_ID": {
+				"description": "Name of the Cloudflare AI Gateway to route Claude calls through. `default` is created automatically on first use."
+			}
+		}
+	},
+	"dependencies": {
+		"@tanstack/react-query": "^5.62.0",
+		"hono": "^4.13.17",
+		"jose": "^6.2.17",
+		"lucide-react": "^0.562.0",
+		"pdfjs-dist": "^6.5.438",
+		"react": "^18.3.0",
+		"react-dom": "^18.3.0",
+		"react-markdown": "^10.1.0",
+		"react-router-dom": "^7.18.4",
+		"remark-gfm": "^4.0.1"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^5.20260710.1",
+		"@tailwindcss/postcss": "^4.3.3",
+		"@types/react": "^18.3.0",
+		"@types/react-dom": "^18.3.0",
+		"@vitejs/plugin-react": "^6.3.0",
+		"postcss": "^8.4.0",
+		"tailwindcss": "^4.3.3",
+		"typescript": "^5.5.0",
+		"vite": "^8.3.4",
+		"vitest": "^4.1.12",
+		"wrangler": "^4.158.0"
+	},
+	"engines": {
+		"node": ">=22.13.0"
+	}
+}
