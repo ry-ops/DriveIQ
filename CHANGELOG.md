@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.1
+
+### Docs
+- **Under the hood**: four animated diagrams in the README, each following the real code path: how a request moves through Access and the Worker, what happens when you upload a document, how Aiana answers a question, and how the What's Next forecast works. `scripts/animations.py` regenerates them.
+
+### Dependencies
+- React 19.3, TypeScript 7.0, lucide-react 1.72 and vitest 5.1 (with their type packages). No changes to how DriveIQ works or to your data.
+
 ## 2.0.0
 
 A new DriveIQ that runs on your own Cloudflare account, installed with a **Deploy to Cloudflare** button. It's a rewrite, not an upgrade: there's no migration from v1 data.

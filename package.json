@@ -1,6 +1,6 @@
 {
 	"name": "driveiq",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"description": "Your vehicle's service history, reminders and manuals in one place, with an assistant that answers from your own documents. Runs on your own Cloudflare account.",
 	"private": true,
 	"license": "MIT",

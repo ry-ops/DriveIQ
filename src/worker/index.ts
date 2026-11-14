@@ -22,7 +22,7 @@ app.get('/api/health', async (c) => {
 	return c.json({
 		status: 'ok',
 		service: 'driveiq',
-		version: '2.0.0',
+		version: '2.0.1',
 		access: access.ok ? 'ok' : access.code,
 		anthropic_key: c.env.ANTHROPIC_API_KEY ? 'set' : 'missing',
 	});
