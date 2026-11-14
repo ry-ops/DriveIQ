@@ -31,13 +31,15 @@ DriveIQ uses **Claude Haiku 5.5** by default, which is quick and works well for 
 
    [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/ry-ops/DriveIQ)
 
-2. Sign in to Cloudflare and connect your GitHub account when asked.
+2. Sign in to Cloudflare. Under **Git account**, connect your GitHub account (Cloudflare installs its GitHub app so it can create a repository for you). Tick **Create private Git repository**.
 3. On the setup page:
    - **Project name**: keep `driveiq` or pick your own. It becomes part of your app's address.
-   - **Resources**: Cloudflare creates a D1 database, an R2 bucket and a Vectorize index for you. The defaults are fine.
-   - **ANTHROPIC_API_KEY**: paste the key from step 1. It's stored as an encrypted secret.
+   - **D1 database**, **R2 bucket**, **Vectorize index**: each should say **new**. If you already have a database or index with the same name, the form picks that existing one instead: open the list, choose **+ Create new**, and give it another name.
+   - **Vectorize index**: set **Dimensions** to `768` and **Metric** to `cosine`. These must match the embedding model, or uploads will fail.
+   - **ANTHROPIC_API_KEY**: the field starts with a placeholder that looks like a key. Clear it and paste the key from step 1. It's stored as an encrypted secret.
    - **Build and deploy commands**: keep the pre-filled `npm run build` and `npm run deploy`. The deploy command also sets up the database tables.
-4. Click **Create and deploy**, and wait for the first build to finish (a few minutes).
+   - **Protect with Cloudflare Access**: turn it on, set **Scope** to **All traffic**, and add a policy that allows only you. This does step 3a for you.
+4. Click **Deploy**, and wait for the first build to finish (a few minutes).
 
 When it's done, the dashboard shows your app's address, something like `https://driveiq.<your-subdomain>.workers.dev`. If you open it now you'll see **Finish setting up DriveIQ**. That's expected: it stays locked until step 3 is done.
 
@@ -46,6 +48,8 @@ When it's done, the dashboard shows your app's address, something like `https://
 DriveIQ holds your service history and spends your Anthropic key, so it refuses to work until it's behind **Cloudflare Access**. This step has two parts.
 
 ### 3a. Put Access in front of the app
+
+If you turned on **Protect with Cloudflare Access** in step 2, check that the Worker's **Access** tab shows scope **All traffic**, then skip to 3b. Otherwise:
 
 1. In the Cloudflare dashboard, go to **Workers & Pages** and select your DriveIQ Worker.
 2. Open the **Access** tab and select **Protect this Worker behind Access**.
@@ -82,6 +86,7 @@ Optional: **Home** → **Recalls** → **Check NHTSA now** looks up recalls for 
 
 | What you see | Why, and what to do |
 |---|---|
+| Deploy fails with "Your GitHub authorization has expired" | Cloudflare's link to your GitHub account is stale. On GitHub, go to **Settings** → **Applications** → **Cloudflare Workers and Pages** → **Configure** → **Uninstall**, then click the Deploy button again and choose **New GitHub connection**. The failed attempt leaves nothing behind. If other Cloudflare projects build from that GitHub account, reconnect them afterwards under each project's **Settings** → **Builds**. |
 | **Finish setting up DriveIQ** | `ACCESS_TEAM_DOMAIN` or `ACCESS_AUD` isn't set. Do step 3b. |
 | "Your sign-in couldn't be verified" | The two values don't match the Access application in front of this URL. Recheck the AUD tag for *this* application, and that the team domain starts with `https://`. |
 | Aiana: "invalid x-api-key", or answers fail | The Anthropic key is wrong or revoked. In **AI** → **AI Gateway** → **default** → **Logs** you'll see a `401`. Create a new key and update `ANTHROPIC_API_KEY` under **Variables and Secrets**. |
